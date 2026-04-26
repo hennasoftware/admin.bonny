@@ -9,7 +9,7 @@ Sistema interno para gestão de adoção de animais em ONGs, organizado no fluxo
 * React (Vite)
 * TypeScript
 * Tailwind CSS
-* Backend/Infra: (definido conforme evolução)
+* Firebase
 
 ---
 
