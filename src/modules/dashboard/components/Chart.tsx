@@ -61,7 +61,7 @@ export function Chart({ title, description, data }: ChartProps) {
                     </div>
                 </div>
 
-                <div className="relative h-[240px] w-full sm:h-[320px]">
+                <div className="relative h-60 w-full sm:h-80">
                     <svg viewBox={`0 0 ${WIDTH} ${HEIGHT}`} className="h-full w-full" preserveAspectRatio="none">
                         <defs>
                             <linearGradient id="chart-area-fill" x1="0" x2="0" y1="0" y2="1">
