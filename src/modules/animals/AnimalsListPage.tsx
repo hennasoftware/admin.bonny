@@ -85,7 +85,7 @@ export function AnimalsListPage() {
             <AdminLayout>
                 <main className="min-h-screen bg-linear-to-br from-orange-50 via-white to-orange-100 px-4 py-20 md:px-8 md:py-10 dark:from-gray-950 dark:via-slate-900 dark:to-gray-950">
                     <div className="mx-auto w-full max-w-7xl">
-                        <div className="mb-6 flex items-center justify-between gap-4">
+                        <div className="mb-6 flex items-center flex-col md:flex-row md:justify-between gap-4">
                             <div>
                                 <p className="text-xs font-semibold uppercase tracking-[0.22em] text-orange-500 dark:text-orange-300">
                                     Animais
