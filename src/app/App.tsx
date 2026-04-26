@@ -1,13 +1,13 @@
-import { HelmetProvider } from "react-helmet-async";
-import {ComingSoon} from "../shared/pages/ComingSoon"
-import {ThemeProvider} from "../styles/themes/ThemeContext.tsx"
+import { ThemeProvider } from "@/styles/themes/ThemeContext";
+import { RouterProvider } from "@/router";
+import { AuthProvider } from "@/modules/auth/context/AuthContext";
 
 export default function App() {
     return (
-        <ThemeProvider>
-            <HelmetProvider>
-                <ComingSoon/>
-            </HelmetProvider>
-        </ThemeProvider>
+        <AuthProvider>
+            <ThemeProvider>
+                <RouterProvider />
+            </ThemeProvider>
+        </AuthProvider>
     );
 }
