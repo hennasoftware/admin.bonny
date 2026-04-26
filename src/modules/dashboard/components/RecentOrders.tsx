@@ -6,8 +6,8 @@ interface RecentOrdersProps {
 }
 
 const statusStyles: Record<RecentOrder["status"], string> = {
-    Concluida: "bg-emerald-50 text-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-300",
-    "Em analise": "bg-amber-50 text-amber-600 dark:bg-amber-500/10 dark:text-amber-300",
+    "Concluída": "bg-emerald-50 text-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-300",
+    "Em análise": "bg-amber-50 text-amber-600 dark:bg-amber-500/10 dark:text-amber-300",
     Agendada: "bg-sky-50 text-sky-600 dark:bg-sky-500/10 dark:text-sky-300",
 };
 
@@ -15,9 +15,9 @@ export function RecentOrders({ loading, orders }: RecentOrdersProps) {
     return (
         <aside className="rounded-2xl border border-orange-100 bg-white/90 p-6 shadow-sm dark:border-orange-500/10 dark:bg-slate-900/85">
             <header className="mb-6">
-                <h2 className="text-base font-semibold text-gray-950 dark:text-white">Recent orders</h2>
+                <h2 className="text-base font-semibold text-gray-950 dark:text-white">Adoções recentes</h2>
                 <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-                    Ultimas movimentacoes da operacao
+                    Últimas movimentações da operação
                 </p>
             </header>
 

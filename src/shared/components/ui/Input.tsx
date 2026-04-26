@@ -45,7 +45,7 @@ export const Input: React.FC<InputProps> = ({
           id={inputId}
           type={displayType}
           className={`
-            w-full px-4 py-2.5 rounded-lg border transition-all duration-200
+            w-full px-4 py-2.5 rounded-lg border transition-[box-shadow] duration-150
             bg-white dark:bg-gray-800
             border-gray-200 dark:border-gray-700
             text-gray-900 dark:text-gray-100

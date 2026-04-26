@@ -1,54 +1,59 @@
-import {createContext, useContext, useEffect, useState} from "react";
-import {onAuthStateChanged, signInWithEmailAndPassword, signOut, type User,} from "firebase/auth";
-import {auth} from "@/services/firebase";
+import { useEffect, useMemo, useState, type ReactNode } from "react";
+import { onAuthStateChanged, signInWithEmailAndPassword, signOut, type User } from "firebase/auth";
+import { auth } from "@/services/firebase";
+import { AuthContext } from "./AuthContextObject";
 
-interface AuthContextType {
-    user: User | null;
-    loading: boolean;
-    login: (email: string, password: string) => Promise<void>;
-    logout: () => Promise<void>;
+interface AuthProviderProps {
+    children: ReactNode;
 }
 
-const AuthContext = createContext<AuthContextType | undefined>(undefined);
+const MIN_AUTH_LOADING_MS = 600;
 
-export const useAuth = () => {
-    const context = useContext(AuthContext);
-    if (!context) throw new Error("useAuth must be used within AuthProvider");
-    return context;
-};
-
-export function AuthProvider({ children }: { children: React.ReactNode }) {
+export function AuthProvider({ children }: AuthProviderProps) {
     const [user, setUser] = useState<User | null>(null);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         const start = Date.now();
+        let timeoutId: ReturnType<typeof setTimeout> | undefined;
 
-        return onAuthStateChanged(auth, (user) => {
-            setUser(user);
-
+        const unsubscribe = onAuthStateChanged(auth, (nextUser) => {
             const elapsed = Date.now() - start;
-            const minLoadingTime = 600;
+            const remaining = Math.max(MIN_AUTH_LOADING_MS - elapsed, 0);
 
-            const remaining = minLoadingTime - elapsed;
+            setUser(nextUser);
 
-            setTimeout(() => {
+            if (timeoutId) {
+                clearTimeout(timeoutId);
+            }
+
+            timeoutId = setTimeout(() => {
                 setLoading(false);
-            }, remaining > 0 ? remaining : 0);
+            }, remaining);
         });
+
+        return () => {
+            unsubscribe();
+
+            if (timeoutId) {
+                clearTimeout(timeoutId);
+            }
+        };
     }, []);
 
-    const login = async (email: string, password: string) => {
-        await signInWithEmailAndPassword(auth, email, password);
-    };
-
-    const logout = async () => {
-        await signOut(auth);
-    };
-
-    return (
-        <AuthContext.Provider value={{ user, loading, login, logout }}>
-            {children}
-        </AuthContext.Provider>
+    const value = useMemo(
+        () => ({
+            user,
+            loading,
+            login: async (email: string, password: string) => {
+                await signInWithEmailAndPassword(auth, email, password);
+            },
+            logout: async () => {
+                await signOut(auth);
+            },
+        }),
+        [loading, user],
     );
+
+    return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }

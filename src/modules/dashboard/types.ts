@@ -16,6 +16,12 @@ export interface RecentOrder {
     id: string;
     petName: string;
     adopterName: string;
-    status: "Concluida" | "Em analise" | "Agendada";
+    status: "Concluída" | "Em análise" | "Agendada";
     date: string;
+}
+
+export interface DashboardSnapshot {
+    stats: DashboardStat[];
+    monthlyAdoptions: MonthlyOrdersPoint[];
+    recentAdoptions: RecentOrder[];
 }

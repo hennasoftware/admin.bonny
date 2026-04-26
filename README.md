@@ -1,55 +1,35 @@
 # bonny-system
 
-Sistema interno para gestão de adoção de animais em ONGs, organizado no fluxo **animal → interessado → adoção**.
-
----
+Sistema interno para gestão de adoção de animais em ONGs, organizado no fluxo **animal -> interessado -> adoção**.
 
 ## Stack
 
-* React (Vite)
-* TypeScript
-* Tailwind CSS
-* Firebase
-
----
+- React
+- Vite
+- TypeScript
+- Tailwind CSS
+- Firebase Authentication
 
 ## Propósito
 
-Centralizar e organizar o controle de animais, adotantes e processos de adoção, substituindo controles manuais por uma solução escalável.
+Centralizar o controle de animais, adotantes e processos de adoção, substituindo planilhas e fluxos manuais por uma aplicação escalável.
 
----
+## Funcionalidades atuais
 
-## Funcionalidades
+- Login administrativo com Firebase Authentication
+- Rotas protegidas para o painel interno
+- Dashboard com indicadores, gráfico mensal e lista de adoções recentes
+- Alternância entre tema claro e escuro
 
-* **Animais:** cadastro, edição e status (disponível, em processo, adotado)
-* **Adotantes:** cadastro e histórico
-* **Adoções:** criação e acompanhamento de processos
-
----
-
-## Execução
+## Execução local
 
 ```bash
-git clone https://github.com/seu-usuario/admin.bonny.git
-cd admin.bonny
 npm install
 npm run dev
 ```
 
----
+## Próximos passos do produto
 
-## Status
-
-Em desenvolvimento
-
----
-
-## Visão
-
-Evoluir para uma plataforma robusta que ajude ONGs a escalar o impacto na adoção de animais.
-
----
-
-## Contribuição
-
-Sinta-se à vontade para abrir issues ou enviar PRs.
+- Conectar dashboard a dados reais
+- Criar módulos de animais, adotantes e adoções
+- Adicionar testes automatizados para autenticação e navegação

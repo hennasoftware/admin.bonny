@@ -2,9 +2,8 @@ import { useEffect, useState } from "react";
 import { Helmet } from "react-helmet-async";
 import { LogOut } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { useAuth } from "@/modules/auth/context/AuthContext";
+import { useAuth } from "@/modules/auth/context/useAuth";
 import { Button } from "@/shared/components/ui";
-import { dashboardStats, monthlyOrders, recentOrders } from "./data";
 import {
     Chart,
     DashboardHeader,
@@ -12,18 +11,28 @@ import {
     StatsCard,
     StatsSkeleton,
 } from "./components";
+import { getDashboardSnapshot } from "./service";
+import type { DashboardSnapshot } from "./types";
 
 export function DashboardPage() {
     const { user, logout } = useAuth();
     const navigate = useNavigate();
     const [loading, setLoading] = useState(true);
+    const [dashboardData, setDashboardData] = useState<DashboardSnapshot | null>(null);
 
     useEffect(() => {
-        const timer = window.setTimeout(() => {
-            setLoading(false);
-        }, 900);
+        let active = true;
 
-        return () => window.clearTimeout(timer);
+        void getDashboardSnapshot().then((snapshot) => {
+            if (!active) return;
+
+            setDashboardData(snapshot);
+            setLoading(false);
+        });
+
+        return () => {
+            active = false;
+        };
     }, []);
 
     const handleLogout = async () => {
@@ -51,7 +60,7 @@ export function DashboardPage() {
                     <div className="mb-6 grid min-w-0 grid-cols-1 gap-6 *:min-w-0 sm:grid-cols-2 xl:grid-cols-4">
                         {loading
                             ? Array.from({ length: 4 }).map((_, index) => <StatsSkeleton key={index} />)
-                            : dashboardStats.map((card) => <StatsCard key={card.title} {...card} />)}
+                            : dashboardData?.stats.map((card) => <StatsCard key={card.title} {...card} />)}
                     </div>
 
                     <section className="grid grid-cols-1 gap-6 xl:grid-cols-3">
@@ -60,14 +69,14 @@ export function DashboardPage() {
                                 <div className="h-90 animate-pulse rounded-2xl border border-orange-100 bg-white/90 sm:h-107.5 dark:border-orange-500/10 dark:bg-slate-900/85" />
                             ) : (
                                 <Chart
-                                    title="Orders per month"
-                                    description="Last 12 months"
-                                    data={monthlyOrders}
+                                    title="Adoções por mês"
+                                    description="Últimos 12 meses"
+                                    data={dashboardData?.monthlyAdoptions ?? []}
                                 />
                             )}
                         </div>
 
-                        <RecentOrders loading={loading} orders={recentOrders} />
+                        <RecentOrders loading={loading} orders={dashboardData?.recentAdoptions ?? []} />
                     </section>
                 </div>
             </main>

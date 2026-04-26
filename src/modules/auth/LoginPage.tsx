@@ -1,11 +1,12 @@
-import {useState} from 'react';
-import {Helmet} from 'react-helmet-async';
-import {motion} from 'framer-motion';
-import {Mail, Lock, Heart, Sun, Moon} from 'lucide-react';
-import {Button, FormField} from '@/shared/components/ui';
-import {useTheme} from '@/styles/themes/ThemeContext';
-import {useAuth} from "@/modules/auth/context/AuthContext";
+import { useState, type FormEvent } from "react";
+import { FirebaseError } from "firebase/app";
+import { Helmet } from "react-helmet-async";
+import { motion } from "framer-motion";
+import { Heart, Lock, Mail, Moon, Sun } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "@/modules/auth/context/useAuth";
+import { Button, FormField } from "@/shared/components/ui";
+import { useTheme } from "@/styles/themes/useTheme";
 
 interface FormErrors {
     email?: string;
@@ -14,34 +15,34 @@ interface FormErrors {
 }
 
 export function LoginPage() {
-    const {theme, toggleTheme} = useTheme();
-    const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
-    const [errors, setErrors] = useState<FormErrors>({});
-    const [isLoading, setIsLoading] = useState(false);
-
+    const { theme, toggleTheme } = useTheme();
     const { login } = useAuth();
     const navigate = useNavigate();
 
-    const validateForm = (): boolean => {
+    const [email, setEmail] = useState("");
+    const [password, setPassword] = useState("");
+    const [errors, setErrors] = useState<FormErrors>({});
+    const [isLoading, setIsLoading] = useState(false);
+
+    const validateForm = () => {
         const newErrors: FormErrors = {};
 
         if (!email.trim()) {
-            newErrors.email = 'Email é obrigatório';
+            newErrors.email = "Email é obrigatório";
         } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-            newErrors.email = 'Email inválido';
+            newErrors.email = "Email inválido";
         }
 
         if (!password) {
-            newErrors.password = 'Senha é obrigatória';
+            newErrors.password = "Senha é obrigatória";
         }
 
         setErrors(newErrors);
         return Object.keys(newErrors).length === 0;
     };
 
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
+    const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
+        event.preventDefault();
 
         if (!validateForm()) return;
 
@@ -50,20 +51,20 @@ export function LoginPage() {
 
         try {
             await login(email, password);
-
             navigate("/dashboard");
-        } catch (error: any) {
+        } catch (error) {
             let message = "Erro ao fazer login";
+            const errorCode = error instanceof FirebaseError ? error.code : undefined;
 
-            if (error.code === "auth/user-not-found") {
+            if (errorCode === "auth/user-not-found") {
                 message = "Usuário não encontrado";
             }
 
-            if (error.code === "auth/wrong-password") {
+            if (errorCode === "auth/wrong-password") {
                 message = "Senha incorreta";
             }
 
-            if (error.code === "auth/invalid-email") {
+            if (errorCode === "auth/invalid-email") {
                 message = "Email inválido";
             }
 
@@ -74,7 +75,7 @@ export function LoginPage() {
     };
 
     const containerVariants = {
-        hidden: {opacity: 0, y: 20},
+        hidden: { opacity: 0, y: 20 },
         visible: {
             opacity: 1,
             y: 0,
@@ -86,8 +87,8 @@ export function LoginPage() {
     };
 
     const itemVariants = {
-        hidden: {opacity: 0, y: 10},
-        visible: {opacity: 1, y: 0},
+        hidden: { opacity: 0, y: 10 },
+        visible: { opacity: 1, y: 0 },
     };
 
     return (
@@ -100,18 +101,14 @@ export function LoginPage() {
                 />
             </Helmet>
 
-            <div
-                className="min-h-screen flex items-center justify-center bg-linear-to-br from-orange-50 via-white to-orange-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 px-4 py-8">
+            <div className="min-h-screen flex items-center justify-center bg-linear-to-br from-orange-50 via-white to-orange-50 px-4 py-8 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
                 <button
+                    type="button"
                     onClick={toggleTheme}
-                    className="absolute top-6 right-6 p-2 rounded-lg hover:bg-white/50 dark:hover:bg-gray-800/50 transition-colors text-gray-600 dark:text-gray-400"
-                    title={`Mudar para tema ${theme === 'light' ? 'escuro' : 'claro'}`}
+                    className="absolute top-6 right-6 rounded-lg p-2 text-gray-600 transition-colors hover:bg-white/50 dark:text-gray-400 dark:hover:bg-gray-800/50"
+                    title={`Mudar para tema ${theme === "light" ? "escuro" : "claro"}`}
                 >
-                    {theme === 'light' ? (
-                        <Moon className="h-6 w-6"/>
-                    ) : (
-                        <Sun className="h-6 w-6"/>
-                    )}
+                    {theme === "light" ? <Moon className="h-6 w-6" /> : <Sun className="h-6 w-6" />}
                 </button>
 
                 <motion.div
@@ -122,23 +119,21 @@ export function LoginPage() {
                 >
                     <motion.div
                         variants={itemVariants}
-                        className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg dark:shadow-xl p-8 border border-gray-100 dark:border-gray-700"
+                        className="rounded-2xl border border-gray-100 bg-white p-8 shadow-lg dark:border-gray-700 dark:bg-gray-800 dark:shadow-xl"
                     >
                         <motion.div
                             variants={itemVariants}
-                            className="flex items-center justify-center gap-2 mb-8"
+                            className="mb-8 flex items-center justify-center gap-2"
                         >
-                            <Heart className="h-8 w-8 text-orange-500 dark:text-orange-400"/>
-                            <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
-                                Bonny
-                            </h1>
+                            <Heart className="h-8 w-8 text-orange-500 dark:text-orange-400" />
+                            <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Bonny</h1>
                         </motion.div>
 
                         <motion.div variants={itemVariants}>
-                            <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
+                            <h2 className="mb-2 text-xl font-semibold text-gray-900 dark:text-white">
                                 Bem-vindo de volta
                             </h2>
-                            <p className="text-sm text-gray-600 dark:text-gray-400 mb-6">
+                            <p className="mb-6 text-sm text-gray-600 dark:text-gray-400">
                                 Faça login para acessar o painel administrativo
                             </p>
                         </motion.div>
@@ -146,12 +141,10 @@ export function LoginPage() {
                         {errors.general && (
                             <motion.div
                                 variants={itemVariants}
-                                className="mb-4 p-3 rounded-lg bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-900/50 flex items-center gap-2"
+                                className="mb-4 flex items-center gap-2 rounded-lg border border-red-200 bg-red-50 p-3 dark:border-red-900/50 dark:bg-red-900/20"
                             >
-                                <div className="w-2 h-2 rounded-full bg-red-500"/>
-                                <p className="text-sm text-red-600 dark:text-red-400">
-                                    {errors.general}
-                                </p>
+                                <div className="h-2 w-2 rounded-full bg-red-500" />
+                                <p className="text-sm text-red-600 dark:text-red-400">{errors.general}</p>
                             </motion.div>
                         )}
 
@@ -163,7 +156,7 @@ export function LoginPage() {
                                     placeholder="seu@email.com"
                                     icon={Mail}
                                     value={email}
-                                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEmail(e.target.value)}
+                                    onChange={(event) => setEmail(event.target.value)}
                                     error={errors.email}
                                     disabled={isLoading}
                                 />
@@ -177,19 +170,16 @@ export function LoginPage() {
                                     icon={Lock}
                                     showPasswordToggle
                                     value={password}
-                                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => setPassword(e.target.value)}
+                                    onChange={(event) => setPassword(event.target.value)}
                                     error={errors.password}
                                     disabled={isLoading}
                                 />
                             </motion.div>
 
                             <motion.div variants={itemVariants} className="flex justify-end">
-                                <a
-                                    href="#"
-                                    className="text-sm text-orange-600 dark:text-orange-400 hover:text-orange-700 dark:hover:text-orange-300 transition-colors font-medium"
-                                >
-                                    Esqueceu a senha?
-                                </a>
+                                <p className="text-sm text-gray-500 dark:text-gray-400">
+                                    Recuperação de senha em breve.
+                                </p>
                             </motion.div>
 
                             <motion.div variants={itemVariants}>
@@ -200,21 +190,22 @@ export function LoginPage() {
                                     disabled={isLoading}
                                     className="w-full"
                                 >
-                                    {isLoading ? 'Entrando...' : 'Entrar'}
+                                    {isLoading ? "Entrando..." : "Entrar"}
                                 </Button>
                             </motion.div>
                         </motion.form>
 
                         <motion.div
                             variants={itemVariants}
-                            className="mt-6 pt-6 border-t border-gray-200 dark:border-gray-700 text-center"
+                            className="mt-6 border-t border-gray-200 pt-6 text-center dark:border-gray-700"
                         >
                             <p className="text-sm text-gray-600 dark:text-gray-400">
-                                Não tem uma conta?{' '}
+                                Não tem uma conta?{" "}
                                 <a
                                     href="https://github.com/hennasoftware"
-                                    className="text-orange-600 dark:text-orange-400 hover:text-orange-700 dark:hover:text-orange-300 transition-colors font-semibold"
+                                    className="font-semibold text-orange-600 transition-colors hover:text-orange-700 dark:text-orange-400 dark:hover:text-orange-300"
                                     target="_blank"
+                                    rel="noreferrer"
                                 >
                                     Solicite acesso
                                 </a>
@@ -224,7 +215,7 @@ export function LoginPage() {
 
                     <motion.p
                         variants={itemVariants}
-                        className="text-center text-xs text-gray-500 dark:text-gray-400 mt-6"
+                        className="mt-6 text-center text-xs text-gray-500 dark:text-gray-400"
                     >
                         © 2026 · Bonny - Sistema de Gestão de Adoção
                     </motion.p>

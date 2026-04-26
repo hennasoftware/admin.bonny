@@ -49,7 +49,7 @@ export function Chart({ title, description, data }: ChartProps) {
                 <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                     <div>
                         <p className="text-xs font-medium uppercase tracking-[0.08em] text-gray-400">
-                            Orders
+                            Adoções
                         </p>
                         <p className="mt-1 text-2xl font-semibold tracking-tight text-gray-950 dark:text-white">
                             {data[data.length - 1]?.value ?? 0}
@@ -57,7 +57,7 @@ export function Chart({ title, description, data }: ChartProps) {
                     </div>
 
                     <div className="rounded-full bg-emerald-50 px-3 py-1 text-xs font-medium text-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-300">
-                        +18.6% vs previous period
+                        +18,6% vs. período anterior
                     </div>
                 </div>
 
@@ -81,11 +81,7 @@ export function Chart({ title, description, data }: ChartProps) {
                                     strokeOpacity="0.10"
                                     className="text-orange-500 dark:text-white"
                                 />
-                                <text
-                                    x={0}
-                                    y={guide.y + 4}
-                                    className="fill-gray-400 text-[11px]"
-                                >
+                                <text x={0} y={guide.y + 4} className="fill-gray-400 text-[11px]">
                                     {guide.value}
                                 </text>
                             </g>
