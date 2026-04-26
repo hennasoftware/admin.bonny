@@ -214,6 +214,7 @@ export function LoginPage() {
                                 <a
                                     href="https://github.com/hennasoftware"
                                     className="text-orange-600 dark:text-orange-400 hover:text-orange-700 dark:hover:text-orange-300 transition-colors font-semibold"
+                                    target="_blank"
                                 >
                                     Solicite acesso
                                 </a>

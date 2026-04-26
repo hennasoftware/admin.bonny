@@ -1,11 +1,30 @@
+import { useEffect, useState } from "react";
 import { Helmet } from "react-helmet-async";
+import { LogOut } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/modules/auth/context/AuthContext";
 import { Button } from "@/shared/components/ui";
-import { useNavigate } from "react-router-dom";
+import { dashboardStats, monthlyOrders, recentOrders } from "./data";
+import {
+    Chart,
+    DashboardHeader,
+    RecentOrders,
+    StatsCard,
+    StatsSkeleton,
+} from "./components";
 
 export function DashboardPage() {
     const { user, logout } = useAuth();
     const navigate = useNavigate();
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        const timer = window.setTimeout(() => {
+            setLoading(false);
+        }, 900);
+
+        return () => window.clearTimeout(timer);
+    }, []);
 
     const handleLogout = async () => {
         await logout();
@@ -18,25 +37,38 @@ export function DashboardPage() {
                 <title>Bonny | Dashboard</title>
             </Helmet>
 
-            <main className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900 px-4">
-                <div className="w-full max-w-md rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-800 p-6 shadow-sm">
-
-                    <h1 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
-                        Dashboard Bonny 🐾
-                    </h1>
-
-                    <p className="text-sm text-gray-600 dark:text-gray-300 mb-4">
-                        Login funcionando com Firebase ✔
-                    </p>
-
-                    <div className="text-xs text-gray-500 dark:text-gray-400 mb-6">
-                        <p><strong>Email:</strong> {user?.email}</p>
-                        <p><strong>ID:</strong> {user?.uid}</p>
+            <main className="min-h-screen bg-linear-to-br from-orange-50 via-white to-orange-100 px-4 py-10 dark:from-gray-950 dark:via-slate-900 dark:to-gray-950">
+                <div className="mx-auto w-full max-w-7xl">
+                    <div className="mb-8 flex justify-end">
+                        <Button onClick={handleLogout} variant="secondary" className="px-3.5">
+                            <LogOut className="h-4 w-4" />
+                            Sair do sistema
+                        </Button>
                     </div>
 
-                    <Button onClick={handleLogout} className="w-full">
-                        Sair do sistema
-                    </Button>
+                    <DashboardHeader userEmail={user?.email} />
+
+                    <div className="mb-6 grid min-w-0 grid-cols-1 gap-6 *:min-w-0 sm:grid-cols-2 xl:grid-cols-4">
+                        {loading
+                            ? Array.from({ length: 4 }).map((_, index) => <StatsSkeleton key={index} />)
+                            : dashboardStats.map((card) => <StatsCard key={card.title} {...card} />)}
+                    </div>
+
+                    <section className="grid grid-cols-1 gap-6 xl:grid-cols-3">
+                        <div className="min-w-0 xl:col-span-2">
+                            {loading ? (
+                                <div className="h-90 animate-pulse rounded-2xl border border-orange-100 bg-white/90 sm:h-107.5 dark:border-orange-500/10 dark:bg-slate-900/85" />
+                            ) : (
+                                <Chart
+                                    title="Orders per month"
+                                    description="Last 12 months"
+                                    data={monthlyOrders}
+                                />
+                            )}
+                        </div>
+
+                        <RecentOrders loading={loading} orders={recentOrders} />
+                    </section>
                 </div>
             </main>
         </>
