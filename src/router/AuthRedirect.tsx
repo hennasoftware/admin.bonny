@@ -1,21 +1,16 @@
-import { Navigate, useLocation } from "react-router-dom";
-import { useAuth } from "@/modules/auth/context/AuthContext";
+import { useMinimumLoading } from "@/shared/hooks/useMinimumLoading";
 import { LoadingGlobal } from "@/shared/pages/LoadingGlobal";
-import type { ReactNode } from "react";
+import {Navigate} from "react-router-dom";
+import {useAuth} from "@/modules/auth/context/AuthContext";
 
-type Props = {
-    children: ReactNode;
-};
-
-export function AuthRedirect({ children }: Props) {
+export function AuthRedirect({ children }: any) {
     const { user, loading } = useAuth();
-    const location = useLocation();
 
-    const from = location.state?.from?.pathname || "/dashboard";
+    const showLoading = useMinimumLoading(loading, 700);
 
-    if (loading) return <LoadingGlobal />;
+    if (showLoading) return <LoadingGlobal />;
 
-    if (user) return <Navigate to={from} replace />;
+    if (user) return <Navigate to="/dashboard" replace />;
 
-    return <>{children}</>;
+    return children;
 }

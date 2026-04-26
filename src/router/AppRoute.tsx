@@ -3,6 +3,7 @@ import { LoginPage } from "@/modules/auth";
 import { ProtectedRoute } from "./ProtectedRoute";
 import { AuthRedirect } from "./AuthRedirect";
 import { RootRedirect } from "./RootRedirect";
+import {DashboardPage} from "@/modules/dashboard";
 
 export function AppRoute() {
     return (
@@ -19,7 +20,7 @@ export function AppRoute() {
             />
 
             <Route element={<ProtectedRoute />}>
-                {/*<Route path="/dashboard" element={<DashboardPage />} />*/}
+                <Route path="/dashboard" element={<DashboardPage />} />
             </Route>
 
 

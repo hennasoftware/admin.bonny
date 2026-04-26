@@ -22,9 +22,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
+        const start = Date.now();
+
         return onAuthStateChanged(auth, (user) => {
             setUser(user);
-            setLoading(false);
+
+            const elapsed = Date.now() - start;
+            const minLoadingTime = 600;
+
+            const remaining = minLoadingTime - elapsed;
+
+            setTimeout(() => {
+                setLoading(false);
+            }, remaining > 0 ? remaining : 0);
         });
     }, []);
 
