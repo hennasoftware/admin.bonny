@@ -3,8 +3,8 @@ import {Helmet} from 'react-helmet-async';
 import {motion} from 'framer-motion';
 import {Mail, Lock, Heart, Sun, Moon} from 'lucide-react';
 import {Button, FormField} from '@/shared/components/ui';
-import {useTheme} from '@/styles/themes/ThemeContext.tsx';
-import {useAuth} from "@/modules/auth/context/AuthContext.tsx";
+import {useTheme} from '@/styles/themes/ThemeContext';
+import {useAuth} from "@/modules/auth/context/AuthContext";
 import { useNavigate } from "react-router-dom";
 
 interface FormErrors {
