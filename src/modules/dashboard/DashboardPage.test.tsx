@@ -1,6 +1,7 @@
 import { render, screen, waitFor } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import { ThemeProvider } from "@/styles/themes/ThemeContext";
 import { DashboardPage } from "./DashboardPage";
 import type { DashboardSnapshot } from "./types";
 
@@ -53,7 +54,9 @@ describe("DashboardPage", () => {
 
         render(
             <MemoryRouter>
-                <DashboardPage />
+                <ThemeProvider>
+                    <DashboardPage />
+                </ThemeProvider>
             </MemoryRouter>,
         );
 

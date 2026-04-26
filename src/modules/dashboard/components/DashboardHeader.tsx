@@ -15,8 +15,8 @@ export function DashboardHeader({ userEmail }: DashboardHeaderProps) {
             </div>
 
             <div className="rounded-xl border border-orange-100 bg-white/85 px-4 py-3 text-sm shadow-sm dark:border-orange-500/10 dark:bg-slate-900/80">
-                <p className="text-gray-500 dark:text-gray-400">Sessão ativa</p>
-                <p className="mt-1 font-medium text-gray-900 dark:text-gray-100">
+                <p className="text-gray-500 dark:text-gray-400 text-center">Sessão ativa</p>
+                <p className="mt-1 font-medium text-gray-900 dark:text-gray-100 text-center">
                     {userEmail ?? "Usuário autenticado"}
                 </p>
             </div>
