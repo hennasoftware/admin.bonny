@@ -73,7 +73,7 @@ export function AnimalList({
                                     key={animal.id}
                                     className="hover:bg-slate-50 dark:hover:bg-slate-900/60"
                                 >
-                                    <td className="px-4 py-3 font-medium text-slate-900 dark:text-white">
+                                    <td className="px-4 py-3 font-medium text-slate-900 dark:text-white max-w-25 truncate whitespace-nowrap">
                                         {animal.name}
                                     </td>
 

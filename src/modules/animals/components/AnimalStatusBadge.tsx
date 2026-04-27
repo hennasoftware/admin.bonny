@@ -12,7 +12,9 @@ interface AnimalStatusBadgeProps {
 
 export function AnimalStatusBadge({ status }: AnimalStatusBadgeProps) {
     return (
-        <span className={`rounded-full px-2.5 py-1 text-xs font-medium ${statusStyles[status]}`}>
+        <span
+            className={`inline-flex items-center whitespace-nowrap rounded-full px-2.5 py-1 text-xs font-medium ${statusStyles[status]}`}
+        >
             {status}
         </span>
     );
