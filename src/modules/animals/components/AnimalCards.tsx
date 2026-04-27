@@ -1,5 +1,5 @@
 import { CalendarClock, Cat, Dog, HeartPulse, ShieldCheck } from "lucide-react";
-import type { AnimalRecord } from "../types";
+import type { AnimalRecord } from "../types/types";
 import { AnimalStatusBadge } from "./AnimalStatusBadge";
 
 interface AnimalCardsProps {
@@ -12,7 +12,7 @@ function speciesIcon(species: string) {
 
 export function AnimalCards({ animals }: AnimalCardsProps) {
     return (
-        <section className="rounded-[2rem] border border-orange-100 bg-white/92 p-6 shadow-sm dark:border-orange-500/10 dark:bg-slate-900/88 md:p-8">
+        <section className="rounded-4xl border border-orange-100 bg-white/92 p-6 shadow-sm dark:border-orange-500/10 dark:bg-slate-900/88 md:p-8">
             <div className="mb-6 flex items-start justify-between gap-4">
                 <div>
                     <p className="text-xs font-semibold uppercase tracking-[0.22em] text-orange-500 dark:text-orange-300">

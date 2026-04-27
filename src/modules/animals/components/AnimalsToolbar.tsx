@@ -1,6 +1,6 @@
 import { Search } from "lucide-react";
 import { FormField } from "@/shared/components/ui";
-import type { AnimalStatus } from "../types";
+import type { AnimalStatus } from "../types/types";
 
 interface AnimalsToolbarProps {
     search: string;
@@ -16,7 +16,7 @@ export function AnimalsToolbar({
     onStatusChange,
 }: AnimalsToolbarProps) {
     return (
-        <div className="rounded-[2rem] border border-orange-100 bg-white/92 p-5 shadow-sm dark:border-orange-500/10 dark:bg-slate-900/88 md:p-6">
+        <div className="rounded-4xl border border-orange-100 bg-white/92 p-5 shadow-sm dark:border-orange-500/10 dark:bg-slate-900/88 md:p-6">
             <div className="grid gap-4 lg:grid-cols-[1fr_260px]">
                 <FormField
                     label="Buscar"
@@ -31,7 +31,7 @@ export function AnimalsToolbar({
                     <select
                         value={status}
                         onChange={(event) => onStatusChange(event.target.value as AnimalStatus | "Todos")}
-                        className="rounded-lg border border-gray-200 bg-white px-4 py-2.5 text-gray-900 outline-none transition-[box-shadow] duration-150 focus:border-orange-500 focus:ring-2 focus:ring-orange-500/50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100 dark:focus:border-orange-400 dark:focus:ring-orange-400/50"
+                        className="rounded-lg border border-gray-200 bg-white px-4 py-2.5 text-gray-900 outline-none transition-shadow duration-150 focus:border-orange-500 focus:ring-2 focus:ring-orange-500/50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100 dark:focus:border-orange-400 dark:focus:ring-orange-400/50"
                     >
                         <option>Todos</option>
                         <option>Disponível</option>

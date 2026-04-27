@@ -1,6 +1,6 @@
 import { AnimalForm } from "./AnimalForm";
-import type { AnimalFormState, AnimalRecord } from "../types";
-import { toAnimalFormState } from "../service";
+import type { AnimalFormState, AnimalRecord } from "../types/types";
+import { toAnimalFormState } from "../services/service";
 
 interface AnimalEditorModalProps {
     animal: AnimalRecord | null;
@@ -21,7 +21,7 @@ export function AnimalEditorModal({ animal, onClose, onSubmit, loading }: Animal
                 className="absolute inset-0 bg-slate-950/45 backdrop-blur-sm"
             />
 
-            <div className="relative z-10 w-full max-w-4xl overflow-hidden rounded-[2rem] border border-orange-100 bg-white shadow-2xl dark:border-orange-500/10 dark:bg-slate-950">
+            <div className="relative z-10 w-full max-w-4xl overflow-hidden rounded-4xl border border-orange-100 bg-white shadow-2xl dark:border-orange-500/10 dark:bg-slate-950">
                 <div className="max-h-[90vh] overflow-y-auto p-2 md:p-3">
                     <AnimalForm
                         key={animal.id}

@@ -1,7 +1,7 @@
 import { useState, type FormEvent } from "react";
 import { PawPrint, TextCursorInput, Droplets } from "lucide-react";
 import { Button, FormField } from "@/shared/components/ui";
-import type { AnimalFormState, AnimalRecord } from "../types";
+import type { AnimalFormState, AnimalRecord } from "../types/types";
 
 interface AnimalRegistrationFormProps {
     onCreate: (animal: AnimalRecord) => void;
@@ -84,7 +84,7 @@ export function AnimalRegistrationForm({ onCreate }: AnimalRegistrationFormProps
     };
 
     return (
-        <form onSubmit={handleSubmit} className="rounded-[2rem] border border-orange-100 bg-white/92 p-6 shadow-sm dark:border-orange-500/10 dark:bg-slate-900/88 md:p-8">
+        <form onSubmit={handleSubmit} className="rounded-4xl border border-orange-100 bg-white/92 p-6 shadow-sm dark:border-orange-500/10 dark:bg-slate-900/88 md:p-8">
             <div className="mb-6 flex items-start justify-between gap-4">
                 <div>
                     <p className="text-xs font-semibold uppercase tracking-[0.22em] text-orange-500 dark:text-orange-300">
@@ -145,7 +145,7 @@ export function AnimalRegistrationForm({ onCreate }: AnimalRegistrationFormProps
                     <select
                         value={form.sex}
                         onChange={(event) => updateField("sex", event.target.value as AnimalFormState["sex"])}
-                        className="rounded-lg border border-gray-200 bg-white px-4 py-2.5 text-gray-900 outline-none transition-[box-shadow] duration-150 focus:border-orange-500 focus:ring-2 focus:ring-orange-500/50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100 dark:focus:border-orange-400 dark:focus:ring-orange-400/50"
+                        className="rounded-lg border border-gray-200 bg-white px-4 py-2.5 text-gray-900 outline-none transition-shadow duration-150 focus:border-orange-500 focus:ring-2 focus:ring-orange-500/50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100 dark:focus:border-orange-400 dark:focus:ring-orange-400/50"
                     >
                         <option>Macho</option>
                         <option>Fêmea</option>
@@ -158,7 +158,7 @@ export function AnimalRegistrationForm({ onCreate }: AnimalRegistrationFormProps
                     <select
                         value={form.size}
                         onChange={(event) => updateField("size", event.target.value as AnimalFormState["size"])}
-                        className="rounded-lg border border-gray-200 bg-white px-4 py-2.5 text-gray-900 outline-none transition-[box-shadow] duration-150 focus:border-orange-500 focus:ring-2 focus:ring-orange-500/50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100 dark:focus:border-orange-400 dark:focus:ring-orange-400/50"
+                        className="rounded-lg border border-gray-200 bg-white px-4 py-2.5 text-gray-900 outline-none transition-shadow duration-150 focus:border-orange-500 focus:ring-2 focus:ring-orange-500/50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100 dark:focus:border-orange-400 dark:focus:ring-orange-400/50"
                     >
                         <option>Pequeno</option>
                         <option>Médio</option>
@@ -181,7 +181,7 @@ export function AnimalRegistrationForm({ onCreate }: AnimalRegistrationFormProps
                     <select
                         value={form.status}
                         onChange={(event) => updateField("status", event.target.value as AnimalFormState["status"])}
-                        className="rounded-lg border border-gray-200 bg-white px-4 py-2.5 text-gray-900 outline-none transition-[box-shadow] duration-150 focus:border-orange-500 focus:ring-2 focus:ring-orange-500/50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100 dark:focus:border-orange-400 dark:focus:ring-orange-400/50"
+                        className="rounded-lg border border-gray-200 bg-white px-4 py-2.5 text-gray-900 outline-none transition-shadow duration-150 focus:border-orange-500 focus:ring-2 focus:ring-orange-500/50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100 dark:focus:border-orange-400 dark:focus:ring-orange-400/50"
                     >
                         <option>Disponível</option>
                         <option>Em processo</option>
@@ -219,7 +219,7 @@ export function AnimalRegistrationForm({ onCreate }: AnimalRegistrationFormProps
                     onChange={(event) => updateField("notes", event.target.value)}
                     placeholder="Comportamento, saúde, preferências, restrições..."
                     rows={4}
-                    className="rounded-lg border border-gray-200 bg-white px-4 py-3 text-gray-900 outline-none transition-[box-shadow] duration-150 placeholder:text-gray-400 focus:border-orange-500 focus:ring-2 focus:ring-orange-500/50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100 dark:placeholder:text-gray-500 dark:focus:border-orange-400 dark:focus:ring-orange-400/50"
+                    className="rounded-lg border border-gray-200 bg-white px-4 py-3 text-gray-900 outline-none transition-shadow duration-150 placeholder:text-gray-400 focus:border-orange-500 focus:ring-2 focus:ring-orange-500/50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100 dark:placeholder:text-gray-500 dark:focus:border-orange-400 dark:focus:ring-orange-400/50"
                 />
             </label>
 

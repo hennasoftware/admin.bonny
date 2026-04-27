@@ -1,121 +1,157 @@
-import { Pencil, Trash2 } from "lucide-react";
-import { Button } from "@/shared/components/ui";
-import type { AnimalRecord } from "../types";
-import { AnimalStatusBadge } from "./AnimalStatusBadge";
+import {Pencil, Trash2} from "lucide-react";
+import {Button} from "@/shared/components/ui";
+import {AnimalStatusBadge} from "./AnimalStatusBadge";
+import {formatDateTime} from "@/modules/animals/utils/formatter";
+import type {AnimalRecord} from "../types";
 
 interface AnimalListProps {
     animals: AnimalRecord[];
     loading?: boolean;
     onEdit: (animal: AnimalRecord) => void;
     onDelete: (animal: AnimalRecord) => void;
+    page: number;
+    totalPages: number;
+    onPageChange: (page: number) => void;
 }
 
-export function AnimalList({ animals, loading = false, onEdit, onDelete }: AnimalListProps) {
+export function AnimalList({
+    animals,
+    loading = false,
+    onEdit,
+    onDelete,
+    page,
+    totalPages,
+    onPageChange,
+}: AnimalListProps) {
+    const canPrev = page > 1;
+    const canNext = page < totalPages;
+
+
     return (
-        <section className="rounded-[2rem] border border-orange-100 bg-white/92 p-6 shadow-sm dark:border-orange-500/10 dark:bg-slate-900/88 md:p-8">
-            <div className="mb-6 flex items-start justify-between gap-4">
-                <div>
-                    <p className="text-xs font-semibold uppercase tracking-[0.22em] text-orange-500 dark:text-orange-300">
-                        Registros
-                    </p>
-                    <h2 className="mt-2 text-2xl font-semibold tracking-tight text-gray-950 dark:text-white">
-                        Animais cadastrados
-                    </h2>
-                    <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-                        Use busca e filtros para localizar, editar ou remover registros.
-                    </p>
-                </div>
+        <section className="rounded-2xl border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-950">
+            <div className="border-b border-slate-200 px-6 py-4 dark:border-slate-800">
+                <p className="text-sm text-slate-500 dark:text-slate-400">
+                    Página {page} de {totalPages}
+                </p>
             </div>
 
-            {loading ? (
-                <div className="grid gap-4">
-                    {Array.from({ length: 3 }).map((_, index) => (
-                        <div
-                            key={index}
-                            className="animate-pulse rounded-2xl border border-orange-100 bg-orange-50/30 p-4 dark:border-slate-800 dark:bg-slate-950/65"
-                        >
-                            <div className="h-5 w-36 rounded bg-orange-100 dark:bg-slate-800" />
-                            <div className="mt-3 h-4 w-48 rounded bg-orange-100 dark:bg-slate-800" />
-                            <div className="mt-4 grid gap-2 sm:grid-cols-2">
-                                <div className="h-4 rounded bg-orange-100 dark:bg-slate-800" />
-                                <div className="h-4 rounded bg-orange-100 dark:bg-slate-800" />
-                                <div className="h-4 rounded bg-orange-100 dark:bg-slate-800" />
-                                <div className="h-4 rounded bg-orange-100 dark:bg-slate-800" />
-                            </div>
-                        </div>
-                    ))}
-                </div>
-            ) : animals.length === 0 ? (
-                <div className="rounded-2xl border border-dashed border-orange-200 bg-orange-50/60 p-8 text-center dark:border-slate-700 dark:bg-slate-950/65">
-                    <p className="text-base font-semibold text-gray-900 dark:text-gray-100">
-                        Nenhum animal encontrado
-                    </p>
-                    <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">
-                        Ajuste a busca ou os filtros para ver outros registros.
-                    </p>
-                </div>
-            ) : (
-                <div className="grid gap-4">
-                    {animals.map((animal) => (
-                        <article
-                            key={animal.id}
-                            className="rounded-2xl border border-orange-100 bg-orange-50/40 p-4 dark:border-slate-800 dark:bg-slate-950/65"
-                        >
-                            <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
-                                <div className="min-w-0">
-                                    <div className="flex flex-wrap items-center gap-2">
-                                        <h3 className="truncate text-lg font-semibold text-gray-950 dark:text-white">
-                                            {animal.name}
-                                        </h3>
-                                        <AnimalStatusBadge status={animal.status} />
-                                    </div>
+            <div className="overflow-x-auto">
+                <table className="w-full text-sm">
+                    <thead
+                        className="border-b border-slate-200 bg-slate-50 text-xs uppercase text-slate-500 dark:border-slate-800 dark:bg-slate-900">
+                        <tr>
+                            <th className="px-4 py-3 text-left">Nome</th>
+                            <th className="px-4 py-3 text-left">Espécie</th>
+                            <th className="px-4 py-3 text-left">Status</th>
+                            <th className="px-4 py-3 text-left">Detalhes</th>
+                            <th className="px-4 py-3 text-left">Atualização</th>
+                            <th className="px-4 py-3 text-right">Ações</th>
+                        </tr>
+                    </thead>
 
-                                    <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-                                        {animal.species} • {animal.breed}
+                    <tbody className="divide-y divide-slate-200 dark:divide-slate-800">
+                        {loading ? (
+                            <tr>
+                                <td colSpan={6} className="p-6 text-center text-slate-500">
+                                    Carregando animais...
+                                </td>
+                            </tr>
+                        ) : animals.length === 0 ? (
+                            <tr>
+                                <td colSpan={6} className="p-10 text-center">
+                                    <p className="text-base font-medium text-slate-900 dark:text-slate-100">
+                                        Nenhum animal encontrado
                                     </p>
+                                    <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">
+                                        Ajuste os filtros para refinar sua busca.
+                                    </p>
+                                </td>
+                            </tr>
+                        ) : (
+                            animals.map((animal: AnimalRecord) => (
+                                <tr
+                                    key={animal.id}
+                                    className="hover:bg-slate-50 dark:hover:bg-slate-900/60"
+                                >
+                                    <td className="px-4 py-3 font-medium text-slate-900 dark:text-white">
+                                        {animal.name}
+                                    </td>
 
-                                    <div className="mt-3 grid gap-2 text-sm text-gray-600 dark:text-gray-300 sm:grid-cols-2">
-                                        <p>Sexo: {animal.sex}</p>
-                                        <p>Idade: {animal.age}</p>
-                                        <p>Porte: {animal.size}</p>
-                                        <p>Cor: {animal.color}</p>
-                                    </div>
+                                    <td className="px-4 py-3 text-slate-600 dark:text-slate-300">
+                                        {animal.species} • {animal.breed}
+                                    </td>
 
-                                    {animal.notes && (
-                                        <p className="mt-4 rounded-xl bg-white px-4 py-3 text-sm text-gray-600 dark:bg-slate-900 dark:text-gray-300">
-                                            {animal.notes}
-                                        </p>
-                                    )}
-                                </div>
+                                    <td className="px-4 py-3">
+                                        <AnimalStatusBadge status={animal.status}/>
+                                    </td>
 
-                                <div className="grid gap-2 lg:min-w-48">
-                                    <div className="rounded-xl bg-white px-4 py-3 text-xs text-gray-500 dark:bg-slate-900 dark:text-gray-400">
-                                        {animal.updatedAt ? "Atualizado em" : "Cadastrado em"}{" "}
-                                        <span className="font-medium text-gray-700 dark:text-gray-200">
-                                            {animal.updatedAt ?? animal.createdAt}
-                                        </span>
-                                    </div>
+                                    <td className="px-4 py-3 text-slate-600 dark:text-slate-300">
+                                        {animal.sex} • {animal.age}
+                                    </td>
 
-                                    <div className="flex flex-wrap gap-2">
-                                        <Button variant="secondary" onClick={() => onEdit(animal)} className="px-3 py-2">
-                                            <Pencil className="h-4 w-4" />
-                                            Editar
-                                        </Button>
-                                        <Button
-                                            variant="secondary"
-                                            onClick={() => onDelete(animal)}
-                                            className="border-red-200 text-red-600 hover:bg-red-50 dark:border-red-500/20 dark:text-red-300 dark:hover:bg-red-500/10 px-3 py-2"
-                                        >
-                                            <Trash2 className="h-4 w-4" />
-                                            Excluir
-                                        </Button>
-                                    </div>
-                                </div>
-                            </div>
-                        </article>
-                    ))}
-                </div>
-            )}
+                                    <td className="px-4 py-3 text-slate-500 dark:text-slate-400">
+                                        {formatDateTime(
+                                            animal.updatedAt ?? animal.createdAt
+                                        )}
+                                    </td>
+
+                                    <td className="px-4 py-3">
+                                        <div className="flex justify-end gap-2">
+                                            <Button
+                                                variant="secondary"
+                                                onClick={() => onEdit(animal)}
+                                            >
+                                                <Pencil className="h-4 w-4"/>
+                                            </Button>
+
+                                            <Button
+                                                variant="secondary"
+                                                onClick={() => onDelete(animal)}
+                                                className="text-red-600 hover:bg-red-50 dark:text-red-300"
+                                            >
+                                                <Trash2 className="h-4 w-4"/>
+                                            </Button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            ))
+                        )}
+                    </tbody>
+                </table>
+            </div>
+
+            <div className="flex items-center justify-center gap-2 border-t border-slate-200 p-4 dark:border-slate-800">
+                <Button
+                    variant="secondary"
+                    disabled={!canPrev}
+                    onClick={() => onPageChange(page - 1)}
+                >
+                    Anterior
+                </Button>
+
+                {Array.from({length: totalPages > 10 ? 10 : totalPages}).map((_, i) => {
+                    const pageNum = page - 5 + i > 0 ? page - 5 + i : i + 1;
+                    if (pageNum > totalPages) return null;
+
+                    return (
+                        <Button
+                            key={pageNum}
+                            variant={page === pageNum ? "primary" : "secondary"}
+                            onClick={() => onPageChange(pageNum)}
+                        >
+                            {pageNum}
+                        </Button>
+                    );
+                })}
+
+                <Button
+                    variant="secondary"
+                    disabled={!canNext}
+                    onClick={() => onPageChange(page + 1)}
+                >
+                    Próxima
+                </Button>
+            </div>
         </section>
     );
 }

@@ -2,18 +2,19 @@ import { useEffect, useMemo, useState } from "react";
 import { Helmet } from "react-helmet-async";
 import { useNavigate } from "react-router-dom";
 import { AdminLayout } from "@/modules/dashboard/AdminLayout";
-import { AnimalEditorModal, AnimalList, AnimalsToolbar } from "./components";
+import { AnimalEditorModal, AnimalList, AnimalsToolbar } from "../components";
 import {
     matchesSearch,
     matchesStatus,
     removeAnimal,
     subscribeAnimals,
     updateAnimal,
-} from "./service";
-import type { AnimalFormState, AnimalRecord, AnimalStatus } from "./types";
+} from "../services/service";
+import type { AnimalFormState, AnimalRecord, AnimalStatus } from "../types/types";
 
 export function AnimalsListPage() {
     const navigate = useNavigate();
+    const [page, setPage] = useState(1);
     const [animals, setAnimals] = useState<AnimalRecord[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
@@ -21,6 +22,8 @@ export function AnimalsListPage() {
     const [status, setStatus] = useState<AnimalStatus | "Todos">("Todos");
     const [editingAnimal, setEditingAnimal] = useState<AnimalRecord | null>(null);
     const [saving, setSaving] = useState(false);
+
+    const ITEMS_PER_PAGE = 10;
 
     useEffect(() => {
         const unsubscribe = subscribeAnimals(
@@ -38,19 +41,32 @@ export function AnimalsListPage() {
         return () => unsubscribe();
     }, []);
 
+    useEffect(() => {
+        setPage(1);
+    }, [search, status]);
+
     const filteredAnimals = useMemo(
         () => animals.filter((animal) => matchesSearch(animal, search) && matchesStatus(animal, status)),
         [animals, search, status],
     );
 
+    const { paginatedAnimals, totalPages } = useMemo(() => {
+        const start = (page - 1) * ITEMS_PER_PAGE;
+        const end = start + ITEMS_PER_PAGE;
+        return {
+            paginatedAnimals: filteredAnimals.slice(start, end),
+            totalPages: Math.ceil(filteredAnimals.length / ITEMS_PER_PAGE) || 1,
+        };
+    }, [filteredAnimals, page]);
+
     const stats = useMemo(
         () => ({
-            total: animals.length,
-            available: animals.filter((animal) => animal.status === "Disponível").length,
-            inProcess: animals.filter((animal) => animal.status === "Em processo").length,
-            adopted: animals.filter((animal) => animal.status === "Adotado").length,
+            total: filteredAnimals.length,
+            available: filteredAnimals.filter((animal) => animal.status === "Disponível").length,
+            inProcess: filteredAnimals.filter((animal) => animal.status === "Em processo").length,
+            adopted: filteredAnimals.filter((animal) => animal.status === "Adotado").length,
         }),
-        [animals],
+        [filteredAnimals],
     );
 
     const handleDelete = async (animal: AnimalRecord) => {
@@ -144,8 +160,11 @@ export function AnimalsListPage() {
                         </div>
 
                         <AnimalList
-                            animals={filteredAnimals}
+                            animals={paginatedAnimals}
                             loading={loading}
+                            page={page}
+                            totalPages={totalPages}
+                            onPageChange={setPage}
                             onEdit={setEditingAnimal}
                             onDelete={handleDelete}
                         />

@@ -1,12 +1,11 @@
 import { useState } from "react";
 import { Helmet } from "react-helmet-async";
 import { AdminLayout } from "@/modules/dashboard/AdminLayout";
-import { AnimalCards, AnimalRegistrationForm } from "./components";
-import { initialAnimals } from "./data";
-import type { AnimalRecord } from "./types";
+import { AnimalCards, AnimalRegistrationForm } from "../components";
+import type { AnimalRecord } from "../types/types";
 
 export function AnimalsPage() {
-    const [animals, setAnimals] = useState<AnimalRecord[]>(initialAnimals);
+    const [animals, setAnimals] = useState<AnimalRecord[]>([]);
 
     return (
         <>

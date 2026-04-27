@@ -2,9 +2,9 @@ import { useState } from "react";
 import { Helmet } from "react-helmet-async";
 import { useNavigate } from "react-router-dom";
 import { AdminLayout } from "@/modules/dashboard/AdminLayout";
-import { AnimalForm } from "./components";
-import { createAnimal } from "./service";
-import type { AnimalFormState } from "./types";
+import { AnimalForm } from "../components";
+import { createAnimal } from "../services/service";
+import type { AnimalFormState } from "../types/types";
 
 export function AnimalsCreatePage() {
     const navigate = useNavigate();

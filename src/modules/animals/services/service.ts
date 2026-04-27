@@ -10,7 +10,7 @@ import {
     type Unsubscribe,
 } from "firebase/firestore";
 import { db } from "@/services/firebase";
-import type { AnimalFormState, AnimalRecord, AnimalStatus } from "./types";
+import type { AnimalFormState, AnimalRecord, AnimalStatus } from "../types/types";
 
 const animalsCollection = collection(db, "animals");
 

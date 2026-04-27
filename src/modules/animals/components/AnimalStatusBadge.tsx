@@ -1,4 +1,4 @@
-import type { AnimalStatus } from "../types";
+import type { AnimalStatus } from "../types/types";
 
 const statusStyles: Record<AnimalStatus, string> = {
     Disponível: "bg-emerald-50 text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-300",

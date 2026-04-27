@@ -24,8 +24,8 @@ export interface AnimalFormState {
     species: string;
     breed: string;
     sex: AnimalSex;
-    age: string;
     size: AnimalSize;
+    age: string;
     color: string;
     status: AnimalStatus;
     neutered: boolean;
