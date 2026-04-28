@@ -39,10 +39,8 @@ export function useCepApi() {
 export function formatPhone(value: string): string {
     if (!value) return '';
 
-    // Remove todos os caracteres não numéricos
     const cleaned = value.replace(/\D/g, '');
 
-    // Aplica a máscara para celular (11 dígitos) ou telefone fixo (10 dígitos)
     if (cleaned.length === 11) {
         return cleaned
             .replace(/(\d{2})(\d)/, '($1) $2')
@@ -59,10 +57,8 @@ export function formatPhone(value: string): string {
 export function formatCpf(value: string): string {
     if (!value) return '';
 
-    // Remove todos os caracteres não numéricos
     const cleaned = value.replace(/\D/g, '');
 
-    // Aplica a máscara
     return cleaned
         .replace(/(\d{3})(\d)/, '$1.$2')
         .replace(/(\d{3})(\d)/, '$1.$2')
@@ -72,24 +68,18 @@ export function formatCpf(value: string): string {
 export function formatCep(value: string): string {
     if (!value) return '';
 
-    // Remove todos os caracteres não numéricos
     const cleaned = value.replace(/\D/g, '');
 
-    // Aplica a máscara
     return cleaned.replace(/(\d{5})(\d{1,3})$/, '$1-$2');
 }
 
 export function validateCpf(cpf: string): boolean {
-    // Remove caracteres não numéricos
     const cleaned = cpf.replace(/\D/g, '');
 
-    // Verifica se tem 11 dígitos
     if (cleaned.length !== 11) return false;
 
-    // Verifica se todos os dígitos são iguais (CPF inválido)
     if (/^(\d)\1+$/.test(cleaned)) return false;
 
-    // Calcula primeiro dígito verificador
     let sum = 0;
     for (let i = 0; i < 9; i++) {
         sum += parseInt(cleaned[i]) * (10 - i);
@@ -98,7 +88,6 @@ export function validateCpf(cpf: string): boolean {
     if (remainder === 10) remainder = 0;
     if (remainder !== parseInt(cleaned[9])) return false;
 
-    // Calcula segundo dígito verificador
     sum = 0;
     for (let i = 0; i < 10; i++) {
         sum += parseInt(cleaned[i]) * (11 - i);
