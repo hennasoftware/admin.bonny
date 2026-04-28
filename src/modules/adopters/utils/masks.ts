@@ -94,9 +94,9 @@ export function validateCpf(cpf: string): boolean {
     }
     remainder = (sum * 10) % 11;
     if (remainder === 10) remainder = 0;
-    if (remainder !== parseInt(cleaned[10])) return false;
+    return remainder === parseInt(cleaned[10]);
 
-    return true;
+
 }
 
 export function validatePhone(phone: string): boolean {
