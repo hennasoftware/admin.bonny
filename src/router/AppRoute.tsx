@@ -1,6 +1,7 @@
 import { Route, Routes } from "react-router-dom";
 import { LoginPage } from "@/modules/auth";
 import { AnimalsCreatePage, AnimalsListPage } from "@/modules/animals";
+import { AdoptersCreatePage, AdoptersListPage } from "@/modules/adopters";
 import { DashboardPage } from "@/modules/dashboard";
 import { ModulePlaceholderPage } from "@/modules/dashboard/ModulePlaceholderPage";
 import { AuthRedirect } from "./AuthRedirect";
@@ -26,15 +27,9 @@ export function AppRoute() {
                 <Route path="/animais" element={<AnimalsListPage />} />
                 <Route path="/animais/lista" element={<AnimalsListPage />} />
                 <Route path="/animais/cadastro" element={<AnimalsCreatePage />} />
-                <Route
-                    path="/adotantes"
-                    element={
-                        <ModulePlaceholderPage
-                            title="Adotantes"
-                            description="Gerencie o histórico dos adotantes, contatos e critérios de aprovação."
-                        />
-                    }
-                />
+                <Route path="/adotantes" element={<AdoptersListPage />} />
+                <Route path="/adotantes/lista" element={<AdoptersListPage />} />
+                <Route path="/adotantes/cadastro" element={<AdoptersCreatePage />} />
                 <Route
                     path="/processos"
                     element={
