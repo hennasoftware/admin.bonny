@@ -2,6 +2,7 @@ import { Route, Routes } from "react-router-dom";
 import { LoginPage } from "@/modules/auth";
 import { AnimalsCreatePage, AnimalsListPage } from "@/modules/animals";
 import { AdoptersCreatePage, AdoptersListPage } from "@/modules/adopters";
+import { AdoptionsCreatePage, AdoptionsListPage } from "@/modules/adoptions";
 import { DashboardPage } from "@/modules/dashboard";
 import { ModulePlaceholderPage } from "@/modules/dashboard/ModulePlaceholderPage";
 import { AuthRedirect } from "./AuthRedirect";
@@ -30,6 +31,9 @@ export function AppRoute() {
                 <Route path="/adotantes" element={<AdoptersListPage />} />
                 <Route path="/adotantes/lista" element={<AdoptersListPage />} />
                 <Route path="/adotantes/cadastro" element={<AdoptersCreatePage />} />
+                <Route path="/adocoes" element={<AdoptionsListPage />} />
+                <Route path="/adocoes/lista" element={<AdoptionsListPage />} />
+                <Route path="/adocoes/cadastro" element={<AdoptionsCreatePage />} />
                 <Route
                     path="/processos"
                     element={

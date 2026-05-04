@@ -1,4 +1,5 @@
 import { Search } from "lucide-react";
+import { FormField } from "@/shared/components/ui";
 import { ADOPTER_STATUSES } from "../constants";
 
 interface AdoptersToolbarProps {
@@ -15,29 +16,32 @@ export function AdoptersToolbar({
     onStatusChange,
 }: AdoptersToolbarProps) {
     return (
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-            <div className="relative w-full sm:max-w-md">
-                <Search className="absolute left-3 top-2.5 h-4 w-4 text-slate-400" />
-                <input
+        <div className="rounded-4xl border border-orange-100 bg-white/92 p-5 shadow-sm dark:border-orange-500/10 dark:bg-slate-900/88 md:p-6">
+            <div className="grid gap-4 lg:grid-cols-[1fr_260px]">
+                <FormField
+                    label="Buscar"
+                    placeholder="Nome, email, telefone ou CPF"
                     value={search}
-                    onChange={(e) => onSearchChange(e.target.value)}
-                    placeholder="Buscar por nome, email, telefone ou CPF..."
-                    className="w-full rounded-lg border border-slate-300 bg-white py-2 pl-9 pr-3 text-sm text-slate-900 dark:border-slate-700 dark:bg-slate-900 dark:text-white"
+                    onChange={(event) => onSearchChange(event.target.value)}
+                    icon={Search}
                 />
-            </div>
 
-            <select
-                value={status}
-                onChange={(e) => onStatusChange(e.target.value)}
-                className="rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm dark:border-slate-700 dark:bg-slate-900 dark:text-white"
-            >
-                <option value="Todos">Todos os status</option>
-                {ADOPTER_STATUSES.map((statusOption) => (
-                    <option key={statusOption.value} value={statusOption.value}>
-                        {statusOption.label}
-                    </option>
-                ))}
-            </select>
+                <label className="flex flex-col gap-1.5">
+                    <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Filtrar por status</span>
+                    <select
+                        value={status}
+                        onChange={(e) => onStatusChange(e.target.value)}
+                        className="rounded-lg border border-gray-200 bg-white px-4 py-2.5 text-gray-900 outline-none transition-shadow duration-150 focus:border-orange-500 focus:ring-2 focus:ring-orange-500/50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100 dark:focus:border-orange-400 dark:focus:ring-orange-400/50"
+                    >
+                        <option value="Todos">Todos os status</option>
+                        {ADOPTER_STATUSES.map((statusOption) => (
+                            <option key={statusOption.value} value={statusOption.value}>
+                                {statusOption.label}
+                            </option>
+                        ))}
+                    </select>
+                </label>
+            </div>
         </div>
     );
 }

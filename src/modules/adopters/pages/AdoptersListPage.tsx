@@ -2,6 +2,13 @@ import { useEffect, useMemo, useState } from "react";
 import { Helmet } from "react-helmet-async";
 import { useNavigate } from "react-router-dom";
 import { AdminLayout } from "@/modules/dashboard/AdminLayout";
+import {
+    ConfirmDeleteModal,
+    EntityAlert,
+    EntityPageHeader,
+    EntityPageShell,
+    EntityStatsGrid,
+} from "@/shared/components/ui";
 import { AdopterEditorModal, AdoptersList, AdoptersToolbar } from "../components";
 import {
     matchesSearch,
@@ -21,7 +28,9 @@ export function AdoptersListPage() {
     const [search, setSearch] = useState("");
     const [status, setStatus] = useState<AdopterStatus | "Todos">("Todos");
     const [editingAdopter, setEditingAdopter] = useState<AdopterRecord | null>(null);
+    const [adopterToDelete, setAdopterToDelete] = useState<AdopterRecord | null>(null);
     const [saving, setSaving] = useState(false);
+    const [deleting, setDeleting] = useState(false);
 
     const ITEMS_PER_PAGE = 10;
 
@@ -69,13 +78,16 @@ export function AdoptersListPage() {
         [filteredAdopters],
     );
 
-    const handleDelete = async (adopter: AdopterRecord) => {
-        if (!window.confirm(`Excluir ${adopter.name}?`)) return;
-
+    const handleDelete = async () => {
+        if (!adopterToDelete) return;
+        setDeleting(true);
         try {
-            await removeAdopter(adopter.id);
+            await removeAdopter(adopterToDelete.id);
+            setAdopterToDelete(null);
         } catch {
-            setError("Não foi possível excluir o adotante.");
+            setError("NÃ£o foi possÃ­vel excluir o adotante.");
+        } finally {
+            setDeleting(false);
         }
     };
 
@@ -86,7 +98,7 @@ export function AdoptersListPage() {
             await updateAdopter(adopterId, values);
             setError(null);
         } catch {
-            setError("Não foi possível salvar as alterações.");
+            setError("NÃ£o foi possÃ­vel salvar as alteraÃ§Ãµes.");
         } finally {
             setSaving(false);
         }
@@ -99,83 +111,68 @@ export function AdoptersListPage() {
             </Helmet>
 
             <AdminLayout>
-                <main className="min-h-screen bg-linear-to-br from-orange-50 via-white to-orange-100 px-4 py-20 md:px-8 md:py-10 dark:from-gray-950 dark:via-slate-900 dark:to-gray-950">
-                    <div className="mx-auto w-full max-w-7xl">
-                        <div className="mb-6 flex items-center flex-col md:flex-row md:justify-between gap-4">
-                            <div>
-                                <p className="text-xs font-semibold uppercase tracking-[0.22em] text-orange-500 dark:text-orange-300">
-                                    Adotantes
-                                </p>
-                                <h1 className="mt-2 text-3xl font-semibold tracking-tight text-gray-950 dark:text-white">
-                                    Adotantes cadastrados
-                                </h1>
-                                <p className="mt-3 text-sm text-gray-500 dark:text-gray-400">
-                                    Busque, filtre, edite ou remova registros do Firestore.
-                                </p>
-                            </div>
-
+                <EntityPageShell>
+                    <EntityPageHeader
+                        eyebrow="Adotantes"
+                        title="Adotantes cadastrados"
+                        description="Busque, filtre, edite ou remova registros do Firestore."
+                        action={
                             <button
                                 type="button"
                                 onClick={() => navigate("/adotantes/cadastro")}
-                                className="rounded-xl border border-orange-200 bg-white px-4 py-2 text-sm font-medium text-orange-600 shadow-sm transition-colors hover:bg-orange-50 dark:border-gray-700 dark:bg-slate-900 dark:text-orange-300 dark:hover:bg-slate-800"
+                                className="w-full rounded-xl border border-orange-200 bg-white px-4 py-2 text-sm font-medium text-orange-600 shadow-sm transition-colors hover:bg-orange-50 md:w-auto dark:border-gray-700 dark:bg-slate-900 dark:text-orange-300 dark:hover:bg-slate-800"
                             >
                                 Novo cadastro
                             </button>
-                        </div>
+                        }
+                    />
 
-                        <div className="mb-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-                            {[
-                                { label: "Total", value: stats.total },
-                                { label: "Ativos", value: stats.active },
-                                { label: "Inativos", value: stats.inactive },
-                                { label: "Bloqueados", value: stats.blocked },
-                            ].map((item) => (
-                                <div
-                                    key={item.label}
-                                    className="rounded-2xl border border-orange-100 bg-white/92 p-4 shadow-sm dark:border-orange-500/10 dark:bg-slate-900/88"
-                                >
-                                    <p className="text-xs font-medium uppercase tracking-[0.16em] text-gray-400">
-                                        {item.label}
-                                    </p>
-                                    <p className="mt-2 text-3xl font-semibold tracking-tight text-gray-950 dark:text-white">
-                                        {item.value}
-                                    </p>
-                                </div>
-                            ))}
-                        </div>
+                    <EntityStatsGrid
+                        items={[
+                            { label: "Total", value: stats.total },
+                            { label: "Ativos", value: stats.active },
+                            { label: "Inativos", value: stats.inactive },
+                            { label: "Bloqueados", value: stats.blocked },
+                        ]}
+                    />
 
-                        {error && (
-                            <div className="mb-6 rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700 dark:border-red-500/20 dark:bg-red-500/10 dark:text-red-300">
-                                {error}
-                            </div>
-                        )}
+                    {error ? <EntityAlert tone="error">{error}</EntityAlert> : null}
 
-                        <div className="mb-6">
-                            <AdoptersToolbar
-                                search={search}
-                                status={status}
-                                onSearchChange={setSearch}
-                                onStatusChange={(newStatus) => setStatus(newStatus as AdopterStatus | "Todos")}
-                            />
-                        </div>
-
-                        <AdoptersList
-                            adopters={paginatedAdopters}
-                            loading={loading}
-                            page={page}
-                            totalPages={totalPages}
-                            onPageChange={setPage}
-                            onEdit={setEditingAdopter}
-                            onDelete={handleDelete}
+                    <div className="mb-6">
+                        <AdoptersToolbar
+                            search={search}
+                            status={status}
+                            onSearchChange={setSearch}
+                            onStatusChange={(newStatus) => setStatus(newStatus as AdopterStatus | "Todos")}
                         />
                     </div>
-                </main>
+
+                    <AdoptersList
+                        adopters={paginatedAdopters}
+                        loading={loading}
+                        page={page}
+                        totalPages={totalPages}
+                        onPageChange={setPage}
+                        onEdit={setEditingAdopter}
+                        onDelete={setAdopterToDelete}
+                    />
+                </EntityPageShell>
 
                 <AdopterEditorModal
                     adopter={editingAdopter}
                     loading={saving}
                     onClose={() => setEditingAdopter(null)}
                     onSubmit={handleUpdate}
+                />
+
+                <ConfirmDeleteModal
+                    open={!!adopterToDelete}
+                    title="Excluir adotante"
+                    description="Confirme a exclusão do cadastro do adotante."
+                    itemLabel={adopterToDelete?.name}
+                    loading={deleting}
+                    onClose={() => setAdopterToDelete(null)}
+                    onConfirm={handleDelete}
                 />
             </AdminLayout>
         </>

@@ -8,6 +8,8 @@ interface AdopterFormProps {
     initialValues?: Partial<AdopterFormState>;
     submitLabel: string;
     loading?: boolean;
+    onCancel?: () => void;
+    cancelLabel?: string;
     onSubmit: (values: AdopterFormState) => void;
 }
 
@@ -33,6 +35,8 @@ export function AdopterForm({
     initialValues = {},
     submitLabel,
     loading = false,
+    onCancel,
+    cancelLabel = "Cancelar",
     onSubmit,
 }: AdopterFormProps) {
     const [values, setValues] = useState<AdopterFormState>({
@@ -406,7 +410,12 @@ export function AdopterForm({
 
             {/* Actions */}
             <div className="border-t border-orange-100 pt-6 dark:border-orange-500/10">
-                <div className="flex justify-end">
+                <div className="flex justify-end gap-3">
+                    {onCancel ? (
+                        <Button type="button" variant="secondary" onClick={onCancel} disabled={loading}>
+                            {cancelLabel}
+                        </Button>
+                    ) : null}
                     <Button type="submit" variant="primary" isLoading={loading} disabled={loading}>
                         {submitLabel}
                     </Button>

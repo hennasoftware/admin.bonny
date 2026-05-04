@@ -42,4 +42,19 @@ export const dashboardSidebarItems: SidebarSection[] = [
             },
         ],
     },
+    {
+        section: "Adoções",
+        items: [
+            {
+                label: "Cadastrar",
+                path: "/adocoes/cadastro",
+                icon: PlusCircle,
+            },
+            {
+                label: "Visualizar",
+                path: "/adocoes/lista",
+                icon: List,
+            },
+        ],
+    },
 ];
