@@ -2,27 +2,26 @@ import { useState } from "react";
 import { Helmet } from "react-helmet-async";
 import { useNavigate } from "react-router-dom";
 import { AdminLayout } from "@/modules/dashboard/AdminLayout";
-import { EntityAlert, EntityPageHeader, EntityPageShell } from "@/shared/components/ui";
+import { EntityPageHeader, EntityPageShell, useToast } from "@/shared/components/ui";
 import { AdopterForm } from "../components";
 import { createAdopter } from "../services/service";
 import type { AdopterFormState } from "../types";
 
 export function AdoptersCreatePage() {
     const navigate = useNavigate();
+    const { showToast } = useToast();
     const [isSubmitting, setIsSubmitting] = useState(false);
-    const [successMessage, setSuccessMessage] = useState<string | null>(null);
     const [formKey, setFormKey] = useState(0);
 
     const handleCreate = async (values: AdopterFormState) => {
         setIsSubmitting(true);
-        setSuccessMessage(null);
 
         try {
             await createAdopter(values);
-            setSuccessMessage("Adotante cadastrado com sucesso.");
+            showToast("Adotante cadastrado com sucesso.");
             setFormKey((current) => current + 1);
         } catch {
-            setSuccessMessage("NÃ£o foi possÃ­vel cadastrar o adotante.");
+            showToast("Nao foi possivel cadastrar o adotante.", "error");
         } finally {
             setIsSubmitting(false);
         }
@@ -51,14 +50,7 @@ export function AdoptersCreatePage() {
                         }
                     />
 
-                    {successMessage ? <EntityAlert>{successMessage}</EntityAlert> : null}
-
-                    <AdopterForm
-                        key={formKey}
-                        submitLabel="Cadastrar adotante"
-                        loading={isSubmitting}
-                        onSubmit={handleCreate}
-                    />
+                    <AdopterForm key={formKey} submitLabel="Cadastrar adotante" loading={isSubmitting} onSubmit={handleCreate} />
                 </EntityPageShell>
             </AdminLayout>
         </>

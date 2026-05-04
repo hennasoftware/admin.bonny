@@ -1,1 +1,1 @@
-export { AnimalRecord, AnimalFormState } from "./types";
+export type { AnimalFormState, AnimalRecord, AnimalSex, AnimalSize, AnimalStatus } from "./types";

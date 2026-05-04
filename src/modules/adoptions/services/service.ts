@@ -1,15 +1,23 @@
 import {
     collection,
-    addDoc,
-    onSnapshot,
-    query,
-    orderBy,
-    updateDoc,
     deleteDoc,
     doc,
+    getDoc,
+    getDocs,
+    onSnapshot,
+    orderBy,
+    query,
+    runTransaction,
     serverTimestamp,
+    where,
 } from "firebase/firestore";
 import { db } from "@/services/firebase";
+import { buildPagedConstraints, getCollectionPage } from "@/shared/utils/pagination";
+import type { AdopterStatus } from "@/modules/adopters/types";
+import type { AnimalStatus } from "@/modules/animals/types/types";
+import type { AppDateValue } from "@/shared/utils/date";
+
+export type AdoptionStatus = "Em analise" | "Agendada" | "Concluida";
 
 export interface AdoptionRecord {
     id: string;
@@ -17,45 +25,178 @@ export interface AdoptionRecord {
     adopterName: string;
     animalId: string;
     animalName: string;
+    status: AdoptionStatus;
     notes?: string;
-    createdAt: any;
+    createdAt: AppDateValue;
+    updatedAt?: AppDateValue;
+}
+
+interface CreateAdoptionPayload {
+    adopterId: string;
+    adopterName: string;
+    animalId: string;
+    animalName: string;
+    status: AdoptionStatus;
+    notes?: string;
 }
 
 const COLLECTION = "adoptions";
 
-export function subscribeAdoptions(onNext: (items: AdoptionRecord[]) => void, onError?: (err: Error) => void) {
-    const q = query(collection(db, COLLECTION), orderBy("createdAt", "desc"));
+function mapAdoption(entry: { id: string; data: () => unknown }): AdoptionRecord {
+    return {
+        id: entry.id,
+        ...(entry.data() as Omit<AdoptionRecord, "id">),
+    };
+}
+
+export function subscribeAdoptions(
+    onNext: (items: AdoptionRecord[]) => void,
+    onError?: (err: Error) => void,
+    status?: AdoptionStatus | "Todos",
+) {
+    const q = query(collection(db, COLLECTION), ...buildPagedConstraints(status));
 
     return onSnapshot(
         q,
-        (snapshot) => {
-            const items = snapshot.docs.map((d) => ({ id: d.id, ...(d.data() as any) })) as AdoptionRecord[];
-            onNext(items);
-        },
+        (snapshot) => onNext(snapshot.docs.map(mapAdoption)),
         (err) => onError?.(err as Error),
     );
 }
 
-export async function createAdoption(payload: { adopterId: string; adopterName: string; animalId: string; animalName: string; notes?: string }) {
-    // create adoption record
-    await addDoc(collection(db, COLLECTION), {
-        adopterId: payload.adopterId,
-        adopterName: payload.adopterName,
-        animalId: payload.animalId,
-        animalName: payload.animalName,
-        notes: payload.notes ?? "",
-        createdAt: serverTimestamp(),
-    });
+export async function getAdoptionsPage(pageSize: number, cursor?: unknown, status?: AdoptionStatus | "Todos") {
+    return getCollectionPage(
+        {
+            collectionName: COLLECTION,
+            pageSize,
+            cursor: cursor as never,
+            filters: buildPagedConstraints(status),
+        },
+        mapAdoption,
+    );
+}
 
-    // mark animal as adopted
-    const animalRef = doc(db, "animals", payload.animalId);
-    await updateDoc(animalRef, {
-        status: "Adotado",
-        updatedAt: serverTimestamp(),
+export async function getAdoptionsByStatus(status?: AdoptionStatus | "Todos") {
+    const filters = status && status !== "Todos" ? [where("status", "==", status), orderBy("createdAt", "desc")] : [orderBy("createdAt", "desc")];
+    const snapshot = await getDocs(query(collection(db, COLLECTION), ...filters));
+
+    return snapshot.docs.map(mapAdoption);
+}
+
+export async function createAdoption(payload: CreateAdoptionPayload) {
+    await runTransaction(db, async (transaction) => {
+        const animalRef = doc(db, "animals", payload.animalId);
+        const adopterRef = doc(db, "adopters", payload.adopterId);
+        const adoptionRef = doc(collection(db, COLLECTION));
+
+        const [animalSnap, adopterSnap] = await Promise.all([transaction.get(animalRef), transaction.get(adopterRef)]);
+
+        if (!animalSnap.exists()) {
+            throw new Error("Animal nao encontrado.");
+        }
+
+        if (!adopterSnap.exists()) {
+            throw new Error("Adotante nao encontrado.");
+        }
+
+        const animal = animalSnap.data() as { status?: AnimalStatus };
+        const adopter = adopterSnap.data() as { status?: AdopterStatus };
+
+        if (animal.status !== "Disponivel") {
+            throw new Error("O animal selecionado nao esta disponivel para adocao.");
+        }
+
+        if (adopter.status !== "Ativo") {
+            throw new Error("Apenas adotantes ativos podem iniciar uma adocao.");
+        }
+
+        transaction.set(adoptionRef, {
+            adopterId: payload.adopterId,
+            adopterName: payload.adopterName,
+            animalId: payload.animalId,
+            animalName: payload.animalName,
+            status: payload.status,
+            notes: payload.notes ?? "",
+            createdAt: serverTimestamp(),
+            updatedAt: serverTimestamp(),
+        });
+
+        transaction.update(animalRef, {
+            status: getAnimalStatusForAdoptionStatus(payload.status),
+            updatedAt: serverTimestamp(),
+        });
+    });
+}
+
+export async function updateAdoptionStatus(adoptionId: string, nextStatus: AdoptionStatus): Promise<void> {
+    await runTransaction(db, async (transaction) => {
+        const adoptionRef = doc(db, COLLECTION, adoptionId);
+        const adoptionSnap = await transaction.get(adoptionRef);
+
+        if (!adoptionSnap.exists()) {
+            throw new Error("Adocao nao encontrada.");
+        }
+
+        const adoption = adoptionSnap.data() as AdoptionRecord;
+        const animalRef = doc(db, "animals", adoption.animalId);
+
+        transaction.update(adoptionRef, {
+            status: nextStatus,
+            updatedAt: serverTimestamp(),
+        });
+
+        transaction.update(animalRef, {
+            status: getAnimalStatusForAdoptionStatus(nextStatus),
+            updatedAt: serverTimestamp(),
+        });
     });
 }
 
 export async function removeAdoption(adoptionId: string): Promise<void> {
-    await deleteDoc(doc(db, COLLECTION, adoptionId));
+    const adoptionRef = doc(db, COLLECTION, adoptionId);
+    const adoptionSnap = await getDoc(adoptionRef);
+
+    if (!adoptionSnap.exists()) {
+        throw new Error("Adocao nao encontrada.");
+    }
+
+    const adoption = adoptionSnap.data() as AdoptionRecord;
+
+    if (adoption.status === "Concluida") {
+        throw new Error("Adocoes concluidas nao podem ser excluidas.");
+    }
+
+    const relatedSnapshot = await getDocs(query(collection(db, COLLECTION), where("animalId", "==", adoption.animalId)));
+    const remainingAdoptions = relatedSnapshot.docs
+        .map((entry) => ({ id: entry.id, ...(entry.data() as Omit<AdoptionRecord, "id">) }))
+        .filter((entry) => entry.id !== adoptionId);
+
+    await runTransaction(db, async (transaction) => {
+        const currentAdoptionSnap = await transaction.get(adoptionRef);
+
+        if (!currentAdoptionSnap.exists()) {
+            throw new Error("Adocao nao encontrada.");
+        }
+
+        transaction.delete(adoptionRef);
+        transaction.update(doc(db, "animals", adoption.animalId), {
+            status: getAnimalStatusFromAdoptions(remainingAdoptions),
+            updatedAt: serverTimestamp(),
+        });
+    });
 }
 
+export function getAnimalStatusForAdoptionStatus(status: AdoptionStatus): AnimalStatus {
+    return status === "Concluida" ? "Adotado" : "Em processo";
+}
+
+export function getAnimalStatusFromAdoptions(adoptions: Array<Pick<AdoptionRecord, "status">>): AnimalStatus {
+    if (adoptions.some((adoption) => adoption.status === "Concluida")) {
+        return "Adotado";
+    }
+
+    if (adoptions.some((adoption) => adoption.status === "Agendada" || adoption.status === "Em analise")) {
+        return "Em processo";
+    }
+
+    return "Disponivel";
+}

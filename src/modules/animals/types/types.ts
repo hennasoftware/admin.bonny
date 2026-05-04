@@ -1,6 +1,8 @@
-export type AnimalSex = "Macho" | "Fêmea" | "Desconhecido";
-export type AnimalSize = "Pequeno" | "Médio" | "Grande" | "Gigante";
-export type AnimalStatus = "Disponível" | "Em processo" | "Adotado";
+import type { AppDateValue } from "@/shared/utils/date";
+
+export type AnimalSex = "Macho" | "Femea" | "Desconhecido";
+export type AnimalSize = "Pequeno" | "Medio" | "Grande" | "Gigante";
+export type AnimalStatus = "Disponivel" | "Em processo" | "Adotado";
 
 export interface AnimalRecord {
     id: string;
@@ -15,8 +17,8 @@ export interface AnimalRecord {
     neutered: boolean;
     vaccinated: boolean;
     notes?: string;
-    createdAt: string;
-    updatedAt?: string;
+    createdAt: AppDateValue;
+    updatedAt?: AppDateValue;
 }
 
 export interface AnimalFormState {

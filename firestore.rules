@@ -1,0 +1,50 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function animalExists(animalId) {
+      return exists(/databases/$(database)/documents/animals/$(animalId));
+    }
+
+    function adopterExists(adopterId) {
+      return exists(/databases/$(database)/documents/adopters/$(adopterId));
+    }
+
+    function animalStatus(animalId) {
+      return get(/databases/$(database)/documents/animals/$(animalId)).data.status;
+    }
+
+    function adopterStatus(adopterId) {
+      return get(/databases/$(database)/documents/adopters/$(adopterId)).data.status;
+    }
+
+    match /animals/{animalId} {
+      allow read: if isSignedIn();
+      allow create, update, delete: if isSignedIn();
+    }
+
+    match /adopters/{adopterId} {
+      allow read: if isSignedIn();
+      allow create, update, delete: if isSignedIn();
+    }
+
+    match /adoptions/{adoptionId} {
+      allow read: if isSignedIn();
+      allow create: if isSignedIn()
+        && animalExists(request.resource.data.animalId)
+        && adopterExists(request.resource.data.adopterId)
+        && animalStatus(request.resource.data.animalId) == "Disponivel"
+        && adopterStatus(request.resource.data.adopterId) == "Ativo"
+        && request.resource.data.status in ["Em analise", "Agendada", "Concluida"];
+      allow update: if isSignedIn()
+        && resource.data.animalId == request.resource.data.animalId
+        && resource.data.adopterId == request.resource.data.adopterId
+        && request.resource.data.status in ["Em analise", "Agendada", "Concluida"];
+      allow delete: if isSignedIn() && resource.data.status != "Concluida";
+    }
+  }
+}

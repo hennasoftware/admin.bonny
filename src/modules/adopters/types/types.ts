@@ -1,3 +1,5 @@
+import type { AppDateValue } from "@/shared/utils/date";
+
 export type AdopterStatus = "Ativo" | "Inativo" | "Bloqueado";
 
 export interface AdopterRecord {
@@ -17,8 +19,8 @@ export interface AdopterRecord {
     };
     status: AdopterStatus;
     notes?: string;
-    createdAt: string;
-    updatedAt?: string;
+    createdAt: AppDateValue;
+    updatedAt?: AppDateValue;
 }
 
 export interface AdopterFormState {

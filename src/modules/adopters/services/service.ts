@@ -1,37 +1,55 @@
 import {
-    collection,
     addDoc,
-    updateDoc,
+    collection,
     deleteDoc,
     doc,
+    getDocs,
     onSnapshot,
-    query,
     orderBy,
+    query,
     serverTimestamp,
+    updateDoc,
+    where,
 } from "firebase/firestore";
 import { db } from "@/services/firebase";
-import type { AdopterFormState, AdopterRecord } from "../types";
+import { buildPagedConstraints, getCollectionPage } from "@/shared/utils/pagination";
+import type { AdopterFormState, AdopterRecord, AdopterStatus } from "../types";
 
 const COLLECTION_NAME = "adopters";
 
-export function subscribeAdopters(
-    onNext: (adopters: AdopterRecord[]) => void,
-    onError: (error: Error) => void
-) {
+function mapAdopter(entry: { id: string; data: () => unknown }): AdopterRecord {
+    return {
+        id: entry.id,
+        ...(entry.data() as Omit<AdopterRecord, "id">),
+    };
+}
+
+export function subscribeAdopters(onNext: (adopters: AdopterRecord[]) => void, onError: (error: Error) => void) {
     const q = query(collection(db, COLLECTION_NAME), orderBy("createdAt", "desc"));
 
     return onSnapshot(
         q,
-        (snapshot) => {
-            const adopters = snapshot.docs.map((doc) => ({
-                id: doc.id,
-                ...doc.data(),
-            })) as AdopterRecord[];
-
-            onNext(adopters);
-        },
-        onError
+        (snapshot) => onNext(snapshot.docs.map(mapAdopter)),
+        onError,
     );
+}
+
+export async function getAdoptersPage(pageSize: number, cursor?: unknown, status?: AdopterStatus | "Todos") {
+    return getCollectionPage(
+        {
+            collectionName: COLLECTION_NAME,
+            pageSize,
+            cursor: cursor as never,
+            filters: buildPagedConstraints(status),
+        },
+        mapAdopter,
+    );
+}
+
+export async function getAdoptersByStatus(status?: AdopterStatus | "Todos") {
+    const filters = status && status !== "Todos" ? [where("status", "==", status), orderBy("createdAt", "desc")] : [orderBy("createdAt", "desc")];
+    const snapshot = await getDocs(query(collection(db, COLLECTION_NAME), ...filters));
+    return snapshot.docs.map(mapAdopter);
 }
 
 export async function createAdopter(values: AdopterFormState): Promise<void> {
@@ -43,14 +61,19 @@ export async function createAdopter(values: AdopterFormState): Promise<void> {
 }
 
 export async function updateAdopter(adopterId: string, values: AdopterFormState): Promise<void> {
-    const docRef = doc(db, COLLECTION_NAME, adopterId);
-    await updateDoc(docRef, {
+    await updateDoc(doc(db, COLLECTION_NAME, adopterId), {
         ...values,
         updatedAt: serverTimestamp(),
     });
 }
 
 export async function removeAdopter(adopterId: string): Promise<void> {
+    const relatedAdoptions = await getDocs(query(collection(db, "adoptions"), where("adopterId", "==", adopterId)));
+
+    if (!relatedAdoptions.empty) {
+        throw new Error("Nao e possivel excluir um adotante com adocoes vinculadas.");
+    }
+
     await deleteDoc(doc(db, COLLECTION_NAME, adopterId));
 }
 

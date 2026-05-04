@@ -1,22 +1,4 @@
-export function formatDateTime(date?: string | null | any) {
-    if (!date) return "-";
-
-    if (date && typeof date === 'object' && date.toDate) {
-        return new Intl.DateTimeFormat("pt-BR", {
-            dateStyle: "short",
-            timeStyle: "short",
-        }).format(date.toDate());
-    }
-
-    try {
-        return new Intl.DateTimeFormat("pt-BR", {
-            dateStyle: "short",
-            timeStyle: "short",
-        }).format(new Date(date));
-    } catch {
-        return "-";
-    }
-}
+export { formatDateTime } from "@/shared/utils/date";
 
 export function formatCPF(cpf: string): string {
     if (!cpf) return "";
@@ -38,7 +20,9 @@ export function formatPhone(phone: string): string {
         return cleaned
             .replace(/(\d{2})(\d)/, "($1) $2")
             .replace(/(\d{5})(\d{4})$/, "$1-$2");
-    } else if (cleaned.length === 10) {
+    }
+
+    if (cleaned.length === 10) {
         return cleaned
             .replace(/(\d{2})(\d)/, "($1) $2")
             .replace(/(\d{4})(\d{4})$/, "$1-$2");
@@ -47,14 +31,14 @@ export function formatPhone(phone: string): string {
     return phone;
 }
 
-export function formatAddress(adopter: { address: any }): string {
+export function formatAddress(adopter: { address: Record<string, string | undefined> }): string {
     const addr = adopter.address;
     if (!addr) return "";
 
     const parts = [
         addr.street,
         addr.number,
-        addr.complement && `(${addr.complement})`,
+        addr.complement ? `(${addr.complement})` : undefined,
         addr.neighborhood,
         addr.city,
         addr.state,

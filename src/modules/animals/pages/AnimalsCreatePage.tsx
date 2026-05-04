@@ -2,27 +2,26 @@ import { useState } from "react";
 import { Helmet } from "react-helmet-async";
 import { useNavigate } from "react-router-dom";
 import { AdminLayout } from "@/modules/dashboard/AdminLayout";
-import { EntityAlert, EntityPageHeader, EntityPageShell } from "@/shared/components/ui";
+import { EntityPageHeader, EntityPageShell, useToast } from "@/shared/components/ui";
 import { AnimalForm } from "../components";
 import { createAnimal } from "../services/service";
 import type { AnimalFormState } from "../types/types";
 
 export function AnimalsCreatePage() {
     const navigate = useNavigate();
+    const { showToast } = useToast();
     const [isSubmitting, setIsSubmitting] = useState(false);
-    const [successMessage, setSuccessMessage] = useState<string | null>(null);
     const [formKey, setFormKey] = useState(0);
 
     const handleCreate = async (values: AnimalFormState) => {
         setIsSubmitting(true);
-        setSuccessMessage(null);
 
         try {
             await createAnimal(values);
-            setSuccessMessage("Animal cadastrado com sucesso.");
+            showToast("Animal cadastrado com sucesso.");
             setFormKey((current) => current + 1);
         } catch {
-            setSuccessMessage("NÃ£o foi possÃ­vel cadastrar o animal.");
+            showToast("Nao foi possivel cadastrar o animal.", "error");
         } finally {
             setIsSubmitting(false);
         }
@@ -51,14 +50,7 @@ export function AnimalsCreatePage() {
                         }
                     />
 
-                    {successMessage ? <EntityAlert>{successMessage}</EntityAlert> : null}
-
-                    <AnimalForm
-                        key={formKey}
-                        submitLabel="Cadastrar animal"
-                        loading={isSubmitting}
-                        onSubmit={handleCreate}
-                    />
+                    <AnimalForm key={formKey} submitLabel="Cadastrar animal" loading={isSubmitting} onSubmit={handleCreate} />
                 </EntityPageShell>
             </AdminLayout>
         </>

@@ -1,5 +1,6 @@
 import { CalendarClock, Cat, Dog, HeartPulse, ShieldCheck } from "lucide-react";
 import type { AnimalRecord } from "../types/types";
+import { formatDateTime } from "../utils/formatter";
 import { AnimalStatusBadge } from "./AnimalStatusBadge";
 
 interface AnimalCardsProps {
@@ -78,7 +79,7 @@ export function AnimalCards({ animals }: AnimalCardsProps) {
                                     </div>
                                     <div className="flex items-center gap-2 rounded-full bg-white px-3 py-2 dark:bg-slate-900">
                                         <CalendarClock className="h-4 w-4 text-orange-500" />
-                                        {animal.createdAt}
+                                        {formatDateTime(animal.createdAt)}
                                     </div>
                                 </div>
                             </div>

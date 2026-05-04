@@ -3,60 +3,85 @@ import {
     collection,
     deleteDoc,
     doc,
+    getDocs,
     onSnapshot,
     orderBy,
     query,
+    serverTimestamp,
     updateDoc,
+    where,
     type Unsubscribe,
 } from "firebase/firestore";
 import { db } from "@/services/firebase";
+import { buildPagedConstraints, getCollectionPage } from "@/shared/utils/pagination";
 import type { AnimalFormState, AnimalRecord, AnimalStatus } from "../types/types";
 
-const animalsCollection = collection(db, "animals");
+const COLLECTION_NAME = "animals";
+const animalsCollection = collection(db, COLLECTION_NAME);
+
+function mapAnimal(entry: { id: string; data: () => unknown }): AnimalRecord {
+    return {
+        id: entry.id,
+        ...(entry.data() as Omit<AnimalRecord, "id">),
+    };
+}
 
 export function subscribeAnimals(
     onData: (animals: AnimalRecord[]) => void,
     onError?: (error: Error) => void,
+    status?: AnimalRecord["status"] | "Todos",
 ): Unsubscribe {
-    const animalQuery = query(animalsCollection, orderBy("createdAt", "desc"));
+    const constraints = status && status !== "Todos" ? buildPagedConstraints(status) : [orderBy("createdAt", "desc")];
+    const animalQuery = query(animalsCollection, ...constraints);
 
     return onSnapshot(
         animalQuery,
-        (snapshot) => {
-            onData(
-                snapshot.docs.map((entry) => ({
-                    id: entry.id,
-                    ...(entry.data() as Omit<AnimalRecord, "id">),
-                })),
-            );
-        },
-        (error) => {
-            onError?.(error as Error);
-        },
+        (snapshot) => onData(snapshot.docs.map(mapAnimal)),
+        (error) => onError?.(error as Error),
     );
 }
 
-export async function createAnimal(values: AnimalFormState) {
-    const now = new Date().toISOString();
+export async function getAnimalsPage(pageSize: number, cursor?: unknown, status?: AnimalStatus | "Todos") {
+    return getCollectionPage(
+        {
+            collectionName: COLLECTION_NAME,
+            pageSize,
+            cursor: cursor as never,
+            filters: buildPagedConstraints(status),
+        },
+        mapAnimal,
+    );
+}
 
+export async function getAnimalsByStatus(status?: AnimalStatus | "Todos") {
+    const filters = status && status !== "Todos" ? [where("status", "==", status), orderBy("createdAt", "desc")] : [orderBy("createdAt", "desc")];
+    const snapshot = await getDocs(query(animalsCollection, ...filters));
+    return snapshot.docs.map(mapAnimal);
+}
+
+export async function createAnimal(values: AnimalFormState) {
     await addDoc(animalsCollection, {
         ...values,
-        createdAt: now,
-        updatedAt: now,
+        createdAt: serverTimestamp(),
+        updatedAt: serverTimestamp(),
     });
 }
 
 export async function updateAnimal(animalId: string, values: AnimalFormState) {
-    const now = new Date().toISOString();
-
-    await updateDoc(doc(db, "animals", animalId), {
+    await updateDoc(doc(db, COLLECTION_NAME, animalId), {
         ...values,
-        updatedAt: now,
+        updatedAt: serverTimestamp(),
     });
 }
 
 export async function removeAnimal(animalId: string) {
-    await deleteDoc(doc(db, "animals", animalId));
+    const relatedAdoptions = await getDocs(query(collection(db, "adoptions"), where("animalId", "==", animalId)));
+
+    if (!relatedAdoptions.empty) {
+        throw new Error("Nao e possivel excluir um animal com adocoes vinculadas.");
+    }
+
+    await deleteDoc(doc(db, COLLECTION_NAME, animalId));
 }
 
 export function toAnimalFormState(animal: AnimalRecord): AnimalFormState {
@@ -80,16 +105,9 @@ export function matchesSearch(animal: AnimalRecord, search: string) {
 
     if (!normalizedSearch) return true;
 
-    return [
-        animal.name,
-        animal.species,
-        animal.breed,
-        animal.color,
-        animal.age,
-        animal.status,
-    ].some((value) => value.toLowerCase().includes(normalizedSearch));
+    return [animal.name, animal.species, animal.breed, animal.color, animal.age, animal.status].some((value) =>
+        value.toLowerCase().includes(normalizedSearch),
+    );
 }
 
-export function matchesStatus(animal: AnimalRecord, status: AnimalStatus | "Todos") {
-    return status === "Todos" ? true : animal.status === status;
-}
+// matchesStatus removed — status checks are handled inline where needed

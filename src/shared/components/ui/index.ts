@@ -3,6 +3,7 @@ export { Input } from './Input';
 export { FormField } from './FormField';
 export { Modal } from "./Modal";
 export { ConfirmDeleteModal } from "./ConfirmDeleteModal";
+export { ToastProvider, useToast } from "./ToastProvider";
 export {
     EntityAlert,
     EntityPageHeader,

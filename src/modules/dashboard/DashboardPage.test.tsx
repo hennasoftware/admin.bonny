@@ -6,7 +6,7 @@ import { DashboardPage } from "./DashboardPage";
 import type { DashboardSnapshot } from "./types";
 
 const logoutMock = vi.fn();
-const getDashboardSnapshotMock = vi.fn();
+const subscribeDashboardSnapshotMock = vi.fn();
 
 vi.mock("@/modules/auth/context/useAuth", () => ({
     useAuth: () => ({
@@ -16,22 +16,22 @@ vi.mock("@/modules/auth/context/useAuth", () => ({
 }));
 
 vi.mock("./service", () => ({
-    getDashboardSnapshot: () => getDashboardSnapshotMock(),
+    subscribeDashboardSnapshot: (...args: unknown[]) => subscribeDashboardSnapshotMock(...args),
 }));
 
 describe("DashboardPage", () => {
     beforeEach(() => {
         logoutMock.mockReset();
-        getDashboardSnapshotMock.mockReset();
+        subscribeDashboardSnapshotMock.mockReset();
     });
 
-    it("renders dashboard data returned by the service", async () => {
+    it("renders dashboard data returned by the subscription", async () => {
         const snapshot: DashboardSnapshot = {
             stats: [
                 {
-                    title: "Adoções ativas",
+                    title: "Animais disponiveis",
                     value: "10",
-                    growth: "+2,0%",
+                    growth: "2 no mes",
                     icon: (() => null) as never,
                 },
             ],
@@ -39,18 +39,23 @@ describe("DashboardPage", () => {
                 { month: "Jan", value: 3 },
                 { month: "Fev", value: 5 },
             ],
+            chartHighlight: "5",
+            chartTrend: "Alta de 20%",
             recentAdoptions: [
                 {
                     id: "ADO-1",
                     petName: "Luna",
                     adopterName: "Maria",
-                    status: "Concluída",
-                    date: "Hoje, 09:00",
+                    status: "Concluida",
+                    date: "04/05/2026 09:00",
                 },
             ],
         };
 
-        getDashboardSnapshotMock.mockResolvedValue(snapshot);
+        subscribeDashboardSnapshotMock.mockImplementation((onData: (value: DashboardSnapshot) => void) => {
+            onData(snapshot);
+            return () => undefined;
+        });
 
         render(
             <MemoryRouter>
@@ -61,10 +66,10 @@ describe("DashboardPage", () => {
         );
 
         await waitFor(() => {
-            expect(screen.getByText("Adoções ativas")).toBeInTheDocument();
+            expect(screen.getByText("Animais disponiveis")).toBeInTheDocument();
         });
 
         expect(screen.getByText(/Luna/)).toBeInTheDocument();
-        expect(screen.getByText("Adoções por mês")).toBeInTheDocument();
+        expect(screen.getByText("Adocoes por mes")).toBeInTheDocument();
     });
 });

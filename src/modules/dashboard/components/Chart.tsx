@@ -4,6 +4,8 @@ interface ChartProps {
     title: string;
     description: string;
     data: MonthlyOrdersPoint[];
+    highlight: string;
+    trend: string;
 }
 
 const WIDTH = 760;
@@ -12,7 +14,7 @@ const PADDING_X = 18;
 const PADDING_TOP = 18;
 const PADDING_BOTTOM = 36;
 
-export function Chart({ title, description, data }: ChartProps) {
+export function Chart({ title, description, data, highlight, trend }: ChartProps) {
     const maxValue = Math.max(...data.map((item) => item.value), 1);
     const drawableWidth = WIDTH - PADDING_X * 2;
     const drawableHeight = HEIGHT - PADDING_TOP - PADDING_BOTTOM;
@@ -26,10 +28,7 @@ export function Chart({ title, description, data }: ChartProps) {
         return { ...item, x, y };
     });
 
-    const linePath = points
-        .map((point, index) => `${index === 0 ? "M" : "L"} ${point.x} ${point.y}`)
-        .join(" ");
-
+    const linePath = points.map((point, index) => `${index === 0 ? "M" : "L"} ${point.x} ${point.y}`).join(" ");
     const areaPath = `${linePath} L ${points[points.length - 1]?.x ?? PADDING_X} ${HEIGHT - PADDING_BOTTOM} L ${points[0]?.x ?? PADDING_X} ${HEIGHT - PADDING_BOTTOM} Z`;
     const yGuides = Array.from({ length: 4 }).map((_, index) => {
         const value = Math.round((maxValue / 4) * (4 - index));
@@ -48,16 +47,12 @@ export function Chart({ title, description, data }: ChartProps) {
             <div className="overflow-hidden rounded-2xl border border-orange-100 bg-linear-to-b from-orange-50/60 to-white/40 p-3 sm:p-4 dark:border-slate-800 dark:from-slate-900 dark:to-slate-950/40">
                 <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                     <div>
-                        <p className="text-xs font-medium uppercase tracking-[0.08em] text-gray-400">
-                            Adoções
-                        </p>
-                        <p className="mt-1 text-2xl font-semibold tracking-tight text-gray-950 dark:text-white">
-                            {data[data.length - 1]?.value ?? 0}
-                        </p>
+                        <p className="text-xs font-medium uppercase tracking-[0.08em] text-gray-400">Adocoes concluidas</p>
+                        <p className="mt-1 text-2xl font-semibold tracking-tight text-gray-950 dark:text-white">{highlight}</p>
                     </div>
 
                     <div className="rounded-full bg-emerald-50 px-3 py-1 text-xs font-medium text-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-300">
-                        +18,6% vs. período anterior
+                        {trend}
                     </div>
                 </div>
 

@@ -1,4 +1,5 @@
 import type { LucideIcon } from "lucide-react";
+import type { AdoptionStatus } from "@/modules/adoptions/services/service";
 
 export interface DashboardStat {
     title: string;
@@ -16,12 +17,14 @@ export interface RecentOrder {
     id: string;
     petName: string;
     adopterName: string;
-    status: "Concluída" | "Em análise" | "Agendada";
+    status: AdoptionStatus;
     date: string;
 }
 
 export interface DashboardSnapshot {
     stats: DashboardStat[];
     monthlyAdoptions: MonthlyOrdersPoint[];
+    chartHighlight: string;
+    chartTrend: string;
     recentAdoptions: RecentOrder[];
 }
