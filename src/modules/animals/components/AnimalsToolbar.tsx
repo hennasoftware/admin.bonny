@@ -1,5 +1,8 @@
 import { Search } from "lucide-react";
 import { FormField } from "@/shared/components/ui";
+import Select from "react-select";
+import { createSelectStyles } from "@/shared/utils/selectStyles";
+import { useTheme } from "@/styles/themes/useTheme";
 import type { AnimalStatus } from "../types/types";
 
 interface AnimalsToolbarProps {
@@ -10,6 +13,7 @@ interface AnimalsToolbarProps {
 }
 
 export function AnimalsToolbar({ search, status, onSearchChange, onStatusChange }: AnimalsToolbarProps) {
+    const { theme } = useTheme();
     return (
         <div className="rounded-4xl border border-orange-100 bg-white/92 p-5 shadow-sm dark:border-orange-500/10 dark:bg-slate-900/88 md:p-6">
             <div className="grid gap-4 lg:grid-cols-[1fr_260px]">
@@ -23,16 +27,32 @@ export function AnimalsToolbar({ search, status, onSearchChange, onStatusChange 
 
                 <label className="flex flex-col gap-1.5">
                     <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Filtrar por status</span>
-                    <select
-                        value={status}
-                        onChange={(event) => onStatusChange(event.target.value as AnimalStatus | "Todos")}
-                        className="rounded-lg border border-gray-200 bg-white px-4 py-2.5 text-gray-900 outline-none transition-shadow duration-150 focus:border-orange-500 focus:ring-2 focus:ring-orange-500/50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100 dark:focus:border-orange-400 dark:focus:ring-orange-400/50"
-                    >
-                        <option value="Todos">Todos</option>
-                        <option value="Disponivel">Disponivel</option>
-                        <option value="Em processo">Em processo</option>
-                        <option value="Adotado">Adotado</option>
-                    </select>
+                    <Select
+                        value={["Adotado", "Disponivel", "Em processo", "Todos"]
+                            .map((v) => ({ value: v as AnimalStatus | "Todos", label: v }))
+                            .find((o) => o.value === status) ?? null
+                        }
+                        onChange={(opt) => onStatusChange((opt as any)?.value ?? "Todos")}
+                        options={["Adotado", "Disponivel", "Em processo", "Todos"]
+                            .map((v) => ({ value: v as AnimalStatus | "Todos", label: v }))
+                            .sort((a, b) => a.label.localeCompare(b.label))
+                        }
+                        isSearchable={false}
+                        className="w-full"
+                        menuPlacement="auto"
+                        menuPortalTarget={typeof document !== "undefined" ? document.body : undefined}
+                        styles={createSelectStyles("md", theme === "dark")}
+                        classNames={{
+                            control: () =>
+                                "rounded-lg border border-gray-200 bg-white px-4 py-2.5 text-sm text-gray-900 outline-none transition-shadow duration-150 focus:border-orange-500 focus:ring-2 focus:ring-orange-500/50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100",
+                            valueContainer: () => "px-3",
+                            singleValue: () => "text-sm",
+                            placeholder: () => "text-gray-400",
+                            menu: () => "mt-1 rounded-lg border border-gray-200 bg-white shadow-lg z-50 dark:border-gray-700 dark:bg-gray-800",
+                            option: (state) =>
+                                `px-3 py-2 text-sm text-gray-900 dark:text-gray-100 ${state.isFocused ? "bg-slate-50 dark:bg-slate-900/60" : ""}`,
+                        }}
+                    />
                 </label>
             </div>
         </div>

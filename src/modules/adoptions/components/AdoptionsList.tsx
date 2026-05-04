@@ -2,6 +2,9 @@ import { Trash2 } from "lucide-react";
 import { Button } from "@/shared/components/ui";
 import { formatDateTime } from "@/shared/utils/date";
 import type { AdoptionRecord, AdoptionStatus } from "@/modules/adoptions/services/service";
+import Select from "react-select";
+import { createSelectStyles } from "@/shared/utils/selectStyles";
+import { useTheme } from "@/styles/themes/useTheme";
 
 interface AdoptionsListProps {
     adoptions: AdoptionRecord[];
@@ -30,6 +33,7 @@ export function AdoptionsList({
     onDelete,
     onStatusChange,
 }: AdoptionsListProps) {
+    const { theme } = useTheme();
     const canPrev = page > 1;
     const canNext = hasNextPage;
 
@@ -88,15 +92,22 @@ export function AdoptionsList({
                                             <span className={`w-fit rounded-full px-2.5 py-1 text-xs font-medium ${statusStyles[item.status]}`}>
                                                 {item.status}
                                             </span>
-                                            <select
-                                                value={item.status}
-                                                onChange={(event) => onStatusChange(item, event.target.value as AdoptionStatus)}
-                                                className="rounded-lg border border-gray-200 bg-white px-3 py-2 text-xs text-gray-900 outline-none transition-shadow focus:border-orange-500 focus:ring-2 focus:ring-orange-500/40 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100"
-                                            >
-                                                <option value="Em analise">Em analise</option>
-                                                <option value="Agendada">Agendada</option>
-                                                <option value="Concluida">Concluida</option>
-                                            </select>
+                                            <Select
+                                                value={["Em analise", "Agendada", "Concluida"].map((v) => ({ value: v as AdoptionStatus, label: v })).sort((a, b) => a.label.localeCompare(b.label)).find((o) => o.value === item.status) ?? null}
+                                                onChange={(opt) => onStatusChange(item, (opt as any)?.value ?? item.status)}
+                                                options={["Em analise", "Agendada", "Concluida"].map((v) => ({ value: v as AdoptionStatus, label: v })).sort((a, b) => a.label.localeCompare(b.label))}
+                                                isSearchable={false}
+                                                className="w-40"
+                                                styles={createSelectStyles("sm", theme === "dark")}
+                                                classNames={{
+                                                    control: () =>
+                                                        "rounded-lg border border-gray-200 bg-white px-3 py-1 text-xs text-gray-900 outline-none transition-shadow duration-150 focus:border-orange-500 focus:ring-2 focus:ring-orange-500/40 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100",
+                                                    valueContainer: () => "px-2",
+                                                    singleValue: () => "text-xs",
+                                                    menu: () => "mt-1 rounded-lg border border-gray-200 bg-white shadow-lg z-50 dark:border-gray-700 dark:bg-gray-800",
+                                                    option: (s) => `px-3 py-2 text-sm text-gray-900 dark:text-gray-100 ${s.isFocused ? "bg-slate-50 dark:bg-slate-900/60" : ""}`,
+                                                }}
+                                            />
                                         </div>
                                     </td>
                                     <td className="max-w-xs px-4 py-3 text-slate-600 dark:text-slate-300">

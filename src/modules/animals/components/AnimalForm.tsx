@@ -1,6 +1,9 @@
 import { useEffect, useState, type FormEvent } from "react";
 import { PawPrint } from "lucide-react";
 import { Button, FormField } from "@/shared/components/ui";
+import Select from "react-select";
+import { createSelectStyles } from "@/shared/utils/selectStyles";
+import { useTheme } from "@/styles/themes/useTheme";
 import { ANIMAL_DATA } from "../constants/animalData";
 import type { AnimalFormState } from "../types/types";
 
@@ -37,6 +40,7 @@ export function AnimalForm({
 }: AnimalFormProps) {
     const [form, setForm] = useState<AnimalFormState>({ ...defaultFormState, ...initialValues });
     const [errors, setErrors] = useState<Partial<Record<keyof AnimalFormState, string>>>({});
+    const { theme } = useTheme();
 
     const updateField = <K extends keyof AnimalFormState>(field: K, value: AnimalFormState[K]) => {
         setForm((current) => {
@@ -101,35 +105,56 @@ export function AnimalForm({
 
                 <label className="flex flex-col gap-1.5">
                     <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Especie</span>
-                    <select
-                        value={form.species}
-                        onChange={(event) => updateField("species", event.target.value)}
-                        className="rounded-lg border border-gray-200 bg-white px-4 py-2.5 text-gray-900 outline-none transition-shadow duration-150 focus:border-orange-500 focus:ring-2 focus:ring-orange-500/50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100 dark:focus:border-orange-400 dark:focus:ring-orange-400/50"
-                        disabled={loading}
-                    >
-                        {ANIMAL_DATA.species.map((specie) => (
-                            <option key={specie.value} value={specie.value}>
-                                {specie.label}
-                            </option>
-                        ))}
-                    </select>
+                    <Select
+                        value={ANIMAL_DATA.species
+                            .map((s) => ({ value: s.value, label: s.label }))
+                            .sort((a, b) => a.label.localeCompare(b.label))
+                            .find((o) => o.value === form.species) ?? null}
+                        onChange={(opt) => updateField("species", (opt as any)?.value ?? "")}
+                        options={ANIMAL_DATA.species.map((s) => ({ value: s.value, label: s.label })).sort((a, b) => a.label.localeCompare(b.label))}
+                        isDisabled={loading}
+                        className="w-full"
+                        menuPlacement="auto"
+                        menuPortalTarget={typeof document !== "undefined" ? document.body : undefined}
+                        styles={createSelectStyles("md", theme === "dark")}
+                        classNames={{
+                            control: () =>
+                                "rounded-lg border border-gray-200 bg-white px-4 py-2.5 text-sm text-gray-900 outline-none transition-shadow duration-150 focus:border-orange-500 focus:ring-2 focus:ring-orange-500/50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100",
+                            valueContainer: () => "px-3",
+                            singleValue: () => "text-sm",
+                            placeholder: () => "text-gray-400",
+                            menu: () => "mt-1 rounded-lg border border-gray-200 bg-white shadow-lg z-50 dark:border-gray-700 dark:bg-gray-800",
+                            option: (s) => `px-3 py-2 text-sm text-gray-900 dark:text-gray-100 ${s.isFocused ? "bg-slate-50 dark:bg-slate-900/60" : ""}`,
+                        }}
+                    />
                 </label>
 
                 <label className="flex flex-col gap-1.5">
                     <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Raca</span>
-                    <select
-                        value={form.breed}
-                        onChange={(event) => updateField("breed", event.target.value)}
-                        className="rounded-lg border border-gray-200 bg-white px-4 py-2.5 text-gray-900 outline-none transition-shadow duration-150 focus:border-orange-500 focus:ring-2 focus:ring-orange-500/50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100 dark:focus:border-orange-400 dark:focus:ring-orange-400/50"
-                        disabled={loading}
-                    >
-                        <option value="">Selecione uma raca</option>
-                        {availableBreeds.map((breed) => (
-                            <option key={breed} value={breed}>
-                                {breed}
-                            </option>
-                        ))}
-                    </select>
+                    <Select
+                        value={["", ...availableBreeds]
+                            .filter(Boolean)
+                            .map((b) => ({ value: b, label: b }))
+                            .sort((a, b) => a.label.localeCompare(b.label))
+                            .find((o) => o.value === form.breed) ?? null}
+                        onChange={(opt) => updateField("breed", (opt as any)?.value ?? "")}
+                        options={availableBreeds.map((b) => ({ value: b, label: b })).sort((a, b) => a.label.localeCompare(b.label))}
+                        isDisabled={loading}
+                        className="w-full"
+                        menuPlacement="auto"
+                        menuPortalTarget={typeof document !== "undefined" ? document.body : undefined}
+                        styles={createSelectStyles("md", theme === "dark")}
+                        placeholder="Selecione uma raca"
+                        classNames={{
+                            control: () =>
+                                "rounded-lg border border-gray-200 bg-white px-4 py-2.5 text-sm text-gray-900 outline-none transition-shadow duration-150 focus:border-orange-500 focus:ring-2 focus:ring-orange-500/50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100",
+                            valueContainer: () => "px-3",
+                            singleValue: () => "text-sm",
+                            placeholder: () => "text-gray-400",
+                            menu: () => "mt-1 rounded-lg border border-gray-200 bg-white shadow-lg z-50 dark:border-gray-700 dark:bg-gray-800",
+                            option: (s) => `px-3 py-2 text-sm text-gray-900 dark:text-gray-100 ${s.isFocused ? "bg-slate-50 dark:bg-slate-900/60" : ""}`,
+                        }}
+                    />
                     {errors.breed ? <p className="text-sm text-red-500 dark:text-red-400">{errors.breed}</p> : null}
                 </label>
 
@@ -137,68 +162,96 @@ export function AnimalForm({
 
                 <label className="flex flex-col gap-1.5">
                     <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Sexo</span>
-                    <select
-                        value={form.sex}
-                        onChange={(event) => updateField("sex", event.target.value as AnimalFormState["sex"])}
-                        className="rounded-lg border border-gray-200 bg-white px-4 py-2.5 text-gray-900 outline-none transition-shadow duration-150 focus:border-orange-500 focus:ring-2 focus:ring-orange-500/50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100 dark:focus:border-orange-400 dark:focus:ring-orange-400/50"
-                        disabled={loading}
-                    >
-                        {ANIMAL_DATA.sex.map((sex) => (
-                            <option key={sex.value} value={sex.value}>
-                                {sex.label}
-                            </option>
-                        ))}
-                    </select>
+                    <Select
+                        value={ANIMAL_DATA.sex.map((s) => ({ value: s.value, label: s.label })).sort((a, b) => a.label.localeCompare(b.label)).find((o) => o.value === form.sex) ?? null}
+                        onChange={(opt) => updateField("sex", (opt as any)?.value ?? "")}
+                        options={ANIMAL_DATA.sex.map((s) => ({ value: s.value, label: s.label })).sort((a, b) => a.label.localeCompare(b.label))}
+                        isDisabled={loading}
+                        className="w-full"
+                        menuPlacement="auto"
+                        menuPortalTarget={typeof document !== "undefined" ? document.body : undefined}
+                        styles={createSelectStyles("md", theme === "dark")}
+                        classNames={{
+                            control: () =>
+                                "rounded-lg border border-gray-200 bg-white px-4 py-2.5 text-sm text-gray-900 outline-none transition-shadow duration-150 focus:border-orange-500 focus:ring-2 focus:ring-orange-500/50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100",
+                            valueContainer: () => "px-3",
+                            singleValue: () => "text-sm",
+                            placeholder: () => "text-gray-400",
+                            menu: () => "mt-1 rounded-lg border border-gray-200 bg-white shadow-lg z-50 dark:border-gray-700 dark:bg-gray-800",
+                            option: (s) => `px-3 py-2 text-sm text-gray-900 dark:text-gray-100 ${s.isFocused ? "bg-slate-50 dark:bg-slate-900/60" : ""}`,
+                        }}
+                    />
                 </label>
 
                 <label className="flex flex-col gap-1.5">
                     <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Porte</span>
-                    <select
-                        value={form.size}
-                        onChange={(event) => updateField("size", event.target.value as AnimalFormState["size"])}
-                        className="rounded-lg border border-gray-200 bg-white px-4 py-2.5 text-gray-900 outline-none transition-shadow duration-150 focus:border-orange-500 focus:ring-2 focus:ring-orange-500/50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100 dark:focus:border-orange-400 dark:focus:ring-orange-400/50"
-                        disabled={loading}
-                    >
-                        {ANIMAL_DATA.size.map((size) => (
-                            <option key={size.value} value={size.value}>
-                                {size.label}
-                            </option>
-                        ))}
-                    </select>
+                    <Select
+                        value={ANIMAL_DATA.size.map((s) => ({ value: s.value, label: s.label })).sort((a, b) => a.label.localeCompare(b.label)).find((o) => o.value === form.size) ?? null}
+                        onChange={(opt) => updateField("size", (opt as any)?.value ?? "")}
+                        options={ANIMAL_DATA.size.map((s) => ({ value: s.value, label: s.label })).sort((a, b) => a.label.localeCompare(b.label))}
+                        isDisabled={loading}
+                        className="w-full"
+                        menuPlacement="auto"
+                        menuPortalTarget={typeof document !== "undefined" ? document.body : undefined}
+                        styles={createSelectStyles("md", theme === "dark")}
+                        classNames={{
+                            control: () =>
+                                "rounded-lg border border-gray-200 bg-white px-4 py-2.5 text-sm text-gray-900 outline-none transition-shadow duration-150 focus:border-orange-500 focus:ring-2 focus:ring-orange-500/50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100",
+                            valueContainer: () => "px-3",
+                            singleValue: () => "text-sm",
+                            placeholder: () => "text-gray-400",
+                            menu: () => "mt-1 rounded-lg border border-gray-200 bg-white shadow-lg z-50 dark:border-gray-700 dark:bg-gray-800",
+                            option: (s) => `px-3 py-2 text-sm text-gray-900 dark:text-gray-100 ${s.isFocused ? "bg-slate-50 dark:bg-slate-900/60" : ""}`,
+                        }}
+                    />
                 </label>
 
                 <label className="flex flex-col gap-1.5">
                     <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Cor</span>
-                    <select
-                        value={form.color}
-                        onChange={(event) => updateField("color", event.target.value)}
-                        className="rounded-lg border border-gray-200 bg-white px-4 py-2.5 text-gray-900 outline-none transition-shadow duration-150 focus:border-orange-500 focus:ring-2 focus:ring-orange-500/50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100 dark:focus:border-orange-400 dark:focus:ring-orange-400/50"
-                        disabled={loading}
-                    >
-                        <option value="">Selecione uma cor</option>
-                        {ANIMAL_DATA.colors.map((color) => (
-                            <option key={color} value={color}>
-                                {color}
-                            </option>
-                        ))}
-                    </select>
+                    <Select
+                        value={["", ...ANIMAL_DATA.colors].filter(Boolean).map((c) => ({ value: c, label: c })).sort((a, b) => a.label.localeCompare(b.label)).find((o) => o.value === form.color) ?? null}
+                        onChange={(opt) => updateField("color", (opt as any)?.value ?? "")}
+                        options={ANIMAL_DATA.colors.map((c) => ({ value: c, label: c })).sort((a, b) => a.label.localeCompare(b.label))}
+                        isDisabled={loading}
+                        className="w-full"
+                        menuPlacement="auto"
+                        menuPortalTarget={typeof document !== "undefined" ? document.body : undefined}
+                        styles={createSelectStyles("md", theme === "dark")}
+                        placeholder="Selecione uma cor"
+                        classNames={{
+                            control: () =>
+                                "rounded-lg border border-gray-200 bg-white px-4 py-2.5 text-sm text-gray-900 outline-none transition-shadow duration-150 focus:border-orange-500 focus:ring-2 focus:ring-orange-500/50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100",
+                            valueContainer: () => "px-3",
+                            singleValue: () => "text-sm",
+                            placeholder: () => "text-gray-400",
+                            menu: () => "mt-1 rounded-lg border border-gray-200 bg-white shadow-lg z-50 dark:border-gray-700 dark:bg-gray-800",
+                            option: (s) => `px-3 py-2 text-sm text-gray-900 dark:text-gray-100 ${s.isFocused ? "bg-slate-50 dark:bg-slate-900/60" : ""}`,
+                        }}
+                    />
                     {errors.color ? <p className="text-sm text-red-500 dark:text-red-400">{errors.color}</p> : null}
                 </label>
 
                 <label className="flex flex-col gap-1.5">
                     <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Status</span>
-                    <select
-                        value={form.status}
-                        onChange={(event) => updateField("status", event.target.value as AnimalFormState["status"])}
-                        className="rounded-lg border border-gray-200 bg-white px-4 py-2.5 text-gray-900 outline-none transition-shadow duration-150 focus:border-orange-500 focus:ring-2 focus:ring-orange-500/50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100 dark:focus:border-orange-400 dark:focus:ring-orange-400/50"
-                        disabled={loading}
-                    >
-                        {ANIMAL_DATA.status.map((animalStatus) => (
-                            <option key={animalStatus.value} value={animalStatus.value}>
-                                {animalStatus.label}
-                            </option>
-                        ))}
-                    </select>
+                    <Select
+                        value={ANIMAL_DATA.status.map((s) => ({ value: s.value, label: s.label })).sort((a, b) => a.label.localeCompare(b.label)).find((o) => o.value === form.status) ?? null}
+                        onChange={(opt) => updateField("status", (opt as any)?.value ?? "")}
+                        options={ANIMAL_DATA.status.map((s) => ({ value: s.value, label: s.label })).sort((a, b) => a.label.localeCompare(b.label))}
+                        isDisabled={loading}
+                        className="w-full"
+                        menuPlacement="auto"
+                        menuPortalTarget={typeof document !== "undefined" ? document.body : undefined}
+                        styles={createSelectStyles("md", theme === "dark")}
+                        classNames={{
+                            control: () =>
+                                "rounded-lg border border-gray-200 bg-white px-4 py-2.5 text-sm text-gray-900 outline-none transition-shadow duration-150 focus:border-orange-500 focus:ring-2 focus:ring-orange-500/50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100",
+                            valueContainer: () => "px-3",
+                            singleValue: () => "text-sm",
+                            placeholder: () => "text-gray-400",
+                            menu: () => "mt-1 rounded-lg border border-gray-200 bg-white shadow-lg z-50 dark:border-gray-700 dark:bg-gray-800",
+                            option: (s) => `px-3 py-2 text-sm text-gray-900 dark:text-gray-100 ${s.isFocused ? "bg-slate-50 dark:bg-slate-900/60" : ""}`,
+                        }}
+                    />
                 </label>
             </div>
 

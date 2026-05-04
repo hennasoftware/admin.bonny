@@ -6,6 +6,9 @@ import { AdminLayout } from "@/modules/dashboard/AdminLayout";
 import { Button, EntityAlert, EntityPageHeader, EntityPageShell, EntitySectionCard, EntityStatsGrid, useToast } from "@/shared/components/ui";
 import { subscribeAdopters } from "@/modules/adopters/services/service";
 import { subscribeAnimals } from "@/modules/animals/services/service";
+import Select from "react-select";
+import { useTheme } from "@/styles/themes/useTheme";
+import { createSelectStyles } from "@/shared/utils/selectStyles";
 import { ANIMAL_DATA } from "@/modules/animals/constants/animalData";
 import { createAdoption, type AdoptionStatus } from "@/modules/adoptions/services/service";
 import { formatAddress, formatCPF, formatPhone } from "@/modules/adopters/utils/formatter";
@@ -24,6 +27,7 @@ export function AdoptionsCreatePage() {
     const [notes, setNotes] = useState("");
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const { theme } = useTheme();
 
     useEffect(() => {
         const unsubA = subscribeAdopters(
@@ -124,50 +128,82 @@ export function AdoptionsCreatePage() {
                                 <div className="grid gap-4 md:grid-cols-2">
                                     <label className="flex flex-col gap-2">
                                         <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Adotante</span>
-                                        <select
-                                            value={selectedAdopter}
-                                            onChange={(event) => setSelectedAdopter(event.target.value)}
-                                            className="min-h-12 w-full appearance-none rounded-2xl border border-orange-100 bg-white px-4 py-3 pr-10 text-sm text-gray-700 shadow-sm outline-none transition-shadow focus:border-orange-400 focus:ring-2 focus:ring-orange-400/30 dark:border-orange-500/10 dark:bg-slate-900 dark:text-white"
-                                            required
-                                        >
-                                            <option value="">Selecione um adotante</option>
-                                            {adopters.map((adopter) => (
-                                                <option key={adopter.id} value={adopter.id}>
-                                                    {adopter.name} - {formatCPF(adopter.cpf)}
-                                                </option>
-                                            ))}
-                                        </select>
+                                        <Select
+                                            value={(() => {
+                                                const opts = adopters
+                                                    .map((a) => ({ value: a.id, label: `${a.name} - ${formatCPF(a.cpf)}` }))
+                                                    .sort((x, y) => x.label.localeCompare(y.label));
+                                                return opts.find((o) => o.value === selectedAdopter) ?? null;
+                                            })()}
+                                                onChange={(opt) => setSelectedAdopter((opt as any)?.value ?? "")}
+                                                    options={adopters.map((a) => ({ value: a.id, label: `${a.name} - ${formatCPF(a.cpf)}` })).sort((x, y) => x.label.localeCompare(y.label))}
+                                                    placeholder="Selecione um adotante"
+                                                    isClearable
+                                                    className="w-full"
+                                                    menuPlacement="auto"
+                                                    menuPortalTarget={typeof document !== "undefined" ? document.body : undefined}
+                                                    styles={createSelectStyles("md", theme === "dark")}
+                                                    classNames={{
+                                                        control: () =>
+                                                            "rounded-2xl border border-orange-100 bg-white px-4 py-2.5 text-sm text-gray-700 outline-none transition-shadow focus:border-orange-400 focus:ring-2 focus:ring-orange-400/30 dark:border-orange-500/10 dark:bg-slate-900 dark:text-white",
+                                                        valueContainer: () => "px-3",
+                                                        singleValue: () => "text-sm",
+                                                        placeholder: () => "text-gray-400",
+                                                        menu: () => "mt-1 rounded-lg border border-gray-200 bg-white shadow-lg z-50 dark:border-gray-700 dark:bg-gray-800",
+                                                        option: (s) => `px-3 py-2 text-sm text-gray-900 dark:text-gray-100 ${s.isFocused ? "bg-slate-50 dark:bg-slate-900/60" : ""}`,
+                                                    }}
+                                        />
                                     </label>
 
                                     <label className="flex flex-col gap-2">
                                         <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Animal disponivel</span>
-                                        <select
-                                            value={selectedAnimal}
-                                            onChange={(event) => setSelectedAnimal(event.target.value)}
-                                            className="min-h-12 w-full appearance-none rounded-2xl border border-orange-100 bg-white px-4 py-3 pr-10 text-sm text-gray-700 shadow-sm outline-none transition-shadow focus:border-orange-400 focus:ring-2 focus:ring-orange-400/30 dark:border-orange-500/10 dark:bg-slate-900 dark:text-white"
-                                            required
-                                        >
-                                            <option value="">Selecione um animal</option>
-                                            {availableAnimals.map((animal) => (
-                                                <option key={animal.id} value={animal.id}>
-                                                    {animal.name} - {animal.species} / {animal.breed}
-                                                </option>
-                                            ))}
-                                        </select>
+                                        <Select
+                                            value={(() => {
+                                                const opts = availableAnimals
+                                                    .map((a) => ({ value: a.id, label: `${a.name} - ${a.species} / ${a.breed}` }))
+                                                    .sort((x, y) => x.label.localeCompare(y.label));
+                                                return opts.find((o) => o.value === selectedAnimal) ?? null;
+                                            })()}
+                                            onChange={(opt) => setSelectedAnimal((opt as any)?.value ?? "")}
+                                            options={availableAnimals.map((a) => ({ value: a.id, label: `${a.name} - ${a.species} / ${a.breed}` })).sort((x, y) => x.label.localeCompare(y.label))}
+                                            placeholder="Selecione um animal"
+                                            isClearable
+                                            className="w-full"
+                                            menuPlacement="auto"
+                                            menuPortalTarget={typeof document !== "undefined" ? document.body : undefined}
+                                            styles={createSelectStyles("md", theme === "dark")}
+                                            classNames={{
+                                                    control: () =>
+                                                    "rounded-2xl border border-orange-100 bg-white px-4 py-2.5 text-sm text-gray-700 outline-none transition-shadow focus:border-orange-400 focus:ring-2 focus:ring-orange-400/30 dark:border-orange-500/10 dark:bg-slate-900 dark:text-white",
+                                                valueContainer: () => "px-3",
+                                                singleValue: () => "text-sm",
+                                                placeholder: () => "text-gray-400",
+                                                menu: () => "mt-1 rounded-lg border border-gray-200 bg-white shadow-lg z-50 dark:border-gray-700 dark:bg-gray-800",
+                                                option: (s) => `px-3 py-2 text-sm text-gray-900 dark:text-gray-100 ${s.isFocused ? "bg-slate-50 dark:bg-slate-900/60" : ""}`,
+                                            }}
+                                        />
                                     </label>
                                 </div>
 
                                 <label className="flex flex-col gap-2">
                                     <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Status inicial</span>
-                                    <select
-                                        value={adoptionStatus}
-                                        onChange={(event) => setAdoptionStatus(event.target.value as AdoptionStatus)}
-                                        className="min-h-12 w-full appearance-none rounded-2xl border border-orange-100 bg-white px-4 py-3 pr-10 text-sm text-gray-700 shadow-sm outline-none transition-shadow focus:border-orange-400 focus:ring-2 focus:ring-orange-400/30 dark:border-orange-500/10 dark:bg-slate-900 dark:text-white"
-                                    >
-                                        <option value="Em analise">Em analise</option>
-                                        <option value="Agendada">Agendada</option>
-                                        <option value="Concluida">Concluida</option>
-                                    </select>
+                                    <Select
+                                        value={["Em analise", "Agendada", "Concluida"].map((v) => ({ value: v as AdoptionStatus, label: v })).sort((a, b) => a.label.localeCompare(b.label)).find((o) => o.value === adoptionStatus) ?? null}
+                                        onChange={(opt) => setAdoptionStatus((opt as any)?.value ?? "Em analise")}
+                                        options={["Em analise", "Agendada", "Concluida"].map((v) => ({ value: v as AdoptionStatus, label: v })).sort((a, b) => a.label.localeCompare(b.label))}
+                                        isSearchable={false}
+                                        className="w-full"
+                                        styles={createSelectStyles("md", theme === "dark")}
+                                        classNames={{
+                                                control: () =>
+                                                    "rounded-2xl border border-orange-100 bg-white px-4 py-2.5 text-sm text-gray-700 outline-none transition-shadow focus:border-orange-400 focus:ring-2 focus:ring-orange-400/30 dark:border-orange-500/10 dark:bg-slate-900 dark:text-white",
+                                            valueContainer: () => "px-3",
+                                            singleValue: () => "text-sm",
+                                            placeholder: () => "text-gray-400",
+                                            menu: () => "mt-1 rounded-lg border border-gray-200 bg-white shadow-lg z-50 dark:border-gray-700 dark:bg-gray-800",
+                                            option: (s) => `px-3 py-2 text-sm text-gray-900 dark:text-gray-100 ${s.isFocused ? "bg-slate-50 dark:bg-slate-900/60" : ""}`,
+                                        }}
+                                    />
                                 </label>
                             </EntitySectionCard>
 
