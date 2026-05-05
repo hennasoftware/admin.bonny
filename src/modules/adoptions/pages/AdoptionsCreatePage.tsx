@@ -71,7 +71,7 @@ export function AdoptionsCreatePage() {
                 notes,
             });
 
-            showToast("Adocao registrada com sucesso.");
+            showToast("Adoção registrada com sucesso.");
             navigate("/adocoes/lista");
         } catch (submitError) {
             const message = submitError instanceof Error ? submitError.message : "Nao foi possivel registrar a adocao.";
@@ -84,14 +84,14 @@ export function AdoptionsCreatePage() {
     return (
         <>
             <Helmet>
-                <title>Bonny | Registro de adocao</title>
+                <title>Bonny | Registro de adoção</title>
             </Helmet>
 
             <AdminLayout>
                 <EntityPageShell maxWidth="6xl">
                     <EntityPageHeader
-                        eyebrow="Adocoes"
-                        title="Registrar adocao"
+                        eyebrow="Adoções"
+                        title="Registrar adoção"
                         description="Associe adotante e animal, defina o status inicial e conclua o registro."
                         action={
                             <button
@@ -99,7 +99,7 @@ export function AdoptionsCreatePage() {
                                 onClick={() => navigate("/adocoes/lista")}
                                 className="w-full rounded-xl border border-orange-200 bg-white px-4 py-2 text-sm font-medium text-orange-600 shadow-sm transition-colors hover:bg-orange-50 md:w-auto dark:border-gray-700 dark:bg-slate-900 dark:text-orange-300 dark:hover:bg-slate-800"
                             >
-                                Ver adocoes
+                                Ver adoções
                             </button>
                         }
                     />
@@ -118,7 +118,7 @@ export function AdoptionsCreatePage() {
                         <div className="space-y-6">
                             <EntitySectionCard className="space-y-5">
                                 <div>
-                                    <p className="text-xs font-semibold uppercase tracking-[0.22em] text-orange-500 dark:text-orange-300">Associacao</p>
+                                    <p className="text-xs font-semibold uppercase tracking-[0.22em] text-orange-500 dark:text-orange-300">Associação</p>
                                     <h2 className="mt-2 text-xl font-semibold tracking-tight text-gray-950 dark:text-white">Vincule adotante e animal</h2>
                                     <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
                                         Apenas adotantes ativos e animais disponiveis aparecem nesta etapa.
@@ -210,12 +210,12 @@ export function AdoptionsCreatePage() {
                             <EntitySectionCard className="space-y-5">
                                 <div>
                                     <p className="text-xs font-semibold uppercase tracking-[0.22em] text-orange-500 dark:text-orange-300">Contexto</p>
-                                    <h3 className="mt-2 text-xl font-semibold tracking-tight text-gray-950 dark:text-white">Observacoes da adocao</h3>
-                                    <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">Registre informacoes complementares, se necessario.</p>
+                                    <h3 className="mt-2 text-xl font-semibold tracking-tight text-gray-950 dark:text-white">Observações da adoção</h3>
+                                    <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">Registre informações complementares, se necessário.</p>
                                 </div>
 
                                 <label className="flex flex-col gap-2">
-                                    <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Observacoes</span>
+                                    <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Observações</span>
                                     <textarea
                                         value={notes}
                                         onChange={(event) => setNotes(event.target.value)}
@@ -226,7 +226,7 @@ export function AdoptionsCreatePage() {
 
                                 <div className="flex flex-col gap-3 border-t border-orange-100 pt-5 sm:flex-row sm:items-center sm:justify-between dark:border-orange-500/10">
                                     <p className="text-sm text-gray-500 dark:text-gray-400">
-                                        Status em analise ou agendada mantem o animal em processo. Concluida finaliza a adocao.
+                                        Status em analise ou agendada mantém o animal em processo. Concluida finaliza a adoção.
                                     </p>
 
                                     <div className="flex flex-col gap-3 sm:flex-row">
@@ -234,7 +234,7 @@ export function AdoptionsCreatePage() {
                                             Cancelar
                                         </Button>
                                         <Button type="submit" variant="primary" isLoading={loading} disabled={loading || !isReadyToSubmit}>
-                                            Registrar adocao
+                                            Registrar adoção
                                         </Button>
                                     </div>
                                 </div>

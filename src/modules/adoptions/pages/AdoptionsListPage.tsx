@@ -84,7 +84,7 @@ export function AdoptionsListPage() {
                 setError(null);
             } catch (loadError) {
                 if (!active) return;
-                setError(loadError instanceof Error ? loadError.message : "Nao foi possivel carregar as adocoes.");
+                setError(loadError instanceof Error ? loadError.message : "Não foi possível carregar as adoções.");
             } finally {
                 if (active && !unsub) setLoading(false);
             }
@@ -121,11 +121,11 @@ export function AdoptionsListPage() {
         try {
             await removeAdoption(adoptionToDelete.id);
             setAdoptionToDelete(null);
-            showToast("Adocao removida com sucesso.");
+            showToast("Adoção removida com sucesso.");
             setPage(1);
             setCursorHistory([null]);
         } catch (deleteError) {
-            const message = deleteError instanceof Error ? deleteError.message : "Nao foi possivel remover a adocao.";
+            const message = deleteError instanceof Error ? deleteError.message : "Não foi possível remover a adoção.";
             setError(message);
             showToast(message, "error");
         } finally {
@@ -138,9 +138,9 @@ export function AdoptionsListPage() {
 
         try {
             await updateAdoptionStatus(adoption.id, nextStatus);
-            showToast("Status da adocao atualizado.");
+            showToast("Status da adoção atualizado.");
         } catch (statusError) {
-            const message = statusError instanceof Error ? statusError.message : "Nao foi possivel atualizar o status.";
+            const message = statusError instanceof Error ? statusError.message : "Não foi possível atualizar o status.";
             setError(message);
             showToast(message, "error");
         }
@@ -155,16 +155,16 @@ export function AdoptionsListPage() {
             <AdminLayout>
                 <EntityPageShell>
                     <EntityPageHeader
-                        eyebrow="Adocoes"
-                        title="Adocoes registradas"
-                        description="Acompanhe o pipeline, evolua status e remova apenas registros ainda nao concluidos."
+                        eyebrow="Adoções"
+                        title="Adoções registradas"
+                        description="Acompanhe o pipeline, evolua status e remova apenas registros ainda não concluídos."
                         action={
                             <button
                                 type="button"
                                 onClick={() => navigate("/adocoes/cadastro")}
                                 className="w-full rounded-xl border border-orange-200 bg-white px-4 py-2 text-sm font-medium text-orange-600 shadow-sm transition-colors hover:bg-orange-50 md:w-auto dark:border-gray-700 dark:bg-slate-900 dark:text-orange-300 dark:hover:bg-slate-800"
                             >
-                                Nova adocao
+                                Nova adoção
                             </button>
                         }
                     />
