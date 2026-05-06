@@ -90,7 +90,7 @@ export function SystemUpdatesModal({
                                     type="button"
                                     onClick={() => setActiveFilter(filter.value)}
                                     className={[
-                                        "shrink-0 rounded-full border px-3 py-1.5 text-xs font-semibold transition-colors",
+                                        "shrink-0 cursor-pointer rounded-full border px-3 py-1.5 text-xs font-semibold transition-colors",
                                         active
                                             ? "border-orange-300 bg-orange-100 text-orange-700 dark:border-orange-500/30 dark:bg-orange-500/10 dark:text-orange-200"
                                             : "border-slate-200 bg-white text-slate-500 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-400",
@@ -113,7 +113,7 @@ export function SystemUpdatesModal({
                                     type="button"
                                     onClick={() => onSelectUpdate(update.id)}
                                     className={[
-                                        "w-[18rem] shrink-0 snap-start rounded-[26px] border px-4 py-3.5 text-left transition-all md:w-full md:rounded-3xl md:py-4",
+                                        "w-[18rem] shrink-0 cursor-pointer snap-start rounded-[26px] border px-4 py-3.5 text-left transition-all md:w-full md:rounded-3xl md:py-4",
                                         active
                                             ? "border-orange-300 bg-orange-50 text-slate-950 shadow-sm dark:border-orange-500/30 dark:bg-orange-500/10 dark:text-white"
                                             : "border-slate-200/70 bg-white text-slate-600 hover:border-orange-200 hover:bg-orange-50/60 dark:border-slate-700/60 dark:bg-slate-950/70 dark:text-slate-300 dark:hover:border-orange-500/20 dark:hover:bg-slate-900",
