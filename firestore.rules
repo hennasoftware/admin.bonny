@@ -54,5 +54,9 @@ service cloud.firestore {
     match /dashboard_summary/{documentId} {
       allow read: if isSignedIn();
     }
+
+    match /system_updates/{updateId} {
+      allow read: if isSignedIn();
+    }
   }
 }
