@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" role="img" aria-label="Bonny">
+  <defs>
+    <linearGradient id="bg" x1="96" y1="96" x2="928" y2="928" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#ff9a2f"/>
+      <stop offset="1" stop-color="#f5660b"/>
+    </linearGradient>
+  </defs>
+  <rect x="64" y="64" width="896" height="896" rx="224" fill="url(#bg)"/>
+  <g fill="#fff">
+    <ellipse cx="348" cy="390" rx="88" ry="118"/>
+    <ellipse cx="512" cy="304" rx="88" ry="118"/>
+    <ellipse cx="676" cy="390" rx="88" ry="118"/>
+    <ellipse cx="512" cy="340" rx="88" ry="118"/>
+    <ellipse cx="512" cy="688" rx="224" ry="172"/>
+  </g>
+  <path d="M408 728c0-48 40-88 88-88s88 40 88 88c0 28-13 52-33 68-18 14-36 24-55 45-19-21-37-31-55-45-20-16-33-40-33-68Z" fill="#f5660b"/>
+</svg>
