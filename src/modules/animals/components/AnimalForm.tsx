@@ -87,7 +87,7 @@ export function AnimalForm({
     };
 
     return (
-        <form onSubmit={handleSubmit} className="rounded-4xl border border-orange-100 bg-white/92 p-6 shadow-sm dark:border-orange-500/10 dark:bg-slate-900/88 md:p-8">
+        <form onSubmit={handleSubmit} className="rounded-[28px] border border-white/70 bg-white/82 p-6 shadow-[0_18px_50px_-34px_rgb(15_23_42/0.28)] backdrop-blur-sm dark:border-slate-700/60 dark:bg-slate-950/60 md:p-8">
             <div className="mb-6 flex items-start justify-between gap-4">
                 <div>
                     <p className="text-xs font-semibold uppercase tracking-[0.22em] text-orange-500 dark:text-orange-300">Cadastro</p>
@@ -256,13 +256,13 @@ export function AnimalForm({
             </div>
 
             <div className="mt-4 grid gap-4 md:grid-cols-2">
-                <label className="flex items-center gap-3 rounded-2xl border border-gray-200 bg-white px-4 py-3 dark:border-gray-700 dark:bg-gray-800">
-                    <input type="checkbox" checked={form.neutered} onChange={(event) => updateField("neutered", event.target.checked)} className="h-4 w-4 rounded border-gray-300 text-orange-500 focus:ring-orange-500" disabled={loading} />
+                <label className="flex cursor-pointer items-center gap-3 rounded-2xl border border-gray-200 bg-white px-4 py-3 dark:border-gray-700 dark:bg-gray-800">
+                    <input type="checkbox" checked={form.neutered} onChange={(event) => updateField("neutered", event.target.checked)} className="h-4 w-4 cursor-pointer rounded border-gray-300 text-orange-500 focus:ring-orange-500 disabled:cursor-not-allowed" disabled={loading} />
                     <span className="text-sm text-gray-700 dark:text-gray-300">Castrado</span>
                 </label>
 
-                <label className="flex items-center gap-3 rounded-2xl border border-gray-200 bg-white px-4 py-3 dark:border-gray-700 dark:bg-gray-800">
-                    <input type="checkbox" checked={form.vaccinated} onChange={(event) => updateField("vaccinated", event.target.checked)} className="h-4 w-4 rounded border-gray-300 text-orange-500 focus:ring-orange-500" disabled={loading} />
+                <label className="flex cursor-pointer items-center gap-3 rounded-2xl border border-gray-200 bg-white px-4 py-3 dark:border-gray-700 dark:bg-gray-800">
+                    <input type="checkbox" checked={form.vaccinated} onChange={(event) => updateField("vaccinated", event.target.checked)} className="h-4 w-4 cursor-pointer rounded border-gray-300 text-orange-500 focus:ring-orange-500 disabled:cursor-not-allowed" disabled={loading} />
                     <span className="text-sm text-gray-700 dark:text-gray-300">Vacinado</span>
                 </label>
             </div>
@@ -274,12 +274,12 @@ export function AnimalForm({
                     onChange={(event) => updateField("notes", event.target.value)}
                     placeholder="Comportamento, saude, preferencias, restricoes..."
                     rows={4}
-                    className="rounded-lg border border-gray-200 bg-white px-4 py-3 text-gray-900 outline-none transition-shadow duration-150 placeholder:text-gray-400 focus:border-orange-500 focus:ring-2 focus:ring-orange-500/50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100 dark:placeholder:text-gray-500 dark:focus:border-orange-400 dark:focus:ring-orange-400/50"
+                    className="cursor-text rounded-lg border border-gray-200 bg-white px-4 py-3 text-gray-900 outline-none transition-shadow duration-150 placeholder:text-gray-400 focus:border-orange-500 focus:ring-2 focus:ring-orange-500/50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100 dark:placeholder:text-gray-500 dark:focus:border-orange-400 dark:focus:ring-orange-400/50 disabled:cursor-not-allowed disabled:bg-gray-100 dark:disabled:bg-gray-700"
                     disabled={loading}
                 />
             </label>
 
-            <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <div className="mt-6 flex flex-col gap-3 border-t border-slate-200/70 pt-5 sm:flex-row sm:items-center sm:justify-between dark:border-slate-800">
                 <p className="text-sm text-gray-500 dark:text-gray-400">Campos principais sao obrigatorios para salvar o cadastro.</p>
                 <div className="flex gap-3">
                     {onCancel ? (

@@ -46,5 +46,13 @@ service cloud.firestore {
         && request.resource.data.status in ["Em analise", "Agendada", "Concluida"];
       allow delete: if isSignedIn() && resource.data.status != "Concluida";
     }
+
+    match /dashboard_monthly/{monthId} {
+      allow read: if isSignedIn();
+    }
+
+    match /dashboard_summary/{documentId} {
+      allow read: if isSignedIn();
+    }
   }
 }

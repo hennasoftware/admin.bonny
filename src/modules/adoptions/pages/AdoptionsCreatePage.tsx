@@ -116,7 +116,7 @@ export function AdoptionsCreatePage() {
 
                     <form onSubmit={handleSubmit} className="grid gap-6 lg:grid-cols-[minmax(0,1.35fr)_minmax(280px,0.95fr)]">
                         <div className="space-y-6">
-                            <EntitySectionCard className="space-y-5">
+                            <EntitySectionCard className="space-y-5 min-w-0">
                                 <div>
                                     <p className="text-xs font-semibold uppercase tracking-[0.22em] text-orange-500 dark:text-orange-300">Associação</p>
                                     <h2 className="mt-2 text-xl font-semibold tracking-tight text-gray-950 dark:text-white">Vincule adotante e animal</h2>
@@ -125,8 +125,8 @@ export function AdoptionsCreatePage() {
                                     </p>
                                 </div>
 
-                                <div className="grid gap-4 md:grid-cols-2">
-                                    <label className="flex flex-col gap-2">
+                                <div className="grid min-w-0 gap-4 md:grid-cols-2">
+                                    <label className="flex min-w-0 flex-col gap-2">
                                         <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Adotante</span>
                                         <Select
                                             value={(() => {
@@ -139,7 +139,7 @@ export function AdoptionsCreatePage() {
                                                     options={adopters.map((a) => ({ value: a.id, label: `${a.name} - ${formatCPF(a.cpf)}` })).sort((x, y) => x.label.localeCompare(y.label))}
                                                     placeholder="Selecione um adotante"
                                                     isClearable
-                                                    className="w-full"
+                                                    className="min-w-0 w-full"
                                                     menuPlacement="auto"
                                                     menuPortalTarget={typeof document !== "undefined" ? document.body : undefined}
                                                     styles={createSelectStyles("md", theme === "dark")}
@@ -155,7 +155,7 @@ export function AdoptionsCreatePage() {
                                         />
                                     </label>
 
-                                    <label className="flex flex-col gap-2">
+                                    <label className="flex min-w-0 flex-col gap-2">
                                         <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Animal disponivel</span>
                                         <Select
                                             value={(() => {
@@ -168,7 +168,7 @@ export function AdoptionsCreatePage() {
                                             options={availableAnimals.map((a) => ({ value: a.id, label: `${a.name} - ${a.species} / ${a.breed}` })).sort((x, y) => x.label.localeCompare(y.label))}
                                             placeholder="Selecione um animal"
                                             isClearable
-                                            className="w-full"
+                                            className="min-w-0 w-full"
                                             menuPlacement="auto"
                                             menuPortalTarget={typeof document !== "undefined" ? document.body : undefined}
                                             styles={createSelectStyles("md", theme === "dark")}
@@ -185,22 +185,24 @@ export function AdoptionsCreatePage() {
                                     </label>
                                 </div>
 
-                                <label className="flex flex-col gap-2">
+                                <label className="flex min-w-0 flex-col gap-2">
                                     <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Status inicial</span>
                                     <Select
                                         value={["Em analise", "Agendada", "Concluida"].map((v) => ({ value: v as AdoptionStatus, label: v })).sort((a, b) => a.label.localeCompare(b.label)).find((o) => o.value === adoptionStatus) ?? null}
                                         onChange={(opt) => setAdoptionStatus((opt as any)?.value ?? "Em analise")}
                                         options={["Em analise", "Agendada", "Concluida"].map((v) => ({ value: v as AdoptionStatus, label: v })).sort((a, b) => a.label.localeCompare(b.label))}
                                         isSearchable={false}
-                                        className="w-full"
+                                        className="min-w-0 w-full"
+                                        menuPortalTarget={typeof document !== "undefined" ? document.body : undefined}
+                                        menuPosition="fixed"
                                         styles={createSelectStyles("md", theme === "dark")}
                                         classNames={{
-                                                control: () =>
-                                                    "rounded-2xl border border-orange-100 bg-white px-4 py-2.5 text-sm text-gray-700 outline-none transition-shadow focus:border-orange-400 focus:ring-2 focus:ring-orange-400/30 dark:border-orange-500/10 dark:bg-slate-900 dark:text-white",
+                                            control: () =>
+                                                "rounded-2xl border border-orange-100 bg-white px-4 py-2.5 text-sm text-gray-700 outline-none transition-shadow focus:border-orange-400 focus:ring-2 focus:ring-orange-400/30 dark:border-orange-500/10 dark:bg-slate-900 dark:text-white",
                                             valueContainer: () => "px-3",
                                             singleValue: () => "text-sm",
                                             placeholder: () => "text-gray-400",
-                                            menu: () => "mt-1 rounded-lg border border-gray-200 bg-white shadow-lg z-50 dark:border-gray-700 dark:bg-gray-800",
+                                            menu: () => "mt-1 rounded-lg border border-gray-200 bg-white shadow-lg z-[9999] dark:border-gray-700 dark:bg-gray-800",
                                             option: (s) => `px-3 py-2 text-sm text-gray-900 dark:text-gray-100 ${s.isFocused ? "bg-slate-50 dark:bg-slate-900/60" : ""}`,
                                         }}
                                     />
@@ -219,7 +221,7 @@ export function AdoptionsCreatePage() {
                                     <textarea
                                         value={notes}
                                         onChange={(event) => setNotes(event.target.value)}
-                                        className="min-h-32 rounded-3xl border border-orange-100 bg-white px-4 py-3 text-sm text-gray-700 shadow-sm outline-none transition-shadow placeholder:text-gray-400 focus:border-orange-400 focus:ring-2 focus:ring-orange-400/30 dark:border-orange-500/10 dark:bg-slate-900 dark:text-white dark:placeholder:text-gray-500"
+                                        className="min-h-32 cursor-text rounded-3xl border border-orange-100 bg-white px-4 py-3 text-sm text-gray-700 shadow-sm outline-none transition-shadow placeholder:text-gray-400 focus:border-orange-400 focus:ring-2 focus:ring-orange-400/30 dark:border-orange-500/10 dark:bg-slate-900 dark:text-white dark:placeholder:text-gray-500"
                                         placeholder="Informacoes complementares sobre a adocao"
                                     />
                                 </label>

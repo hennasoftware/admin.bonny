@@ -27,6 +27,7 @@ export function AdopterEditorModal({
             bodyClassName="p-3"
         >
             <AdopterForm
+                mode="edit"
                 initialValues={{
                     ...adopter,
                     address: {

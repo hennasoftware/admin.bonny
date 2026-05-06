@@ -29,16 +29,16 @@ export function AdoptersList({
     const canNext = hasNextPage;
 
     return (
-        <section className="rounded-2xl border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-950">
-            <div className="border-b border-slate-200 px-6 py-4 dark:border-slate-800">
-                <p className="text-sm text-slate-500 dark:text-slate-400">
+        <section className="overflow-hidden rounded-[28px] border border-white/70 bg-white/82 shadow-[0_18px_50px_-34px_rgb(15_23_42/0.28)] backdrop-blur-sm dark:border-slate-700/60 dark:bg-slate-950/60">
+            <div className="border-b border-slate-200/70 px-5 py-4 dark:border-slate-800 sm:px-6">
+                <p className="text-sm font-medium text-slate-500 dark:text-slate-400">
                     Pagina {page} de {totalPages}
                 </p>
             </div>
 
             <div className="overflow-x-auto">
                 <table className="w-full text-sm">
-                    <thead className="border-b border-slate-200 bg-slate-50 text-xs uppercase text-slate-500 dark:border-slate-800 dark:bg-slate-900">
+                    <thead className="border-b border-slate-200/70 bg-slate-50/80 text-xs uppercase tracking-[0.12em] text-slate-500 dark:border-slate-800 dark:bg-slate-900/80">
                         <tr>
                             <th className="px-4 py-3 text-left">Nome</th>
                             <th className="px-4 py-3 text-left">Contato</th>
@@ -49,10 +49,10 @@ export function AdoptersList({
                         </tr>
                     </thead>
 
-                    <tbody className="divide-y divide-slate-200 dark:divide-slate-800">
+                    <tbody className="divide-y divide-slate-200/70 dark:divide-slate-800">
                         {loading ? (
                             <tr>
-                                <td colSpan={6} className="p-6 text-center text-slate-500">
+                                <td colSpan={6} className="p-8 text-center text-slate-500">
                                     Carregando adotantes...
                                 </td>
                             </tr>
@@ -65,29 +65,29 @@ export function AdoptersList({
                             </tr>
                         ) : (
                             adopters.map((adopter) => (
-                                <tr key={adopter.id} className="hover:bg-slate-50 dark:hover:bg-slate-900/60">
-                                    <td className="px-4 py-3">
+                                <tr key={adopter.id} className="transition-colors hover:bg-orange-50/50 dark:hover:bg-slate-900/60">
+                                    <td className="px-4 py-4">
                                         <div>
                                             <p className="font-medium text-slate-900 dark:text-white">{adopter.name}</p>
                                             <p className="text-xs text-slate-500 dark:text-slate-400">CPF: {formatCPF(adopter.cpf)}</p>
                                         </div>
                                     </td>
-                                    <td className="px-4 py-3 text-slate-600 dark:text-slate-300">
+                                    <td className="px-4 py-4 text-slate-600 dark:text-slate-300">
                                         <div>
                                             <p>{adopter.email}</p>
                                             <p className="text-xs">{formatPhone(adopter.phone)}</p>
                                         </div>
                                     </td>
-                                    <td className="px-4 py-3 text-slate-600 dark:text-slate-300">
+                                    <td className="px-4 py-4 text-slate-600 dark:text-slate-300">
                                         <div className="max-w-xs truncate">{formatAddress(adopter)}</div>
                                     </td>
-                                    <td className="px-4 py-3">
+                                    <td className="px-4 py-4">
                                         <AdopterStatusBadge status={adopter.status} />
                                     </td>
-                                    <td className="px-4 py-3 text-slate-500 dark:text-slate-400">
+                                    <td className="px-4 py-4 text-slate-500 dark:text-slate-400">
                                         {formatDateTime(adopter.updatedAt ?? adopter.createdAt)}
                                     </td>
-                                    <td className="px-4 py-3">
+                                    <td className="px-4 py-4">
                                         <div className="flex justify-end gap-2">
                                             <Button variant="secondary" onClick={() => onEdit(adopter)}>
                                                 <Pencil className="h-4 w-4" />
@@ -108,7 +108,7 @@ export function AdoptersList({
                 </table>
             </div>
 
-            <div className="flex items-center justify-center gap-2 border-t border-slate-200 p-4 dark:border-slate-800">
+            <div className="flex items-center justify-center gap-2 border-t border-slate-200/70 bg-white/60 p-4 dark:border-slate-800 dark:bg-slate-950/40">
                 <Button variant="secondary" disabled={!canPrev} onClick={() => onPageChange(page - 1)}>
                     Anterior
                 </Button>

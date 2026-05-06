@@ -4,7 +4,6 @@ import {
     deleteDoc,
     doc,
     getDocs,
-    onSnapshot,
     orderBy,
     query,
     serverTimestamp,
@@ -12,6 +11,7 @@ import {
     where,
 } from "firebase/firestore";
 import { db } from "@/services/firebase";
+import { subscribeCollection } from "@/shared/services/firestoreRealtime";
 import { buildPagedConstraints, getCollectionPage } from "@/shared/utils/pagination";
 import type { AdopterFormState, AdopterRecord, AdopterStatus } from "../types";
 
@@ -24,14 +24,11 @@ function mapAdopter(entry: { id: string; data: () => unknown }): AdopterRecord {
     };
 }
 
-export function subscribeAdopters(onNext: (adopters: AdopterRecord[]) => void, onError: (error: Error) => void) {
-    const q = query(collection(db, COLLECTION_NAME), orderBy("createdAt", "desc"));
-
-    return onSnapshot(
-        q,
-        (snapshot) => onNext(snapshot.docs.map(mapAdopter)),
+export function subscribeAdopters(onNext: (adopters: AdopterRecord[]) => void, onError?: (error: Error) => void) {
+    return subscribeCollection<AdopterRecord>(COLLECTION_NAME, onNext, {
+        constraints: [orderBy("createdAt", "desc")],
         onError,
-    );
+    });
 }
 
 export async function getAdoptersPage(pageSize: number, cursor?: unknown, status?: AdopterStatus | "Todos") {

@@ -69,7 +69,7 @@ describe("DashboardPage", () => {
             expect(screen.getByText("Animais disponiveis")).toBeInTheDocument();
         });
 
-        expect(screen.getByText(/Luna/)).toBeInTheDocument();
+        expect(screen.getByRole("link", { name: /Abrir adoção Luna de Maria/i })).toBeInTheDocument();
         expect(screen.getByText("Adocoes por mes")).toBeInTheDocument();
     });
 });

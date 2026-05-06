@@ -13,7 +13,7 @@ function speciesIcon(species: string) {
 
 export function AnimalCards({ animals }: AnimalCardsProps) {
     return (
-        <section className="rounded-4xl border border-orange-100 bg-white/92 p-6 shadow-sm dark:border-orange-500/10 dark:bg-slate-900/88 md:p-8">
+        <section className="rounded-[28px] border border-white/70 bg-white/82 p-6 shadow-[0_18px_50px_-34px_rgb(15_23_42/0.28)] backdrop-blur-sm dark:border-slate-700/60 dark:bg-slate-950/60 md:p-8">
             <div className="mb-6 flex items-start justify-between gap-4">
                 <div>
                     <p className="text-xs font-semibold uppercase tracking-[0.22em] text-orange-500 dark:text-orange-300">
@@ -39,11 +39,11 @@ export function AnimalCards({ animals }: AnimalCardsProps) {
                     return (
                         <article
                             key={animal.id}
-                            className="rounded-2xl border border-orange-100 bg-orange-50/40 p-4 dark:border-slate-800 dark:bg-slate-950/65"
+                            className="rounded-[24px] border border-slate-200/70 bg-gradient-to-br from-white to-slate-50 p-4 shadow-[0_16px_40px_-30px_rgb(15_23_42/0.22)] transition hover:-translate-y-0.5 dark:border-slate-800 dark:from-slate-950/80 dark:to-slate-900/60"
                         >
                             <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
                                 <div className="flex min-w-0 items-start gap-4">
-                                    <div className="rounded-2xl bg-white p-3 text-orange-500 shadow-sm dark:bg-slate-900 dark:text-orange-300">
+                                    <div className="rounded-2xl border border-orange-200/70 bg-orange-50 p-3 text-orange-500 shadow-sm dark:border-orange-500/20 dark:bg-orange-500/10 dark:text-orange-300">
                                         <SpeciesIcon className="h-6 w-6" />
                                     </div>
 
@@ -84,11 +84,11 @@ export function AnimalCards({ animals }: AnimalCardsProps) {
                                 </div>
                             </div>
 
-                            {animal.notes && (
-                                <p className="mt-4 rounded-xl bg-white px-4 py-3 text-sm text-gray-600 dark:bg-slate-900 dark:text-gray-300">
+                            {animal.notes ? (
+                                <p className="mt-4 rounded-xl border border-slate-200/70 bg-white/70 px-4 py-3 text-sm leading-6 text-gray-600 dark:border-slate-800 dark:bg-slate-950/50 dark:text-gray-300">
                                     {animal.notes}
                                 </p>
-                            )}
+                            ) : null}
                         </article>
                     );
                 })}

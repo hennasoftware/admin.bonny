@@ -32,32 +32,30 @@ export function ConfirmDeleteModal({
             description={description}
             onClose={onClose}
             maxWidthClassName="max-w-xl"
-            bodyClassName="p-6"
+            bodyClassName="p-5 sm:p-6"
             closeDisabled={loading}
         >
             <div className="space-y-6">
-                <div className="flex items-start gap-4 rounded-3xl border border-red-200 bg-red-50 p-4 dark:border-red-500/20 dark:bg-red-500/10">
+                <div className="flex items-start gap-4 rounded-[24px] border border-red-200 bg-red-50/90 p-4 shadow-[0_18px_40px_-30px_rgb(220_38_38/0.45)] dark:border-red-500/20 dark:bg-red-500/10">
                     <div className="rounded-2xl bg-red-100 p-3 text-red-600 dark:bg-red-500/20 dark:text-red-300">
                         <AlertTriangle className="h-5 w-5" />
                     </div>
 
-                    <div>
-                        <p className="text-sm font-medium text-red-700 dark:text-red-300">
-                            Esta ação não pode ser desfeita.
-                        </p>
+                    <div className="min-w-0">
+                        <p className="text-sm font-semibold text-red-700 dark:text-red-300">Esta ação não pode ser desfeita.</p>
                         {itemLabel ? (
-                            <p className="mt-1 text-sm text-red-600 dark:text-red-200">
+                            <p className="mt-1 text-sm leading-6 text-red-600 dark:text-red-200">
                                 Registro selecionado: <span className="font-semibold">{itemLabel}</span>
                             </p>
                         ) : null}
                     </div>
                 </div>
 
-                <div className="flex justify-end gap-3">
-                    <Button type="button" variant="secondary" onClick={onClose} disabled={loading}>
+                <div className="flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
+                    <Button type="button" variant="secondary" onClick={onClose} disabled={loading} className="w-full sm:w-auto">
                         {cancelLabel}
                     </Button>
-                    <Button type="button" variant="danger" onClick={() => void onConfirm()} isLoading={loading} disabled={loading}>
+                    <Button type="button" variant="danger" onClick={() => void onConfirm()} isLoading={loading} disabled={loading} className="w-full sm:w-auto">
                         {confirmLabel}
                     </Button>
                 </div>

@@ -37,17 +37,19 @@ export function AdoptionsList({
     const canPrev = page > 1;
     const canNext = hasNextPage;
 
+    const statusOptions = ["Em analise", "Agendada", "Concluida"].map((value) => ({ value, label: value }));
+
     return (
-        <section className="rounded-2xl border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-950">
-            <div className="border-b border-slate-200 px-6 py-4 dark:border-slate-800">
-                <p className="text-sm text-slate-500 dark:text-slate-400">
+        <section className="overflow-hidden rounded-[28px] border border-white/70 bg-white/82 shadow-[0_18px_50px_-34px_rgb(15_23_42/0.28)] backdrop-blur-sm dark:border-slate-700/60 dark:bg-slate-950/60">
+            <div className="border-b border-slate-200/70 px-5 py-4 dark:border-slate-800 sm:px-6">
+                <p className="text-sm font-medium text-slate-500 dark:text-slate-400">
                     Pagina {page} de {totalPages}
                 </p>
             </div>
 
             <div className="overflow-x-auto">
                 <table className="w-full text-sm">
-                    <thead className="border-b border-slate-200 bg-slate-50 text-xs uppercase text-slate-500 dark:border-slate-800 dark:bg-slate-900">
+                    <thead className="border-b border-slate-200/70 bg-slate-50/80 text-xs uppercase tracking-[0.12em] text-slate-500 dark:border-slate-800 dark:bg-slate-900/80">
                         <tr>
                             <th className="px-4 py-3 text-left">Adotante</th>
                             <th className="px-4 py-3 text-left">Animal</th>
@@ -58,10 +60,10 @@ export function AdoptionsList({
                         </tr>
                     </thead>
 
-                    <tbody className="divide-y divide-slate-200 dark:divide-slate-800">
+                    <tbody className="divide-y divide-slate-200/70 dark:divide-slate-800">
                         {loading ? (
                             <tr>
-                                <td colSpan={6} className="p-6 text-center text-slate-500">
+                                <td colSpan={6} className="p-8 text-center text-slate-500">
                                     Carregando adocoes...
                                 </td>
                             </tr>
@@ -74,30 +76,33 @@ export function AdoptionsList({
                             </tr>
                         ) : (
                             adoptions.map((item) => (
-                                <tr key={item.id} className="hover:bg-slate-50 dark:hover:bg-slate-900/60">
-                                    <td className="px-4 py-3">
+                                <tr key={item.id} className="transition-colors hover:bg-orange-50/50 dark:hover:bg-slate-900/60">
+                                    <td className="px-4 py-4">
                                         <div>
                                             <p className="font-medium text-slate-900 dark:text-white">{item.adopterName}</p>
                                             <p className="text-xs text-slate-500 dark:text-slate-400">ID: {item.adopterId}</p>
                                         </div>
                                     </td>
-                                    <td className="px-4 py-3 text-slate-600 dark:text-slate-300">
+                                    <td className="px-4 py-4 text-slate-600 dark:text-slate-300">
                                         <div>
                                             <p className="font-medium text-slate-900 dark:text-white">{item.animalName}</p>
                                             <p className="text-xs text-slate-500 dark:text-slate-400">ID: {item.animalId}</p>
                                         </div>
                                     </td>
-                                    <td className="px-4 py-3">
+                                    <td className="px-4 py-4">
                                         <div className="flex flex-col gap-2">
                                             <span className={`w-fit rounded-full px-2.5 py-1 text-xs font-medium ${statusStyles[item.status]}`}>
                                                 {item.status}
                                             </span>
                                             <Select
-                                                value={["Em analise", "Agendada", "Concluida"].map((v) => ({ value: v as AdoptionStatus, label: v })).sort((a, b) => a.label.localeCompare(b.label)).find((o) => o.value === item.status) ?? null}
+                                                value={statusOptions.find((option) => option.value === item.status) ?? null}
                                                 onChange={(opt) => onStatusChange(item, (opt as any)?.value ?? item.status)}
-                                                options={["Em analise", "Agendada", "Concluida"].map((v) => ({ value: v as AdoptionStatus, label: v })).sort((a, b) => a.label.localeCompare(b.label))}
+                                                options={statusOptions}
                                                 isSearchable={false}
                                                 className="w-40"
+                                                menuPlacement="auto"
+                                                menuPortalTarget={typeof document !== "undefined" ? document.body : undefined}
+                                                menuPosition="fixed"
                                                 styles={createSelectStyles("sm", theme === "dark")}
                                                 classNames={{
                                                     control: () =>
@@ -105,18 +110,18 @@ export function AdoptionsList({
                                                     valueContainer: () => "px-2",
                                                     singleValue: () => "text-xs",
                                                     menu: () => "mt-1 rounded-lg border border-gray-200 bg-white shadow-lg z-50 dark:border-gray-700 dark:bg-gray-800",
-                                                    option: (s) => `px-3 py-2 text-sm text-gray-900 dark:text-gray-100 ${s.isFocused ? "bg-slate-50 dark:bg-slate-900/60" : ""}`,
+                                                    option: (state) => `px-3 py-2 text-sm text-gray-900 dark:text-gray-100 ${state.isFocused ? "bg-slate-50 dark:bg-slate-900/60" : ""}`,
                                                 }}
                                             />
                                         </div>
                                     </td>
-                                    <td className="max-w-xs px-4 py-3 text-slate-600 dark:text-slate-300">
+                                    <td className="max-w-xs px-4 py-4 text-slate-600 dark:text-slate-300">
                                         <div className="truncate">{item.notes || "-"}</div>
                                     </td>
-                                    <td className="px-4 py-3 text-slate-500 dark:text-slate-400">
+                                    <td className="px-4 py-4 text-slate-500 dark:text-slate-400">
                                         {formatDateTime(item.updatedAt ?? item.createdAt)}
                                     </td>
-                                    <td className="px-4 py-3">
+                                    <td className="px-4 py-4">
                                         <div className="flex justify-end gap-2">
                                             <Button
                                                 variant="secondary"
@@ -134,7 +139,7 @@ export function AdoptionsList({
                 </table>
             </div>
 
-            <div className="flex items-center justify-center gap-2 border-t border-slate-200 p-4 dark:border-slate-800">
+            <div className="flex items-center justify-center gap-2 border-t border-slate-200/70 bg-white/60 p-4 dark:border-slate-800 dark:bg-slate-950/40">
                 <Button variant="secondary" disabled={!canPrev} onClick={() => onPageChange(page - 1)}>
                     Anterior
                 </Button>

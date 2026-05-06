@@ -4,15 +4,14 @@ import {
     deleteDoc,
     doc,
     getDocs,
-    onSnapshot,
     orderBy,
     query,
     serverTimestamp,
     updateDoc,
     where,
-    type Unsubscribe,
 } from "firebase/firestore";
 import { db } from "@/services/firebase";
+import { subscribeCollection } from "@/shared/services/firestoreRealtime";
 import { buildPagedConstraints, getCollectionPage } from "@/shared/utils/pagination";
 import type { AnimalFormState, AnimalRecord, AnimalStatus } from "../types/types";
 
@@ -30,15 +29,9 @@ export function subscribeAnimals(
     onData: (animals: AnimalRecord[]) => void,
     onError?: (error: Error) => void,
     status?: AnimalRecord["status"] | "Todos",
-): Unsubscribe {
+){
     const constraints = status && status !== "Todos" ? buildPagedConstraints(status) : [orderBy("createdAt", "desc")];
-    const animalQuery = query(animalsCollection, ...constraints);
-
-    return onSnapshot(
-        animalQuery,
-        (snapshot) => onData(snapshot.docs.map(mapAnimal)),
-        (error) => onError?.(error as Error),
-    );
+    return subscribeCollection<AnimalRecord>(COLLECTION_NAME, onData, { constraints, onError });
 }
 
 export async function getAnimalsPage(pageSize: number, cursor?: unknown, status?: AnimalStatus | "Todos") {

@@ -11,6 +11,7 @@ interface AdopterFormProps {
     onCancel?: () => void;
     cancelLabel?: string;
     onSubmit: (values: AdopterFormState) => void;
+    mode?: "create" | "edit";
 }
 
 const INITIAL_VALUES: AdopterFormState = {
@@ -38,6 +39,7 @@ export function AdopterForm({
     onCancel,
     cancelLabel = "Cancelar",
     onSubmit,
+    mode = "create",
 }: AdopterFormProps) {
     const [values, setValues] = useState<AdopterFormState>({
         ...INITIAL_VALUES,
@@ -210,7 +212,7 @@ export function AdopterForm({
     }, [values.address.zipCode, fetchCepData, lastValidCep]);
 
     return (
-        <form onSubmit={handleSubmit} className="rounded-4xl border border-orange-100 bg-white/92 p-6 shadow-sm dark:border-orange-500/10 dark:bg-slate-900/88 md:p-8">
+        <form onSubmit={handleSubmit} className="rounded-[28px] border border-white/70 bg-white/82 p-6 shadow-[0_18px_50px_-34px_rgb(15_23_42/0.28)] backdrop-blur-sm dark:border-slate-700/60 dark:bg-slate-950/60 md:p-8">
             {/* Header */}
             <div className="mb-8 flex items-start justify-between gap-4">
                 <div>
@@ -218,7 +220,7 @@ export function AdopterForm({
                         Cadastro
                     </p>
                     <h2 className="mt-2 text-2xl font-semibold tracking-tight text-gray-950 dark:text-white">
-                        {values.name ? `Editar ${values.name}` : "Novo adotante"}
+                        {mode === "edit" ? `Editar ${values.name || "adotante"}` : "Novo adotante"}
                     </h2>
                     <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
                         Preencha os dados pessoais e de endereço do adotante.
@@ -402,14 +404,14 @@ export function AdopterForm({
                         disabled={loading}
                         rows={3}
                         maxLength={500}
-                        className="rounded-lg border border-gray-200 bg-white px-4 py-2.5 text-gray-900 outline-none transition-shadow duration-150 focus:border-orange-500 focus:ring-2 focus:ring-orange-500/50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100 dark:focus:border-orange-400 dark:focus:ring-orange-400/50 disabled:cursor-not-allowed disabled:bg-gray-100 dark:disabled:bg-gray-700"
+                        className="cursor-text rounded-lg border border-gray-200 bg-white px-4 py-2.5 text-gray-900 outline-none transition-shadow duration-150 focus:border-orange-500 focus:ring-2 focus:ring-orange-500/50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100 dark:focus:border-orange-400 dark:focus:ring-orange-400/50 disabled:cursor-not-allowed disabled:bg-gray-100 dark:disabled:bg-gray-700"
                         placeholder="Informações adicionais sobre o adotante..."
                     />
                 </label>
             </div>
 
             {/* Actions */}
-            <div className="border-t border-orange-100 pt-6 dark:border-orange-500/10">
+            <div className="border-t border-slate-200/70 pt-6 dark:border-slate-800">
                 <div className="flex justify-end gap-3">
                     {onCancel ? (
                         <Button type="button" variant="secondary" onClick={onCancel} disabled={loading}>

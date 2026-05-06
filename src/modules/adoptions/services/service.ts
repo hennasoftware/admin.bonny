@@ -1,10 +1,8 @@
 import {
     collection,
-    deleteDoc,
     doc,
     getDoc,
     getDocs,
-    onSnapshot,
     orderBy,
     query,
     runTransaction,
@@ -12,6 +10,7 @@ import {
     where,
 } from "firebase/firestore";
 import { db } from "@/services/firebase";
+import { subscribeCollection } from "@/shared/services/firestoreRealtime";
 import { buildPagedConstraints, getCollectionPage } from "@/shared/utils/pagination";
 import type { AdopterStatus } from "@/modules/adopters/types";
 import type { AnimalStatus } from "@/modules/animals/types/types";
@@ -54,13 +53,10 @@ export function subscribeAdoptions(
     onError?: (err: Error) => void,
     status?: AdoptionStatus | "Todos",
 ) {
-    const q = query(collection(db, COLLECTION), ...buildPagedConstraints(status));
-
-    return onSnapshot(
-        q,
-        (snapshot) => onNext(snapshot.docs.map(mapAdoption)),
-        (err) => onError?.(err as Error),
-    );
+    return subscribeCollection<AdoptionRecord>(COLLECTION, onNext, {
+        constraints: buildPagedConstraints(status),
+        onError,
+    });
 }
 
 export async function getAdoptionsPage(pageSize: number, cursor?: unknown, status?: AdoptionStatus | "Todos") {
