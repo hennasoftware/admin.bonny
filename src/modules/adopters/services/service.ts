@@ -3,6 +3,7 @@ import {
     collection,
     deleteDoc,
     doc,
+    getDoc,
     getDocs,
     orderBy,
     query,
@@ -47,6 +48,13 @@ export async function getAdoptersByStatus(status?: AdopterStatus | "Todos") {
     const filters = status && status !== "Todos" ? [where("status", "==", status), orderBy("createdAt", "desc")] : [orderBy("createdAt", "desc")];
     const snapshot = await getDocs(query(collection(db, COLLECTION_NAME), ...filters));
     return snapshot.docs.map(mapAdopter);
+}
+
+export async function getAdopterById(adopterId: string) {
+    const snapshot = await getDoc(doc(db, COLLECTION_NAME, adopterId));
+    if (!snapshot.exists()) return null;
+
+    return mapAdopter(snapshot);
 }
 
 export async function createAdopter(values: AdopterFormState): Promise<void> {

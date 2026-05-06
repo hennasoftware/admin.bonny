@@ -7,6 +7,12 @@ import { ConfirmDeleteModal, EntityAlert, EntityPageHeader, EntityPageShell, Ent
 import { AdoptionsList } from "../components/AdoptionsList";
 import { AdoptionsToolbar } from "../components/AdoptionsToolbar";
 import { getAdoptionsByStatus, removeAdoption, updateAdoptionStatus, subscribeAdoptions, type AdoptionRecord, type AdoptionStatus } from "../services/service";
+import { AnimalDetailsModal } from "@/modules/animals/components";
+import { getAnimalById } from "@/modules/animals/services/service";
+import type { AnimalRecord } from "@/modules/animals/types/types";
+import { AdopterDetailsModal } from "@/modules/adopters/components";
+import { getAdopterById } from "@/modules/adopters/services/service";
+import type { AdopterRecord } from "@/modules/adopters/types";
 
 const ITEMS_PER_PAGE = 10;
 
@@ -32,6 +38,8 @@ export function AdoptionsListPage() {
     const [search, setSearch] = useState(() => searchParams.get("search") ?? "");
     const [status, setStatus] = useState<AdoptionStatus | "Todos">("Todos");
     const [adoptionToDelete, setAdoptionToDelete] = useState<AdoptionRecord | null>(null);
+    const [viewingAnimal, setViewingAnimal] = useState<AnimalRecord | null>(null);
+    const [viewingAdopter, setViewingAdopter] = useState<AdopterRecord | null>(null);
     const [deleting, setDeleting] = useState(false);
     const [totalItems, setTotalItems] = useState(0);
     const [hasNextPage, setHasNextPage] = useState(false);
@@ -156,6 +164,34 @@ export function AdoptionsListPage() {
         }
     };
 
+    const handleViewAnimal = async (animalId: string) => {
+        try {
+            const animal = await getAnimalById(animalId);
+            if (!animal) {
+                showToast("Animal não encontrado.", "error");
+                return;
+            }
+
+            setViewingAnimal(animal);
+        } catch {
+            showToast("Não foi possível carregar os detalhes do animal.", "error");
+        }
+    };
+
+    const handleViewAdopter = async (adopterId: string) => {
+        try {
+            const adopter = await getAdopterById(adopterId);
+            if (!adopter) {
+                showToast("Adotante não encontrado.", "error");
+                return;
+            }
+
+            setViewingAdopter(adopter);
+        } catch {
+            showToast("Não foi possível carregar os detalhes do adotante.", "error");
+        }
+    };
+
     return (
         <>
             <Helmet>
@@ -200,10 +236,22 @@ export function AdoptionsListPage() {
                         totalPages={totalPages}
                         hasNextPage={hasNextPage}
                         onPageChange={handlePageChange}
+                        onViewAdopter={handleViewAdopter}
+                        onViewAnimal={handleViewAnimal}
                         onDelete={setAdoptionToDelete}
                         onStatusChange={handleStatusChange}
                     />
                 </EntityPageShell>
+
+                <AdopterDetailsModal
+                    adopter={viewingAdopter}
+                    onClose={() => setViewingAdopter(null)}
+                />
+
+                <AnimalDetailsModal
+                    animal={viewingAnimal}
+                    onClose={() => setViewingAnimal(null)}
+                />
 
                 <ConfirmDeleteModal
                     open={!!adoptionToDelete}

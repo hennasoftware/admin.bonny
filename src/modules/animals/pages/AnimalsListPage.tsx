@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 // firebase types not required in this module after switching to client-side pagination from subscriptions
 import { AdminLayout } from "@/modules/dashboard/AdminLayout";
 import { ConfirmDeleteModal, EntityAlert, EntityPageHeader, EntityPageShell, EntityStatsGrid, useToast } from "@/shared/components/ui";
-import { AnimalEditorModal, AnimalList, AnimalsToolbar } from "../components";
+import { AnimalDetailsModal, AnimalEditorModal, AnimalList, AnimalsToolbar } from "../components";
 import { getAnimalsByStatus, matchesSearch, removeAnimal, updateAnimal, subscribeAnimals } from "../services/service";
 import { ANIMAL_DATA } from "../constants/animalData";
 import type { AnimalFormState, AnimalRecord, AnimalStatus } from "../types/types";
@@ -24,6 +24,7 @@ export function AnimalsListPage() {
     const [search, setSearch] = useState("");
     const [status, setStatus] = useState<AnimalStatus | "Todos">("Todos");
     const [editingAnimal, setEditingAnimal] = useState<AnimalRecord | null>(null);
+    const [viewingAnimal, setViewingAnimal] = useState<AnimalRecord | null>(null);
     const [animalToDelete, setAnimalToDelete] = useState<AnimalRecord | null>(null);
     const [saving, setSaving] = useState(false);
     const [deleting, setDeleting] = useState(false);
@@ -185,6 +186,7 @@ export function AnimalsListPage() {
                     <AnimalList
                         animals={animals}
                         loading={loading}
+                        onView={setViewingAnimal}
                         page={page}
                         totalPages={totalPages}
                         hasNextPage={hasNextPage}
@@ -195,6 +197,8 @@ export function AnimalsListPage() {
                 </EntityPageShell>
 
                 <AnimalEditorModal animal={editingAnimal} loading={saving} onClose={() => setEditingAnimal(null)} onSubmit={handleUpdate} />
+
+                <AnimalDetailsModal animal={viewingAnimal} onClose={() => setViewingAnimal(null)} />
 
                 <ConfirmDeleteModal
                     open={!!animalToDelete}

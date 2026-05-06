@@ -13,6 +13,8 @@ interface AdoptionsListProps {
     totalPages: number;
     hasNextPage: boolean;
     onPageChange: (page: number) => void;
+    onViewAdopter: (adopterId: string) => void;
+    onViewAnimal: (animalId: string) => void;
     onDelete: (item: AdoptionRecord) => void;
     onStatusChange: (item: AdoptionRecord, status: AdoptionStatus) => void;
 }
@@ -30,6 +32,8 @@ export function AdoptionsList({
     totalPages,
     hasNextPage,
     onPageChange,
+    onViewAdopter,
+    onViewAnimal,
     onDelete,
     onStatusChange,
 }: AdoptionsListProps) {
@@ -79,13 +83,27 @@ export function AdoptionsList({
                                 <tr key={item.id} className="transition-colors hover:bg-orange-50/50 dark:hover:bg-slate-900/60">
                                     <td className="px-4 py-4">
                                         <div>
-                                            <p className="font-medium text-slate-900 dark:text-white">{item.adopterName}</p>
+                                            <button
+                                                type="button"
+                                                onClick={() => onViewAdopter(item.adopterId)}
+                                                className="cursor-pointer text-left font-medium text-slate-900 transition-colors hover:text-orange-600 dark:text-white dark:hover:text-orange-300"
+                                                title="Ver detalhes do adotante"
+                                            >
+                                                {item.adopterName}
+                                            </button>
                                             <p className="text-xs text-slate-500 dark:text-slate-400">ID: {item.adopterId}</p>
                                         </div>
                                     </td>
                                     <td className="px-4 py-4 text-slate-600 dark:text-slate-300">
                                         <div>
-                                            <p className="font-medium text-slate-900 dark:text-white">{item.animalName}</p>
+                                            <button
+                                                type="button"
+                                                onClick={() => onViewAnimal(item.animalId)}
+                                                className="cursor-pointer text-left font-medium text-slate-900 transition-colors hover:text-orange-600 dark:text-white dark:hover:text-orange-300"
+                                                title="Ver detalhes do animal"
+                                            >
+                                                {item.animalName}
+                                            </button>
                                             <p className="text-xs text-slate-500 dark:text-slate-400">ID: {item.animalId}</p>
                                         </div>
                                     </td>

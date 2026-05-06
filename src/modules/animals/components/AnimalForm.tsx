@@ -6,6 +6,7 @@ import { createSelectStyles } from "@/shared/utils/selectStyles";
 import { useTheme } from "@/styles/themes/useTheme";
 import { ANIMAL_DATA } from "../constants/animalData";
 import type { AnimalFormState } from "../types/types";
+import { formatAnimalAge, parseAnimalAgeYears, sanitizeAnimalAgeInput } from "../utils/age";
 
 const defaultFormState: AnimalFormState = {
     name: "",
@@ -50,6 +51,10 @@ export function AnimalForm({
         });
     };
 
+    const updateAgeField = (value: string) => {
+        setForm((current) => ({ ...current, age: sanitizeAnimalAgeInput(value) }));
+    };
+
     const availableBreeds = ((ANIMAL_DATA.breeds[form.species as keyof typeof ANIMAL_DATA.breeds] || []) as readonly string[]).slice();
 
     useEffect(() => {
@@ -64,7 +69,8 @@ export function AnimalForm({
         if (!form.name.trim()) nextErrors.name = "Informe o nome.";
         if (!form.species.trim()) nextErrors.species = "Informe a especie.";
         if (!form.breed.trim()) nextErrors.breed = "Informe a raca.";
-        if (!form.age.trim()) nextErrors.age = "Informe a idade estimada.";
+        const ageYears = parseAnimalAgeYears(form.age);
+        if (ageYears === null) nextErrors.age = "Informe a idade estimada em anos.";
         if (!form.color.trim()) nextErrors.color = "Informe a cor.";
 
         setErrors(nextErrors);
@@ -75,12 +81,15 @@ export function AnimalForm({
         event.preventDefault();
         if (!validate()) return;
 
+        const ageYears = parseAnimalAgeYears(form.age);
+        if (ageYears === null) return;
+
         await onSubmit({
             ...form,
             name: form.name.trim(),
             species: form.species.trim(),
             breed: form.breed.trim(),
-            age: form.age.trim(),
+            age: formatAnimalAge(ageYears),
             color: form.color.trim(),
             notes: form.notes.trim(),
         });
@@ -158,7 +167,17 @@ export function AnimalForm({
                     {errors.breed ? <p className="text-sm text-red-500 dark:text-red-400">{errors.breed}</p> : null}
                 </label>
 
-                <FormField label="Idade estimada" placeholder="Ex.: 2 anos" value={form.age} onChange={(event) => updateField("age", event.target.value)} error={errors.age} disabled={loading} />
+                <FormField
+                    label="Idade estimada"
+                    placeholder="Ex.: 2"
+                    value={form.age}
+                    onChange={(event) => updateAgeField(event.target.value)}
+                    error={errors.age}
+                    disabled={loading}
+                    inputMode="numeric"
+                    pattern="[0-9]*"
+                    type="text"
+                />
 
                 <label className="flex flex-col gap-1.5">
                     <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Sexo</span>

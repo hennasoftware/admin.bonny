@@ -3,10 +3,12 @@ import { Button } from "@/shared/components/ui";
 import { AnimalStatusBadge } from "./AnimalStatusBadge";
 import { formatDateTime } from "@/modules/animals/utils/formatter";
 import type { AnimalRecord } from "../types";
+import { formatAnimalAge } from "../utils/age";
 
 interface AnimalListProps {
     animals: AnimalRecord[];
     loading?: boolean;
+    onView: (animal: AnimalRecord) => void;
     onEdit: (animal: AnimalRecord) => void;
     onDelete: (animal: AnimalRecord) => void;
     page: number;
@@ -18,6 +20,7 @@ interface AnimalListProps {
 export function AnimalList({
     animals,
     loading = false,
+    onView,
     onEdit,
     onDelete,
     page,
@@ -67,7 +70,14 @@ export function AnimalList({
                             animals.map((animal) => (
                                 <tr key={animal.id} className="transition-colors hover:bg-orange-50/50 dark:hover:bg-slate-900/60">
                                     <td className="max-w-25 truncate whitespace-nowrap px-4 py-4 font-medium text-slate-900 dark:text-white">
-                                        {animal.name}
+                                        <button
+                                            type="button"
+                                            onClick={() => onView(animal)}
+                                            className="max-w-full cursor-pointer truncate text-left transition-colors hover:text-orange-600 dark:hover:text-orange-300"
+                                            title="Ver detalhes do animal"
+                                        >
+                                            {animal.name}
+                                        </button>
                                     </td>
                                     <td className="px-4 py-4 text-slate-600 dark:text-slate-300">
                                         {animal.species} • {animal.breed}
@@ -76,7 +86,7 @@ export function AnimalList({
                                         <AnimalStatusBadge status={animal.status} />
                                     </td>
                                     <td className="px-4 py-4 text-slate-600 dark:text-slate-300">
-                                        {animal.sex} • {animal.age}
+                                        {animal.sex} • {formatAnimalAge(Number.parseInt(animal.age, 10) || 0)}
                                     </td>
                                     <td className="px-4 py-4 text-slate-500 dark:text-slate-400">
                                         {formatDateTime(animal.updatedAt ?? animal.createdAt)}

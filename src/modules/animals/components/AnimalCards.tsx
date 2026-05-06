@@ -2,16 +2,18 @@ import { CalendarClock, Cat, Dog, HeartPulse, ShieldCheck } from "lucide-react";
 import type { AnimalRecord } from "../types/types";
 import { formatDateTime } from "../utils/formatter";
 import { AnimalStatusBadge } from "./AnimalStatusBadge";
+import { formatAnimalAge } from "../utils/age";
 
 interface AnimalCardsProps {
     animals: AnimalRecord[];
+    onView?: (animal: AnimalRecord) => void;
 }
 
 function speciesIcon(species: string) {
     return species.toLowerCase().includes("gato") ? Cat : Dog;
 }
 
-export function AnimalCards({ animals }: AnimalCardsProps) {
+export function AnimalCards({ animals, onView }: AnimalCardsProps) {
     return (
         <section className="rounded-[28px] border border-orange-100/70 bg-white/82 p-6 shadow-[0_18px_50px_-34px_rgb(15_23_42/0.28)] backdrop-blur-sm dark:border-slate-700/60 dark:bg-slate-950/60 md:p-8">
             <div className="mb-6 flex items-start justify-between gap-4">
@@ -49,9 +51,14 @@ export function AnimalCards({ animals }: AnimalCardsProps) {
 
                                     <div className="min-w-0">
                                         <div className="flex flex-wrap items-center gap-2">
-                                            <h3 className="truncate text-lg font-semibold text-gray-950 dark:text-white">
+                                            <button
+                                                type="button"
+                                                onClick={() => onView?.(animal)}
+                                                className="truncate text-left text-lg font-semibold text-gray-950 transition-colors hover:text-orange-600 dark:text-white dark:hover:text-orange-300"
+                                                title="Ver detalhes do animal"
+                                            >
                                                 {animal.name}
-                                            </h3>
+                                            </button>
                                             <AnimalStatusBadge status={animal.status} />
                                         </div>
 
@@ -59,12 +66,12 @@ export function AnimalCards({ animals }: AnimalCardsProps) {
                                             {animal.species} • {animal.breed}
                                         </p>
 
-                                        <div className="mt-3 grid gap-2 text-sm text-gray-600 dark:text-gray-300 sm:grid-cols-2">
-                                            <p>Sexo: {animal.sex}</p>
-                                            <p>Idade: {animal.age}</p>
-                                            <p>Porte: {animal.size}</p>
-                                            <p>Cor: {animal.color}</p>
-                                        </div>
+                                            <div className="mt-3 grid gap-2 text-sm text-gray-600 dark:text-gray-300 sm:grid-cols-2">
+                                                <p>Sexo: {animal.sex}</p>
+                                                <p>Idade: {formatAnimalAge(Number.parseInt(animal.age, 10) || 0)}</p>
+                                                <p>Porte: {animal.size}</p>
+                                                <p>Cor: {animal.color}</p>
+                                            </div>
                                     </div>
                                 </div>
 

@@ -3,6 +3,7 @@ import {
     collection,
     deleteDoc,
     doc,
+    getDoc,
     getDocs,
     orderBy,
     query,
@@ -14,6 +15,7 @@ import { db } from "@/services/firebase";
 import { subscribeCollection } from "@/shared/services/firestoreRealtime";
 import { buildPagedConstraints, getCollectionPage } from "@/shared/utils/pagination";
 import type { AnimalFormState, AnimalRecord, AnimalStatus } from "../types/types";
+import { formatAnimalAgeInput } from "../utils/age";
 
 const COLLECTION_NAME = "animals";
 const animalsCollection = collection(db, COLLECTION_NAME);
@@ -52,6 +54,13 @@ export async function getAnimalsByStatus(status?: AnimalStatus | "Todos") {
     return snapshot.docs.map(mapAnimal);
 }
 
+export async function getAnimalById(animalId: string) {
+    const snapshot = await getDoc(doc(db, COLLECTION_NAME, animalId));
+    if (!snapshot.exists()) return null;
+
+    return mapAnimal(snapshot);
+}
+
 export async function createAnimal(values: AnimalFormState) {
     await addDoc(animalsCollection, {
         ...values,
@@ -83,7 +92,7 @@ export function toAnimalFormState(animal: AnimalRecord): AnimalFormState {
         species: animal.species,
         breed: animal.breed,
         sex: animal.sex,
-        age: animal.age,
+        age: formatAnimalAgeInput(animal.age),
         size: animal.size,
         color: animal.color,
         status: animal.status,

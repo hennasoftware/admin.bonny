@@ -14,6 +14,9 @@ import { createAdoption, type AdoptionStatus } from "@/modules/adoptions/service
 import { formatAddress, formatCPF, formatPhone } from "@/modules/adopters/utils/formatter";
 import type { AdopterRecord } from "@/modules/adopters/types";
 import type { AnimalRecord } from "@/modules/animals/types/types";
+import { formatAnimalAge } from "@/modules/animals/utils/age";
+import { AnimalDetailsModal } from "@/modules/animals/components";
+import { AdopterDetailsModal } from "@/modules/adopters/components";
 
 export function AdoptionsCreatePage() {
     const availableStatus = ANIMAL_DATA.status[0].value as AnimalRecord["status"];
@@ -27,6 +30,8 @@ export function AdoptionsCreatePage() {
     const [notes, setNotes] = useState("");
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const [viewingAdopter, setViewingAdopter] = useState<AdopterRecord | null>(null);
+    const [viewingAnimal, setViewingAnimal] = useState<AnimalRecord | null>(null);
     const { theme } = useTheme();
 
     useEffect(() => {
@@ -278,11 +283,18 @@ export function AdoptionsCreatePage() {
                                                 <p>CPF: {formatCPF(selectedAdopterObj.cpf)}</p>
                                                 <div className="flex items-start gap-2">
                                                     <Phone className="mt-0.5 h-4 w-4 text-orange-500" />
-                                                    <span>
-                                                        {selectedAdopterObj.email}
-                                                        <br />
-                                                        {formatPhone(selectedAdopterObj.phone)}
-                                                    </span>
+                                                    <div className="min-w-0">
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => setViewingAdopter(selectedAdopterObj)}
+                                                            className="block cursor-pointer text-left font-semibold text-gray-950 transition-colors hover:text-orange-600 dark:text-white dark:hover:text-orange-300"
+                                                            title="Ver detalhes do adotante"
+                                                        >
+                                                            {selectedAdopterObj.name}
+                                                        </button>
+                                                        <span className="block text-gray-600 dark:text-gray-300">{selectedAdopterObj.email}</span>
+                                                        <span className="block">{formatPhone(selectedAdopterObj.phone)}</span>
+                                                    </div>
                                                 </div>
                                                 <div className="flex items-start gap-2">
                                                     <MapPin className="mt-0.5 h-4 w-4 text-orange-500" />
@@ -301,12 +313,19 @@ export function AdoptionsCreatePage() {
                                         </div>
                                         {selectedAnimalObj ? (
                                             <div className="mt-3 space-y-2 text-sm text-gray-600 dark:text-gray-300">
-                                                <p className="font-semibold text-gray-950 dark:text-white">{selectedAnimalObj.name}</p>
+                                                <button
+                                                    type="button"
+                                                    onClick={() => setViewingAnimal(selectedAnimalObj)}
+                                                    className="cursor-pointer text-left font-semibold text-gray-950 transition-colors hover:text-orange-600 dark:text-white dark:hover:text-orange-300"
+                                                    title="Ver detalhes do animal"
+                                                >
+                                                    {selectedAnimalObj.name}
+                                                </button>
                                                 <p>
                                                     {selectedAnimalObj.species} • {selectedAnimalObj.breed}
                                                 </p>
                                                 <p>Porte: {selectedAnimalObj.size}</p>
-                                                <p>Idade: {selectedAnimalObj.age}</p>
+                                                <p>Idade: {formatAnimalAge(Number.parseInt(selectedAnimalObj.age, 10) || 0)}</p>
                                             </div>
                                         ) : (
                                             <p className="mt-3 text-sm text-gray-500 dark:text-gray-400">Nenhum animal selecionado.</p>
@@ -317,6 +336,9 @@ export function AdoptionsCreatePage() {
                         </aside>
                     </form>
                 </EntityPageShell>
+
+                <AdopterDetailsModal adopter={viewingAdopter} onClose={() => setViewingAdopter(null)} />
+                <AnimalDetailsModal animal={viewingAnimal} onClose={() => setViewingAnimal(null)} />
             </AdminLayout>
         </>
     );

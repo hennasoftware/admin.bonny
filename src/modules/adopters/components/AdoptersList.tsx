@@ -7,6 +7,7 @@ import type { AdopterRecord } from "../types";
 interface AdoptersListProps {
     adopters: AdopterRecord[];
     loading?: boolean;
+    onView: (adopter: AdopterRecord) => void;
     onEdit: (adopter: AdopterRecord) => void;
     onDelete: (adopter: AdopterRecord) => void;
     page: number;
@@ -18,6 +19,7 @@ interface AdoptersListProps {
 export function AdoptersList({
     adopters,
     loading = false,
+    onView,
     onEdit,
     onDelete,
     page,
@@ -68,7 +70,14 @@ export function AdoptersList({
                                 <tr key={adopter.id} className="transition-colors hover:bg-orange-50/50 dark:hover:bg-slate-900/60">
                                     <td className="px-4 py-4">
                                         <div>
-                                            <p className="font-medium text-slate-900 dark:text-white">{adopter.name}</p>
+                                            <button
+                                                type="button"
+                                                onClick={() => onView(adopter)}
+                                                className="cursor-pointer text-left font-medium text-slate-900 transition-colors hover:text-orange-600 dark:text-white dark:hover:text-orange-300"
+                                                title="Ver detalhes do adotante"
+                                            >
+                                                {adopter.name}
+                                            </button>
                                             <p className="text-xs text-slate-500 dark:text-slate-400">CPF: {formatCPF(adopter.cpf)}</p>
                                         </div>
                                     </td>

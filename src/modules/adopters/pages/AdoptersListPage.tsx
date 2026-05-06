@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import type { DocumentData, QueryDocumentSnapshot } from "firebase/firestore";
 import { AdminLayout } from "@/modules/dashboard/AdminLayout";
 import { ConfirmDeleteModal, EntityAlert, EntityPageHeader, EntityPageShell, EntityStatsGrid, useToast } from "@/shared/components/ui";
-import { AdopterEditorModal, AdoptersList, AdoptersToolbar } from "../components";
+import { AdopterDetailsModal, AdopterEditorModal, AdoptersList, AdoptersToolbar } from "../components";
 import { getAdoptersByStatus, getAdoptersPage, matchesSearch, removeAdopter, updateAdopter } from "../services/service";
 import type { AdopterFormState, AdopterRecord, AdopterStatus } from "../types";
 
@@ -19,6 +19,7 @@ export function AdoptersListPage() {
     const [error, setError] = useState<string | null>(null);
     const [search, setSearch] = useState("");
     const [status, setStatus] = useState<AdopterStatus | "Todos">("Todos");
+    const [viewingAdopter, setViewingAdopter] = useState<AdopterRecord | null>(null);
     const [editingAdopter, setEditingAdopter] = useState<AdopterRecord | null>(null);
     const [adopterToDelete, setAdopterToDelete] = useState<AdopterRecord | null>(null);
     const [saving, setSaving] = useState(false);
@@ -174,6 +175,7 @@ export function AdoptersListPage() {
                     <AdoptersList
                         adopters={adopters}
                         loading={loading}
+                        onView={setViewingAdopter}
                         page={page}
                         totalPages={totalPages}
                         hasNextPage={hasNextPage}
@@ -183,6 +185,7 @@ export function AdoptersListPage() {
                     />
                 </EntityPageShell>
 
+                <AdopterDetailsModal adopter={viewingAdopter} onClose={() => setViewingAdopter(null)} />
                 <AdopterEditorModal adopter={editingAdopter} loading={saving} onClose={() => setEditingAdopter(null)} onSubmit={handleUpdate} />
 
                 <ConfirmDeleteModal
