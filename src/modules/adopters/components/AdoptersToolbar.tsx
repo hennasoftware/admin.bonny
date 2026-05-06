@@ -20,7 +20,7 @@ export function AdoptersToolbar({
 }: AdoptersToolbarProps) {
     const { theme } = useTheme();
     return (
-        <div className="rounded-[28px] border border-white/70 bg-white/82 p-5 shadow-[0_18px_50px_-34px_rgb(15_23_42/0.28)] backdrop-blur-sm dark:border-slate-700/60 dark:bg-slate-950/60 md:p-6">
+        <div className="rounded-[28px] border border-orange-100/70 bg-white/82 p-5 shadow-[0_18px_50px_-34px_rgb(15_23_42/0.28)] backdrop-blur-sm dark:border-slate-700/60 dark:bg-slate-950/60 md:p-6">
             <div className="mb-4 border-b border-slate-200/70 pb-4 dark:border-slate-800">
                 <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-gray-400 dark:text-gray-500">Filtros</p>
                 <p className="mt-1 text-sm text-gray-600 dark:text-gray-300">Refine a lista por nome, documento ou status.</p>

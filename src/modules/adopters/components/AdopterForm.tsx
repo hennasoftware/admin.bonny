@@ -212,7 +212,7 @@ export function AdopterForm({
     }, [values.address.zipCode, fetchCepData, lastValidCep]);
 
     return (
-        <form onSubmit={handleSubmit} className="rounded-[28px] border border-white/70 bg-white/82 p-6 shadow-[0_18px_50px_-34px_rgb(15_23_42/0.28)] backdrop-blur-sm dark:border-slate-700/60 dark:bg-slate-950/60 md:p-8">
+        <form onSubmit={handleSubmit} className="rounded-[28px] border border-orange-100/70 bg-white/82 p-6 shadow-[0_18px_50px_-34px_rgb(15_23_42/0.28)] backdrop-blur-sm dark:border-slate-700/60 dark:bg-slate-950/60 md:p-8">
             {/* Header */}
             <div className="mb-8 flex items-start justify-between gap-4">
                 <div>

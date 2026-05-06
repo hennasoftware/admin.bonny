@@ -11,7 +11,7 @@ export function DashboardHeader({ userEmail }: DashboardHeaderProps) {
     }).format(new Date());
 
     return (
-        <div className="relative mb-8 overflow-hidden rounded-[28px] border border-white/60 bg-white/75 p-5 shadow-[0_20px_80px_-40px_rgb(249_115_22/0.45)] backdrop-blur-xl sm:mb-10 sm:p-6 dark:border-slate-700/50 dark:bg-slate-950/55 md:p-7">
+        <div className="relative mb-8 overflow-hidden rounded-[28px] border border-orange-100/70 bg-white/75 p-5 shadow-[0_20px_80px_-40px_rgb(249_115_22/0.45)] backdrop-blur-xl sm:mb-10 sm:p-6 dark:border-slate-700/50 dark:bg-slate-950/55 md:p-7">
             <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(249,115,22,0.16),transparent_34%),radial-gradient(circle_at_bottom_left,rgba(251,146,60,0.12),transparent_28%)]" />
 
             <div className="relative flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
@@ -29,14 +29,14 @@ export function DashboardHeader({ userEmail }: DashboardHeaderProps) {
                 </div>
 
                 <div className="grid gap-3 sm:grid-cols-2 lg:min-w-[26rem]">
-                    <div className="rounded-2xl border border-white/70 bg-white/85 px-4 py-3 shadow-sm dark:border-slate-700/60 dark:bg-slate-900/80">
+                    <div className="rounded-2xl border border-orange-100/70 bg-white/85 px-4 py-3 shadow-sm dark:border-slate-700/60 dark:bg-slate-900/80">
                         <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-gray-400 dark:text-gray-500">Sessão ativa</p>
                         <p className="mt-2 truncate text-sm font-medium text-gray-950 dark:text-white">
                             {userEmail ?? "Usuário autenticado"}
                         </p>
                     </div>
 
-                    <div className="rounded-2xl border border-white/70 bg-white/85 px-4 py-3 shadow-sm dark:border-slate-700/60 dark:bg-slate-900/80">
+                    <div className="rounded-2xl border border-orange-100/70 bg-white/85 px-4 py-3 shadow-sm dark:border-slate-700/60 dark:bg-slate-900/80">
                         <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-gray-400 dark:text-gray-500">Atualizado em</p>
                         <p className="mt-2 capitalize text-sm font-medium text-gray-950 dark:text-white">{todayLabel}</p>
                     </div>

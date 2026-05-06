@@ -15,7 +15,7 @@ const statusStyles: Record<RecentOrder["status"], string> = {
 
 export function RecentOrders({ loading, orders }: RecentOrdersProps) {
     return (
-        <aside className="self-start overflow-hidden rounded-3xl border border-white/70 bg-white/80 p-5 shadow-[0_18px_50px_-30px_rgb(15_23_42/0.35)] backdrop-blur-sm dark:border-slate-700/60 dark:bg-slate-950/60 sm:p-6">
+        <aside className="self-start overflow-hidden rounded-3xl border border-orange-100/70 bg-white/80 p-5 shadow-[0_18px_50px_-30px_rgb(15_23_42/0.35)] backdrop-blur-sm dark:border-slate-700/60 dark:bg-slate-950/60 sm:p-6">
             <header className="mb-5 flex flex-wrap items-start justify-between gap-4 border-b border-slate-200/70 pb-4 dark:border-slate-800">
                 <div className="min-w-0 flex-1">
                     <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-gray-400 dark:text-gray-500">Fluxo recente</p>

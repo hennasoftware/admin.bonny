@@ -5,7 +5,7 @@ type StatsCardProps = DashboardStat;
 
 export function StatsCard({ title, value, growth, icon: Icon }: StatsCardProps) {
     return (
-        <article className="group relative min-w-0 overflow-hidden rounded-[24px] border border-white/70 bg-white/82 p-4 shadow-[0_18px_50px_-34px_rgb(15_23_42/0.3)] backdrop-blur-sm transition duration-300 hover:-translate-y-1 hover:shadow-[0_24px_70px_-30px_rgb(249_115_22/0.28)] dark:border-slate-700/60 dark:bg-slate-950/60 sm:p-5">
+        <article className="group relative min-w-0 overflow-hidden rounded-[24px] border border-orange-100/70 bg-white/82 p-4 shadow-[0_18px_50px_-34px_rgb(15_23_42/0.3)] backdrop-blur-sm transition duration-300 hover:-translate-y-1 hover:shadow-[0_24px_70px_-30px_rgb(249_115_22/0.28)] dark:border-slate-700/60 dark:bg-slate-950/60 sm:p-5">
             <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-orange-400 via-amber-300 to-orange-200 opacity-80" />
 
             <div className="relative mb-4 flex items-start justify-between gap-3 sm:mb-5 sm:gap-4">
