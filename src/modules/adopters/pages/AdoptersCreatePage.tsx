@@ -12,16 +12,20 @@ export function AdoptersCreatePage() {
     const { showToast } = useToast();
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [formKey, setFormKey] = useState(0);
+    const [submitError, setSubmitError] = useState<string | null>(null);
 
     const handleCreate = async (values: AdopterFormState) => {
         setIsSubmitting(true);
+        setSubmitError(null);
 
         try {
             await createAdopter(values);
             showToast("Adotante cadastrado com sucesso.");
             setFormKey((current) => current + 1);
-        } catch {
-            showToast("Nao foi possivel cadastrar o adotante.", "error");
+        } catch (error) {
+            const message = error instanceof Error ? error.message : "Nao foi possivel cadastrar o adotante.";
+            setSubmitError(message);
+            showToast(message, "error");
         } finally {
             setIsSubmitting(false);
         }
@@ -50,7 +54,13 @@ export function AdoptersCreatePage() {
                         }
                     />
 
-                    <AdopterForm key={formKey} submitLabel="Cadastrar adotante" loading={isSubmitting} onSubmit={handleCreate} />
+                    <AdopterForm
+                        key={formKey}
+                        submitLabel="Cadastrar adotante"
+                        loading={isSubmitting}
+                        submitError={submitError}
+                        onSubmit={handleCreate}
+                    />
                 </EntityPageShell>
             </AdminLayout>
         </>

@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { Helmet } from "react-helmet-async";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { AdminLayout } from "@/modules/dashboard/AdminLayout";
 import { ConfirmDeleteModal, EntityAlert, EntityPageHeader, EntityPageShell, EntityStatsGrid, useToast } from "@/shared/components/ui";
 import { sortByRecent, type SortDirection } from "@/shared/utils/sortByRecent";
@@ -16,12 +16,13 @@ export function AnimalsListPage() {
     const inProcessStatus = ANIMAL_DATA.status[1].value as AnimalStatus;
     const adoptedStatus = ANIMAL_DATA.status[2].value as AnimalStatus;
     const navigate = useNavigate();
+    const [searchParams] = useSearchParams();
     const { showToast } = useToast();
     const [page, setPage] = useState(1);
     const [allAnimals, setAllAnimals] = useState<AnimalRecord[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
-    const [search, setSearch] = useState("");
+    const [search, setSearch] = useState(() => searchParams.get("search") ?? "");
     const [status, setStatus] = useState<AnimalStatus | "Todos">("Todos");
     const [sortDirection, setSortDirection] = useState<SortDirection>("desc");
     const [editingAnimal, setEditingAnimal] = useState<AnimalRecord | null>(null);
@@ -33,6 +34,11 @@ export function AnimalsListPage() {
     useEffect(() => {
         setPage(1);
     }, [search, status, sortDirection]);
+
+    useEffect(() => {
+        const nextSearch = searchParams.get("search") ?? "";
+        setSearch((current) => (current === nextSearch ? current : nextSearch));
+    }, [searchParams]);
 
     useEffect(() => {
         setLoading(true);

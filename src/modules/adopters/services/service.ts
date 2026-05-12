@@ -18,6 +18,28 @@ import type { AdopterFormState, AdopterRecord, AdopterStatus } from "../types";
 
 const COLLECTION_NAME = "adopters";
 
+interface DuplicateAdopterConflict {
+    field: "cpf" | "phone" | "email";
+    adopter: AdopterRecord;
+}
+
+function normalizeDigits(value: string) {
+    return value.replace(/\D/g, "");
+}
+
+function normalizeEmail(value: string) {
+    return value.trim().toLowerCase();
+}
+
+function buildAdopterPayload(values: AdopterFormState) {
+    return {
+        ...values,
+        emailNormalized: normalizeEmail(values.email),
+        cpfDigits: normalizeDigits(values.cpf),
+        phoneDigits: normalizeDigits(values.phone),
+    };
+}
+
 function mapAdopter(entry: { id: string; data: () => unknown }): AdopterRecord {
     return {
         id: entry.id,
@@ -57,17 +79,65 @@ export async function getAdopterById(adopterId: string) {
     return mapAdopter(snapshot);
 }
 
+export async function findDuplicateAdopter(values: AdopterFormState, currentAdopterId?: string): Promise<DuplicateAdopterConflict | null> {
+    const adopters = await getAdoptersByStatus("Todos");
+    const emailNormalized = normalizeEmail(values.email);
+    const cpfDigits = normalizeDigits(values.cpf);
+    const phoneDigits = normalizeDigits(values.phone);
+
+    const conflictingByEmail = adopters.find((adopter) => adopter.id !== currentAdopterId && normalizeEmail(adopter.email) === emailNormalized);
+    if (conflictingByEmail) {
+        return { field: "email", adopter: conflictingByEmail };
+    }
+
+    const conflictingByCpf = adopters.find((adopter) => adopter.id !== currentAdopterId && normalizeDigits(adopter.cpf) === cpfDigits);
+    if (conflictingByCpf) {
+        return { field: "cpf", adopter: conflictingByCpf };
+    }
+
+    const conflictingByPhone = adopters.find((adopter) => adopter.id !== currentAdopterId && normalizeDigits(adopter.phone) === phoneDigits);
+    if (conflictingByPhone) {
+        return { field: "phone", adopter: conflictingByPhone };
+    }
+
+    return null;
+}
+
 export async function createAdopter(values: AdopterFormState): Promise<void> {
+    const duplicate = await findDuplicateAdopter(values);
+
+    if (duplicate) {
+        throw new Error(
+            duplicate.field === "email"
+                ? `Ja existe um adotante com este email: ${duplicate.adopter.name}.`
+                : duplicate.field === "cpf"
+                  ? `Ja existe um adotante com este CPF: ${duplicate.adopter.name}.`
+                  : `Ja existe um adotante com este telefone: ${duplicate.adopter.name}.`,
+        );
+    }
+
     await addDoc(collection(db, COLLECTION_NAME), {
-        ...values,
+        ...buildAdopterPayload(values),
         createdAt: serverTimestamp(),
         updatedAt: serverTimestamp(),
     });
 }
 
 export async function updateAdopter(adopterId: string, values: AdopterFormState): Promise<void> {
+    const duplicate = await findDuplicateAdopter(values, adopterId);
+
+    if (duplicate) {
+        throw new Error(
+            duplicate.field === "email"
+                ? `Ja existe outro adotante com este email: ${duplicate.adopter.name}.`
+                : duplicate.field === "cpf"
+                  ? `Ja existe outro adotante com este CPF: ${duplicate.adopter.name}.`
+                  : `Ja existe outro adotante com este telefone: ${duplicate.adopter.name}.`,
+        );
+    }
+
     await updateDoc(doc(db, COLLECTION_NAME, adopterId), {
-        ...values,
+        ...buildAdopterPayload(values),
         updatedAt: serverTimestamp(),
     });
 }

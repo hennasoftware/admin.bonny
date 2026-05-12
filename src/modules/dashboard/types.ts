@@ -1,5 +1,8 @@
 import type { LucideIcon } from "lucide-react";
 import type { AdoptionStatus } from "@/modules/adoptions/services/service";
+import type { AdoptionRecord } from "@/modules/adoptions/services/service";
+import type { AdopterRecord } from "@/modules/adopters/types";
+import type { AnimalRecord } from "@/modules/animals/types/types";
 
 export interface DashboardStat {
     title: string;
@@ -30,6 +33,9 @@ export interface DashboardSnapshot {
     chartHighlight: string;
     chartTrend: string;
     recentAdoptions: RecentOrder[];
+    animals: AnimalRecord[];
+    adopters: AdopterRecord[];
+    adoptions: AdoptionRecord[];
 }
 
 export interface DashboardSummaryRecord {

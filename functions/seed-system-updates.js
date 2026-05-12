@@ -77,6 +77,28 @@ const updates = [
         ],
         attentionNote: "O codigo do animal nao pode ser alterado depois do cadastro e passa a ser a referencia recomendada para diferenciar registros com mesmo nome ou raca.",
     },
+    {
+        id: "release-1.3.0",
+        version: "1.3.0",
+        title: "Busca global e controles operacionais",
+        summary: "O dashboard agora concentra busca global, atalhos rapidos e melhorias nas tabelas e validacoes de cadastro.",
+        publishedAt: "2026-05-12T20:20:00-03:00",
+        kind: "improvement",
+        highlights: [
+            "Busca global no topo para localizar animal, adotante, adocao e codigo.",
+            "Atalhos rapidos para novo animal e nova adocao no dashboard.",
+            "Tabelas com ordenacao por mais recentes e seletor ascendente ou descendente.",
+            "Bloqueio de adotantes duplicados por email, CPF ou telefone.",
+        ],
+        impactedAreas: [
+            "Dashboard",
+            "Animais",
+            "Adotantes",
+            "Adocoes",
+            "Operacao diaria",
+        ],
+        attentionNote: "A equipe pode usar a busca global para chegar mais rapido aos registros e o sistema passa a evitar cadastros repetidos de adotantes.",
+    },
 ];
 
 async function seedSystemUpdates() {

@@ -1,10 +1,11 @@
 import { Modal } from "@/shared/components/ui";
+import type { AdopterFormState, AdopterRecord } from "../types";
 import { AdopterForm } from "./AdopterForm";
-import type { AdopterRecord, AdopterFormState } from "../types";
 
 interface AdopterEditorModalProps {
     adopter: AdopterRecord | null;
     loading?: boolean;
+    submitError?: string | null;
     onClose: () => void;
     onSubmit: (adopterId: string, values: AdopterFormState) => void;
 }
@@ -12,6 +13,7 @@ interface AdopterEditorModalProps {
 export function AdopterEditorModal({
     adopter,
     loading = false,
+    submitError,
     onClose,
     onSubmit,
 }: AdopterEditorModalProps) {
@@ -21,7 +23,7 @@ export function AdopterEditorModal({
         <Modal
             open={!!adopter}
             title="Editar adotante"
-            description={`Atualize as informações de ${adopter.name}`}
+            description={`Atualize as informacoes de ${adopter.name}`}
             onClose={onClose}
             closeDisabled={loading}
             bodyClassName="p-3"
@@ -36,13 +38,13 @@ export function AdopterEditorModal({
                     },
                     notes: adopter.notes || "",
                 }}
-                submitLabel="Salvar alterações"
+                submitLabel="Salvar alteracoes"
                 cancelLabel="Fechar"
                 loading={loading}
+                submitError={submitError}
                 onCancel={onClose}
                 onSubmit={(values) => {
                     onSubmit(adopter.id, values);
-                    onClose();
                 }}
             />
         </Modal>

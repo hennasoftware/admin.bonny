@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { Helmet } from "react-helmet-async";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { AdminLayout } from "@/modules/dashboard/AdminLayout";
 import { ConfirmDeleteModal, EntityAlert, EntityPageHeader, EntityPageShell, EntityStatsGrid, useToast } from "@/shared/components/ui";
 import { sortByRecent, type SortDirection } from "@/shared/utils/sortByRecent";
@@ -12,23 +12,30 @@ const ITEMS_PER_PAGE = 10;
 
 export function AdoptersListPage() {
     const navigate = useNavigate();
+    const [searchParams] = useSearchParams();
     const { showToast } = useToast();
     const [page, setPage] = useState(1);
     const [allAdopters, setAllAdopters] = useState<AdopterRecord[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
-    const [search, setSearch] = useState("");
+    const [search, setSearch] = useState(() => searchParams.get("search") ?? "");
     const [status, setStatus] = useState<AdopterStatus | "Todos">("Todos");
     const [sortDirection, setSortDirection] = useState<SortDirection>("desc");
     const [viewingAdopter, setViewingAdopter] = useState<AdopterRecord | null>(null);
     const [editingAdopter, setEditingAdopter] = useState<AdopterRecord | null>(null);
     const [adopterToDelete, setAdopterToDelete] = useState<AdopterRecord | null>(null);
+    const [submitError, setSubmitError] = useState<string | null>(null);
     const [saving, setSaving] = useState(false);
     const [deleting, setDeleting] = useState(false);
 
     useEffect(() => {
         setPage(1);
     }, [search, status, sortDirection]);
+
+    useEffect(() => {
+        const nextSearch = searchParams.get("search") ?? "";
+        setSearch((current) => (current === nextSearch ? current : nextSearch));
+    }, [searchParams]);
 
     useEffect(() => {
         let active = true;
@@ -98,6 +105,7 @@ export function AdoptersListPage() {
 
     const handleUpdate = async (adopterId: string, values: AdopterFormState) => {
         setSaving(true);
+        setSubmitError(null);
 
         try {
             await updateAdopter(adopterId, values);
@@ -106,8 +114,9 @@ export function AdoptersListPage() {
             showToast("Adotante atualizado com sucesso.");
             const refreshed = await getAdoptersByStatus(status);
             setAllAdopters(refreshed);
-        } catch {
-            const message = "Nao foi possivel salvar as alteracoes.";
+        } catch (error) {
+            const message = error instanceof Error ? error.message : "Nao foi possivel salvar as alteracoes.";
+            setSubmitError(message);
             setError(message);
             showToast(message, "error");
         } finally {
@@ -174,7 +183,16 @@ export function AdoptersListPage() {
                 </EntityPageShell>
 
                 <AdopterDetailsModal adopter={viewingAdopter} onClose={() => setViewingAdopter(null)} />
-                <AdopterEditorModal adopter={editingAdopter} loading={saving} onClose={() => setEditingAdopter(null)} onSubmit={handleUpdate} />
+                <AdopterEditorModal
+                    adopter={editingAdopter}
+                    loading={saving}
+                    submitError={submitError}
+                    onClose={() => {
+                        setEditingAdopter(null);
+                        setSubmitError(null);
+                    }}
+                    onSubmit={handleUpdate}
+                />
 
                 <ConfirmDeleteModal
                     open={!!adopterToDelete}

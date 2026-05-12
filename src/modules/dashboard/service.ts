@@ -35,7 +35,7 @@ export function subscribeDashboardSnapshot(
 
         onData(
             hasAggregates
-                ? buildDashboardSnapshot({ summary, monthlyAggregates, recentAdoptions })
+                ? buildDashboardSnapshot({ summary, monthlyAggregates, recentAdoptions, animals, adopters, adoptions })
                 : buildDashboardSnapshotFromCollections({ animals, adopters, adoptions }),
         );
     };
@@ -92,6 +92,9 @@ interface DashboardSnapshotInput {
     summary: DashboardSummaryRecord | null;
     monthlyAggregates: DashboardMonthlyAggregateRecord[];
     recentAdoptions: AdoptionRecord[];
+    animals: AnimalRecord[];
+    adopters: AdopterRecord[];
+    adoptions: AdoptionRecord[];
 }
 
 interface DashboardCollectionInput {
@@ -100,7 +103,7 @@ interface DashboardCollectionInput {
     adoptions: AdoptionRecord[];
 }
 
-export function buildDashboardSnapshot({ summary, monthlyAggregates, recentAdoptions }: DashboardSnapshotInput): DashboardSnapshot {
+export function buildDashboardSnapshot({ summary, monthlyAggregates, recentAdoptions, animals, adopters, adoptions }: DashboardSnapshotInput): DashboardSnapshot {
     const timeline = buildDashboardTimeline(monthlyAggregates);
     const currentMonthCount = timeline.adoptions[timeline.adoptions.length - 1]?.value ?? 0;
     const previousMonthCount = timeline.adoptions[timeline.adoptions.length - 2]?.value ?? 0;
@@ -148,6 +151,9 @@ export function buildDashboardSnapshot({ summary, monthlyAggregates, recentAdopt
             date: formatDateTime(adoption.updatedAt ?? adoption.createdAt, "Data indisponivel"),
             notesPreview: buildNotesPreview(adoption.notes),
         })),
+        animals,
+        adopters,
+        adoptions,
     };
 }
 
@@ -203,6 +209,9 @@ function buildDashboardSnapshotFromCollections({ animals, adopters, adoptions }:
             date: formatDateTime(adoption.updatedAt ?? adoption.createdAt, "Data indisponivel"),
             notesPreview: buildNotesPreview(adoption.notes),
         })),
+        animals,
+        adopters,
+        adoptions,
     };
 }
 

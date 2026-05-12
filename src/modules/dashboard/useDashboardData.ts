@@ -23,6 +23,9 @@ const EMPTY_DASHBOARD: DashboardSnapshot = {
     chartHighlight: "0",
     chartTrend: "Sem dados recentes",
     recentAdoptions: [],
+    animals: [],
+    adopters: [],
+    adoptions: [],
 };
 
 export function useDashboardData() {

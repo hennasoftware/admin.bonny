@@ -54,7 +54,12 @@ export function DashboardPage() {
 
                     <div className="relative mx-auto w-full max-w-7xl">
                         <div className=" md:mt-0">
-                            <DashboardHeader userEmail={user?.email} />
+                            <DashboardHeader
+                                userEmail={user?.email}
+                                animals={dashboardData.animals}
+                                adopters={dashboardData.adopters}
+                                adoptions={dashboardData.adoptions}
+                            />
                         </div>
 
                         <div className="mb-6 grid min-w-0 grid-cols-1 gap-4 *:min-w-0 sm:grid-cols-2 xl:grid-cols-4">
