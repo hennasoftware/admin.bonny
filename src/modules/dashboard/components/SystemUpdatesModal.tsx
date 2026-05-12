@@ -15,6 +15,10 @@ interface SystemUpdatesModalProps {
 
 type UpdateFilter = "all" | SystemUpdateEntry["kind"];
 
+function getUniqueItems(items: string[]) {
+    return items.filter((item, index) => items.indexOf(item) === index);
+}
+
 function formatPublishedDate(value: AppDateValue) {
     return formatDateTime(value, "Data nao informada");
 }
@@ -23,6 +27,58 @@ function getKindLabel(kind: SystemUpdateEntry["kind"]) {
     if (kind === "feature") return "Novo recurso";
     if (kind === "improvement") return "Melhoria";
     return "Correcao";
+}
+
+function getOperationalNotes(update: SystemUpdateEntry) {
+    const notes: string[] = [];
+    const impactedAreas = getUniqueItems(update.impactedAreas);
+
+    if (update.attentionNote) {
+        notes.push(update.attentionNote);
+    }
+
+    if (impactedAreas.length > 0) {
+        notes.push(`Areas com impacto direto nesta release: ${impactedAreas.join(", ")}.`);
+    }
+
+    if (update.kind === "feature") {
+        notes.push("A equipe pode esperar novas capacidades no fluxo operacional, com etapas adicionais ja disponiveis no painel.");
+    }
+
+    if (update.kind === "improvement") {
+        notes.push("Essa entrega melhora um fluxo ja existente, entao vale revisar o processo atual antes de orientar o time.");
+    }
+
+    if (update.kind === "fix") {
+        notes.push("Essa entrega corrige comportamento do sistema, entao a validacao deve priorizar os cenarios que apresentavam erro.");
+    }
+
+    return getUniqueItems(notes);
+}
+
+function getDetailHighlights(update: SystemUpdateEntry) {
+    const impactedAreas = getUniqueItems(update.impactedAreas);
+    const details: string[] = [];
+
+    if (impactedAreas.length > 0) {
+        details.push(`Modulos afetados: ${impactedAreas.join(", ")}.`);
+    }
+
+    if (update.kind === "feature") {
+        details.push("A release adiciona comportamento novo no sistema e pode exigir alinhamento rapido com a equipe.");
+    }
+
+    if (update.kind === "improvement") {
+        details.push("A entrega refina uma area existente, com foco em fluidez de uso e reducao de atrito operacional.");
+    }
+
+    if (update.kind === "fix") {
+        details.push("A entrega corrige falhas observadas anteriormente e reduz inconsistencias no fluxo afetado.");
+    }
+
+    details.push(...getUniqueItems(update.highlights).slice(0, 2));
+
+    return getUniqueItems(details);
 }
 
 function isUpdateUnread(updateId: string, readUpdateIds: string[]) {
@@ -45,7 +101,10 @@ export function SystemUpdatesModal({
     );
 
     const selectedUpdate = filteredUpdates.find((update) => update.id === selectedUpdateId) ?? filteredUpdates[0] ?? null;
-    const quickSummary = selectedUpdate?.highlights.slice(0, 3) ?? [];
+    const quickSummary = selectedUpdate ? getUniqueItems(selectedUpdate.highlights).slice(0, 3) : [];
+    const operationalNotes = selectedUpdate ? getOperationalNotes(selectedUpdate) : [];
+    const impactedAreas = selectedUpdate ? getUniqueItems(selectedUpdate.impactedAreas) : [];
+    const detailedHighlights = selectedUpdate ? getDetailHighlights(selectedUpdate) : [];
 
     useEffect(() => {
         if (selectedUpdate || filteredUpdates.length === 0) return;
@@ -198,7 +257,7 @@ export function SystemUpdatesModal({
                                     </div>
 
                                     <div className="space-y-3">
-                                        {quickSummary.map((item) => (
+                                        {operationalNotes.map((item) => (
                                             <div
                                                 key={item}
                                                 className="rounded-2xl border border-slate-200/80 bg-slate-50/80 px-4 py-3 text-sm leading-6 text-slate-600 dark:border-slate-700 dark:bg-slate-900/70 dark:text-slate-300"
@@ -216,7 +275,7 @@ export function SystemUpdatesModal({
                                             Destaques da release
                                         </div>
                                         <div className="space-y-3">
-                                            {selectedUpdate.highlights.map((highlight) => (
+                                            {detailedHighlights.map((highlight) => (
                                                 <div
                                                     key={highlight}
                                                     className="rounded-2xl border border-orange-100/70 bg-orange-50/70 px-4 py-3 text-sm leading-6 text-slate-700 dark:border-orange-500/10 dark:bg-orange-500/10 dark:text-slate-200"
@@ -233,7 +292,7 @@ export function SystemUpdatesModal({
                                             Areas impactadas
                                         </div>
                                         <div className="flex flex-wrap gap-2">
-                                            {selectedUpdate.impactedAreas.map((area) => (
+                                            {impactedAreas.map((area) => (
                                                 <span
                                                     key={area}
                                                     className="rounded-full border border-slate-200 bg-slate-50 px-3 py-1.5 text-xs font-medium text-slate-600 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300"
@@ -244,7 +303,7 @@ export function SystemUpdatesModal({
                                         </div>
                                     </div>
 
-                                    {selectedUpdate.attentionNote ? (
+                                    {selectedUpdate.attentionNote && !operationalNotes.includes(selectedUpdate.attentionNote) ? (
                                         <div className="rounded-[22px] border border-blue-200/70 bg-blue-50/80 p-4 dark:border-blue-500/20 dark:bg-blue-500/10 sm:rounded-[24px] sm:p-5">
                                             <div className="mb-3 flex items-center gap-2 text-sm font-semibold text-slate-950 dark:text-white">
                                                 <FileText className="h-4 w-4 text-blue-500" />
