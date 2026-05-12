@@ -1,5 +1,4 @@
 import {
-    addDoc,
     collection,
     deleteDoc,
     doc,
@@ -7,6 +6,7 @@ import {
     getDocs,
     orderBy,
     query,
+    runTransaction,
     serverTimestamp,
     updateDoc,
     where,
@@ -15,10 +15,12 @@ import { db } from "@/services/firebase";
 import { subscribeCollection } from "@/shared/services/firestoreRealtime";
 import { buildPagedConstraints, getCollectionPage } from "@/shared/utils/pagination";
 import type { AnimalFormState, AnimalRecord, AnimalStatus } from "../types/types";
+import { formatAnimalCode } from "../utils/code";
 import { formatAnimalAgeInput } from "../utils/age";
 
 const COLLECTION_NAME = "animals";
 const animalsCollection = collection(db, COLLECTION_NAME);
+const animalCounterRef = doc(db, "system_counters", "animals");
 
 function mapAnimal(entry: { id: string; data: () => unknown }): AnimalRecord {
     return {
@@ -62,11 +64,33 @@ export async function getAnimalById(animalId: string) {
 }
 
 export async function createAnimal(values: AnimalFormState) {
-    await addDoc(animalsCollection, {
-        ...values,
-        createdAt: serverTimestamp(),
-        updatedAt: serverTimestamp(),
+    let generatedAnimalCode = "";
+
+    await runTransaction(db, async (transaction) => {
+        const animalRef = doc(animalsCollection);
+        const counterSnap = await transaction.get(animalCounterRef);
+        const currentValue = Number((counterSnap.data() as { currentValue?: unknown } | undefined)?.currentValue) || 0;
+        const nextValue = currentValue + 1;
+        generatedAnimalCode = formatAnimalCode(nextValue);
+
+        transaction.set(
+            animalCounterRef,
+            {
+                currentValue: nextValue,
+                updatedAt: serverTimestamp(),
+            },
+            { merge: true },
+        );
+
+        transaction.set(animalRef, {
+            ...values,
+            animalCode: generatedAnimalCode,
+            createdAt: serverTimestamp(),
+            updatedAt: serverTimestamp(),
+        });
     });
+
+    return generatedAnimalCode;
 }
 
 export async function updateAnimal(animalId: string, values: AnimalFormState) {
@@ -107,7 +131,7 @@ export function matchesSearch(animal: AnimalRecord, search: string) {
 
     if (!normalizedSearch) return true;
 
-    return [animal.name, animal.species, animal.breed, animal.color, animal.age, animal.status].some((value) =>
+    return [animal.animalCode ?? "", animal.id, animal.name, animal.species, animal.breed, animal.color, animal.age, animal.status].some((value) =>
         value.toLowerCase().includes(normalizedSearch),
     );
 }

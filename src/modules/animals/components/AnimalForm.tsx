@@ -26,6 +26,7 @@ interface AnimalFormProps {
     initialValues?: Partial<AnimalFormState>;
     onSubmit: (values: AnimalFormState) => Promise<void> | void;
     submitLabel: string;
+    animalCode?: string | null;
     loading?: boolean;
     onCancel?: () => void;
     cancelLabel?: string;
@@ -35,6 +36,7 @@ export function AnimalForm({
     initialValues,
     onSubmit,
     submitLabel,
+    animalCode,
     loading = false,
     onCancel,
     cancelLabel = "Cancelar",
@@ -102,6 +104,11 @@ export function AnimalForm({
                     <p className="text-xs font-semibold uppercase tracking-[0.22em] text-orange-500 dark:text-orange-300">Cadastro</p>
                     <h2 className="mt-2 text-2xl font-semibold tracking-tight text-gray-950 dark:text-white">Novo animal</h2>
                     <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">Comece pelo cadastro para organizar o fluxo de adocao.</p>
+                    <p className="mt-2 text-xs font-medium text-slate-500 dark:text-slate-400">
+                        {animalCode
+                            ? `Identificador imutavel: ${animalCode}`
+                            : "Ao salvar, o sistema gera automaticamente um identificador imutavel para o animal."}
+                    </p>
                 </div>
 
                 <div className="hidden rounded-2xl bg-orange-50 p-3 text-orange-500 dark:bg-orange-500/10 dark:text-orange-300 md:flex">

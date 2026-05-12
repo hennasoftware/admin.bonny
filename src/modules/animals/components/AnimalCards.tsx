@@ -1,8 +1,9 @@
 import { CalendarClock, Cat, Dog, HeartPulse, ShieldCheck } from "lucide-react";
 import type { AnimalRecord } from "../types/types";
+import { getAnimalCodeLabel } from "../utils/code";
+import { formatAnimalAge } from "../utils/age";
 import { formatDateTime } from "../utils/formatter";
 import { AnimalStatusBadge } from "./AnimalStatusBadge";
-import { formatAnimalAge } from "../utils/age";
 
 interface AnimalCardsProps {
     animals: AnimalRecord[];
@@ -65,20 +66,23 @@ export function AnimalCards({ animals, onView }: AnimalCardsProps) {
                                         <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
                                             {animal.species} • {animal.breed}
                                         </p>
+                                        <p className="mt-2 text-xs font-semibold uppercase tracking-[0.16em] text-orange-600 dark:text-orange-300">
+                                            {getAnimalCodeLabel(animal)}
+                                        </p>
 
-                                            <div className="mt-3 grid gap-2 text-sm text-gray-600 dark:text-gray-300 sm:grid-cols-2">
-                                                <p>Sexo: {animal.sex}</p>
-                                                <p>Idade: {formatAnimalAge(Number.parseInt(animal.age, 10) || 0)}</p>
-                                                <p>Porte: {animal.size}</p>
-                                                <p>Cor: {animal.color}</p>
-                                            </div>
+                                        <div className="mt-3 grid gap-2 text-sm text-gray-600 dark:text-gray-300 sm:grid-cols-2">
+                                            <p>Sexo: {animal.sex}</p>
+                                            <p>Idade: {formatAnimalAge(Number.parseInt(animal.age, 10) || 0)}</p>
+                                            <p>Porte: {animal.size}</p>
+                                            <p>Cor: {animal.color}</p>
+                                        </div>
                                     </div>
                                 </div>
 
                                 <div className="grid gap-2 text-xs text-gray-500 dark:text-gray-400 lg:min-w-40">
                                     <div className="flex items-center gap-2 rounded-full bg-white px-3 py-2 dark:bg-slate-900">
                                         <ShieldCheck className="h-4 w-4 text-emerald-500" />
-                                        {animal.neutered ? "Castrado" : "Não castrado"}
+                                        {animal.neutered ? "Castrado" : "Nao castrado"}
                                     </div>
                                     <div className="flex items-center gap-2 rounded-full bg-white px-3 py-2 dark:bg-slate-900">
                                         <ShieldCheck className="h-4 w-4 text-sky-500" />

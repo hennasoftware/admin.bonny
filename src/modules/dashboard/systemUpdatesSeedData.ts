@@ -1,22 +1,6 @@
-/**
- * Seed script for system_updates.
- *
- * Usage:
- * 1) With Firestore emulator:
- *    $env:FIRESTORE_EMULATOR_HOST = "localhost:8080"; node .\functions\seed-system-updates.js
- * 2) Against the real project:
- *    ensure admin credentials are available, then run:
- *    node .\functions\seed-system-updates.js
- */
+import type { SystemUpdateEntry } from "./systemUpdates";
 
-const admin = require("firebase-admin");
-
-admin.initializeApp({
-    projectId: process.env.GCLOUD_PROJECT || process.env.GOOGLE_CLOUD_PROJECT || "projetobonny-cf64e",
-});
-const db = admin.firestore();
-
-const updates = [
+export const SYSTEM_UPDATES_SEED: SystemUpdateEntry[] = [
     {
         id: "release-1.0.0",
         version: "1.0.0",
@@ -29,13 +13,7 @@ const updates = [
             "Cadastro e acompanhamento de adotantes.",
             "Fluxo de adocoes com dashboard e atualizacao em tempo real.",
         ],
-        impactedAreas: [
-            "Animais",
-            "Adotantes",
-            "Adocoes",
-            "Dashboard",
-            "Autenticacao",
-        ],
+        impactedAreas: ["Animais", "Adotantes", "Adocoes", "Dashboard", "Autenticacao"],
         attentionNote: "Essa release entregou a base do sistema que a ONG usa no dia a dia para operar os registros.",
     },
     {
@@ -50,11 +28,7 @@ const updates = [
             "Historico de releases carregado direto do Firebase.",
             "Resumo curto do que mudou em cada entrega.",
         ],
-        impactedAreas: [
-            "Dashboard",
-            "Comunicacao interna",
-            "Navegacao desktop e mobile",
-        ],
+        impactedAreas: ["Dashboard", "Comunicacao interna", "Navegacao desktop e mobile"],
         attentionNote: "A equipe pode consultar essa area sempre que houver uma nova entrega ou ajuste importante no sistema.",
     },
     {
@@ -69,36 +43,7 @@ const updates = [
             "Codigo curto no padrao A0001 exibido em listagens, detalhes e fluxo de adocao.",
             "Busca de animais e adocoes preparada para localizar registros pelo novo identificador.",
         ],
-        impactedAreas: [
-            "Animais",
-            "Adocoes",
-            "Operacao diaria",
-            "Rastreabilidade",
-        ],
+        impactedAreas: ["Animais", "Adocoes", "Operacao diaria", "Rastreabilidade"],
         attentionNote: "O codigo do animal nao pode ser alterado depois do cadastro e passa a ser a referencia recomendada para diferenciar registros com mesmo nome ou raca.",
     },
 ];
-
-async function seedSystemUpdates() {
-    for (const update of updates) {
-        const { id, ...payload } = update;
-        await db.collection("system_updates").doc(id).set(
-            {
-                ...payload,
-                updatedAt: admin.firestore.FieldValue.serverTimestamp(),
-            },
-            { merge: true },
-        );
-
-        console.log(`Seeded system_updates/${id}`);
-    }
-
-    console.log("System updates seed complete.");
-}
-
-seedSystemUpdates()
-    .then(() => process.exit(0))
-    .catch((error) => {
-        console.error(error);
-        process.exit(1);
-    });

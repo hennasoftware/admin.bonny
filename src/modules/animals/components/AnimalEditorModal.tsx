@@ -1,7 +1,8 @@
 import { Modal } from "@/shared/components/ui";
-import { AnimalForm } from "./AnimalForm";
-import type { AnimalFormState, AnimalRecord } from "../types/types";
 import { toAnimalFormState } from "../services/service";
+import type { AnimalFormState, AnimalRecord } from "../types/types";
+import { getAnimalCodeLabel } from "../utils/code";
+import { AnimalForm } from "./AnimalForm";
 
 interface AnimalEditorModalProps {
     animal: AnimalRecord | null;
@@ -17,7 +18,7 @@ export function AnimalEditorModal({ animal, onClose, onSubmit, loading }: Animal
         <Modal
             open={!!animal}
             title="Editar animal"
-            description={`Atualize as informações de ${animal.name}`}
+            description={`Atualize as informacoes de ${animal.name}`}
             onClose={onClose}
             closeDisabled={loading}
             bodyClassName="p-3"
@@ -25,7 +26,8 @@ export function AnimalEditorModal({ animal, onClose, onSubmit, loading }: Animal
             <AnimalForm
                 key={animal.id}
                 initialValues={toAnimalFormState(animal)}
-                submitLabel="Salvar alterações"
+                animalCode={getAnimalCodeLabel(animal)}
+                submitLabel="Salvar alteracoes"
                 cancelLabel="Fechar"
                 loading={loading}
                 onCancel={onClose}

@@ -1,9 +1,10 @@
 import { CalendarClock, Cat, Dog, HeartPulse, ShieldCheck, Tag, UserRound } from "lucide-react";
 import { Modal } from "@/shared/components/ui";
-import { formatDateTime } from "../utils/formatter";
 import type { AnimalRecord } from "../types/types";
-import { AnimalStatusBadge } from "./AnimalStatusBadge";
+import { getAnimalCodeLabel, hasGeneratedAnimalCode } from "../utils/code";
 import { formatAnimalAgeFromValue } from "../utils/age";
+import { formatDateTime } from "../utils/formatter";
+import { AnimalStatusBadge } from "./AnimalStatusBadge";
 
 interface AnimalDetailsModalProps {
     animal: AnimalRecord | null;
@@ -61,6 +62,14 @@ export function AnimalDetailsModal({ animal, onClose }: AnimalDetailsModalProps)
                                     <h3 className="text-2xl font-semibold tracking-tight text-gray-950 dark:text-white">{animal.name}</h3>
                                     <AnimalStatusBadge status={animal.status} />
                                 </div>
+                                <div className="mt-2 flex flex-wrap items-center gap-2 text-xs font-semibold uppercase tracking-[0.16em] text-orange-600 dark:text-orange-300">
+                                    <span>{getAnimalCodeLabel(animal)}</span>
+                                    {!hasGeneratedAnimalCode(animal) ? (
+                                        <span className="rounded-full border border-amber-300/70 bg-amber-50 px-2 py-1 text-[10px] text-amber-700 dark:border-amber-500/20 dark:bg-amber-500/10 dark:text-amber-200">
+                                            Legado sem codigo definitivo
+                                        </span>
+                                    ) : null}
+                                </div>
                                 <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
                                     {animal.species} • {animal.breed}
                                 </p>
@@ -70,7 +79,7 @@ export function AnimalDetailsModal({ animal, onClose }: AnimalDetailsModalProps)
                         <div className="flex flex-wrap gap-2">
                             <span className="inline-flex items-center gap-2 rounded-full border border-slate-200/70 bg-white px-3 py-1.5 text-xs font-medium text-slate-600 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300">
                                 <HeartPulse className="h-3.5 w-3.5 text-orange-500" />
-                                {animal.neutered ? "Castrado" : "Não castrado"}
+                                {animal.neutered ? "Castrado" : "Nao castrado"}
                             </span>
                             <span className="inline-flex items-center gap-2 rounded-full border border-slate-200/70 bg-white px-3 py-1.5 text-xs font-medium text-slate-600 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300">
                                 <ShieldCheck className="h-3.5 w-3.5 text-sky-500" />
@@ -81,8 +90,9 @@ export function AnimalDetailsModal({ animal, onClose }: AnimalDetailsModalProps)
                 </div>
 
                 <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                    <DetailItem label="Espécie" value={animal.species} icon={Tag} />
-                    <DetailItem label="Raça" value={animal.breed} icon={Tag} />
+                    <DetailItem label="Identificador" value={getAnimalCodeLabel(animal)} icon={Tag} />
+                    <DetailItem label="Especie" value={animal.species} icon={Tag} />
+                    <DetailItem label="Raca" value={animal.breed} icon={Tag} />
                     <DetailItem label="Sexo" value={animal.sex} icon={UserRound} />
                     <DetailItem label="Idade" value={formatAnimalAgeFromValue(animal.age)} icon={CalendarClock} />
                     <DetailItem label="Porte" value={animal.size} icon={Tag} />
@@ -90,9 +100,9 @@ export function AnimalDetailsModal({ animal, onClose }: AnimalDetailsModalProps)
                 </div>
 
                 <div className="rounded-[28px] border border-orange-100/70 bg-white/85 p-5 dark:border-slate-700/60 dark:bg-slate-900/80">
-                    <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-gray-400 dark:text-gray-500">Observações</p>
+                    <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-gray-400 dark:text-gray-500">Observacoes</p>
                     <p className="mt-3 whitespace-pre-line text-sm leading-6 text-gray-700 dark:text-gray-300">
-                        {animal.notes?.trim() ? animal.notes : "Sem observações registradas."}
+                        {animal.notes?.trim() ? animal.notes : "Sem observacoes registradas."}
                     </p>
                 </div>
 
@@ -100,7 +110,7 @@ export function AnimalDetailsModal({ animal, onClose }: AnimalDetailsModalProps)
                     <DetailItem label="Criado em" value={formatDateTime(animal.createdAt)} icon={CalendarClock} />
                     <DetailItem
                         label="Atualizado em"
-                        value={animal.updatedAt ? formatDateTime(animal.updatedAt) : "Sem atualização"}
+                        value={animal.updatedAt ? formatDateTime(animal.updatedAt) : "Sem atualizacao"}
                         icon={CalendarClock}
                     />
                 </div>

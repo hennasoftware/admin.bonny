@@ -24,6 +24,7 @@ export interface AdoptionRecord {
     adopterName: string;
     animalId: string;
     animalName: string;
+    animalCode?: string;
     status: AdoptionStatus;
     notes?: string;
     createdAt: AppDateValue;
@@ -35,6 +36,7 @@ interface CreateAdoptionPayload {
     adopterName: string;
     animalId: string;
     animalName: string;
+    animalCode?: string;
     status: AdoptionStatus;
     notes?: string;
 }
@@ -110,6 +112,7 @@ export async function createAdoption(payload: CreateAdoptionPayload) {
             adopterName: payload.adopterName,
             animalId: payload.animalId,
             animalName: payload.animalName,
+            animalCode: payload.animalCode ?? "",
             status: payload.status,
             notes: payload.notes ?? "",
             createdAt: serverTimestamp(),

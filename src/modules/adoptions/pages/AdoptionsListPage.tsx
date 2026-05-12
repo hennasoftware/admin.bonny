@@ -23,6 +23,7 @@ function matchesSearch(adoption: AdoptionRecord, search: string) {
     return (
         adoption.adopterName.toLowerCase().includes(query) ||
         adoption.animalName.toLowerCase().includes(query) ||
+        (adoption.animalCode ?? "").toLowerCase().includes(query) ||
         adoption.id.toLowerCase().includes(query)
     );
 }

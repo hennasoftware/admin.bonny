@@ -1,10 +1,10 @@
 import { Trash2 } from "lucide-react";
-import { Button } from "@/shared/components/ui";
-import { formatDateTime } from "@/shared/utils/date";
-import type { AdoptionRecord, AdoptionStatus } from "@/modules/adoptions/services/service";
 import Select from "react-select";
+import { Button } from "@/shared/components/ui";
 import { createSelectStyles } from "@/shared/utils/selectStyles";
+import { formatDateTime } from "@/shared/utils/date";
 import { useTheme } from "@/styles/themes/useTheme";
+import type { AdoptionRecord, AdoptionStatus } from "@/modules/adoptions/services/service";
 
 interface AdoptionsListProps {
     adoptions: AdoptionRecord[];
@@ -104,7 +104,9 @@ export function AdoptionsList({
                                             >
                                                 {item.animalName}
                                             </button>
-                                            <p className="text-xs text-slate-500 dark:text-slate-400">ID: {item.animalId}</p>
+                                            <p className="text-xs font-semibold uppercase tracking-[0.14em] text-orange-600 dark:text-orange-300">
+                                                {item.animalCode?.trim() || `LEG-${item.animalId.slice(0, 6).toUpperCase()}`}
+                                            </p>
                                         </div>
                                     </td>
                                     <td className="px-4 py-4">

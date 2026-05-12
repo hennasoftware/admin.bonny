@@ -6,6 +6,7 @@ export type AnimalStatus = "Disponivel" | "Em processo" | "Adotado";
 
 export interface AnimalRecord {
     id: string;
+    animalCode?: string;
     name: string;
     species: string;
     breed: string;

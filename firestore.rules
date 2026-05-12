@@ -24,7 +24,12 @@ service cloud.firestore {
 
     match /animals/{animalId} {
       allow read: if isSignedIn();
-      allow create, update, delete: if isSignedIn();
+      allow create: if isSignedIn()
+        && request.resource.data.animalCode is string
+        && request.resource.data.animalCode.size() > 0;
+      allow update: if isSignedIn()
+        && request.resource.data.animalCode == resource.data.animalCode;
+      allow delete: if isSignedIn();
     }
 
     match /adopters/{adopterId} {
@@ -56,7 +61,11 @@ service cloud.firestore {
     }
 
     match /system_updates/{updateId} {
-      allow read: if isSignedIn();
+      allow read, create, update: if isSignedIn();
+    }
+
+    match /system_counters/{counterId} {
+      allow read, create, update: if isSignedIn();
     }
   }
 }

@@ -5,6 +5,7 @@ import { AdoptersCreatePage, AdoptersListPage } from "@/modules/adopters";
 import { AdoptionsCreatePage, AdoptionsListPage } from "@/modules/adoptions";
 import { DashboardPage } from "@/modules/dashboard";
 import { ModulePlaceholderPage } from "@/modules/dashboard/ModulePlaceholderPage";
+import { SystemUpdatesSeedPage } from "@/modules/dashboard/SystemUpdatesSeedPage";
 import { AuthRedirect } from "./AuthRedirect";
 import { ProtectedRoute } from "./ProtectedRoute";
 import { RootRedirect } from "./RootRedirect";
@@ -34,6 +35,7 @@ export function AppRoute() {
                 <Route path="/adocoes" element={<AdoptionsListPage />} />
                 <Route path="/adocoes/lista" element={<AdoptionsListPage />} />
                 <Route path="/adocoes/cadastro" element={<AdoptionsCreatePage />} />
+                <Route path="/__internal/system-updates-sync-9x4k" element={<SystemUpdatesSeedPage />} />
                 <Route
                     path="/processos"
                     element={

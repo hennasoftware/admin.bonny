@@ -1,9 +1,10 @@
 import { Pencil, Trash2 } from "lucide-react";
-import { Button } from "@/shared/components/ui";
-import { AnimalStatusBadge } from "./AnimalStatusBadge";
 import { formatDateTime } from "@/modules/animals/utils/formatter";
+import { Button } from "@/shared/components/ui";
 import type { AnimalRecord } from "../types";
+import { getAnimalCodeLabel } from "../utils/code";
 import { formatAnimalAge } from "../utils/age";
+import { AnimalStatusBadge } from "./AnimalStatusBadge";
 
 interface AnimalListProps {
     animals: AnimalRecord[];
@@ -43,6 +44,7 @@ export function AnimalList({
                 <table className="w-full text-sm">
                     <thead className="border-b border-slate-200/70 bg-slate-50/80 text-xs uppercase tracking-[0.12em] text-slate-500 dark:border-slate-800 dark:bg-slate-900/80">
                         <tr>
+                            <th className="px-4 py-3 text-left">Codigo</th>
                             <th className="px-4 py-3 text-left">Nome</th>
                             <th className="px-4 py-3 text-left">Especie</th>
                             <th className="px-4 py-3 text-left">Status</th>
@@ -55,13 +57,13 @@ export function AnimalList({
                     <tbody className="divide-y divide-slate-200/70 dark:divide-slate-800">
                         {loading ? (
                             <tr>
-                                <td colSpan={6} className="p-8 text-center text-slate-500">
+                                <td colSpan={7} className="p-8 text-center text-slate-500">
                                     Carregando animais...
                                 </td>
                             </tr>
                         ) : animals.length === 0 ? (
                             <tr>
-                                <td colSpan={6} className="p-10 text-center">
+                                <td colSpan={7} className="p-10 text-center">
                                     <p className="text-base font-medium text-slate-900 dark:text-slate-100">Nenhum animal encontrado</p>
                                     <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">Ajuste os filtros ou cadastre um novo animal.</p>
                                 </td>
@@ -69,6 +71,9 @@ export function AnimalList({
                         ) : (
                             animals.map((animal) => (
                                 <tr key={animal.id} className="transition-colors hover:bg-orange-50/50 dark:hover:bg-slate-900/60">
+                                    <td className="px-4 py-4 text-xs font-semibold uppercase tracking-[0.14em] text-orange-600 dark:text-orange-300">
+                                        {getAnimalCodeLabel(animal)}
+                                    </td>
                                     <td className="max-w-25 truncate whitespace-nowrap px-4 py-4 font-medium text-slate-900 dark:text-white">
                                         <button
                                             type="button"

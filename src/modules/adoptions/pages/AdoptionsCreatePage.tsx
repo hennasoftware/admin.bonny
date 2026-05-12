@@ -2,21 +2,22 @@ import { useEffect, useMemo, useState } from "react";
 import { Helmet } from "react-helmet-async";
 import { useNavigate } from "react-router-dom";
 import { BadgeCheck, MapPin, PawPrint, Phone, UserRound } from "lucide-react";
+import { subscribeAdopters } from "@/modules/adopters/services/service";
+import type { AdopterRecord } from "@/modules/adopters/types";
+import { formatAddress, formatCPF, formatPhone } from "@/modules/adopters/utils/formatter";
+import { AnimalDetailsModal } from "@/modules/animals/components";
+import { ANIMAL_DATA } from "@/modules/animals/constants/animalData";
+import { subscribeAnimals } from "@/modules/animals/services/service";
+import type { AnimalRecord } from "@/modules/animals/types/types";
+import { getAnimalCodeLabel } from "@/modules/animals/utils/code";
+import { formatAnimalAge } from "@/modules/animals/utils/age";
+import { AdopterDetailsModal } from "@/modules/adopters/components";
+import { createAdoption, type AdoptionStatus } from "@/modules/adoptions/services/service";
 import { AdminLayout } from "@/modules/dashboard/AdminLayout";
 import { Button, EntityAlert, EntityPageHeader, EntityPageShell, EntitySectionCard, EntityStatsGrid, useToast } from "@/shared/components/ui";
-import { subscribeAdopters } from "@/modules/adopters/services/service";
-import { subscribeAnimals } from "@/modules/animals/services/service";
-import Select from "react-select";
-import { useTheme } from "@/styles/themes/useTheme";
 import { createSelectStyles } from "@/shared/utils/selectStyles";
-import { ANIMAL_DATA } from "@/modules/animals/constants/animalData";
-import { createAdoption, type AdoptionStatus } from "@/modules/adoptions/services/service";
-import { formatAddress, formatCPF, formatPhone } from "@/modules/adopters/utils/formatter";
-import type { AdopterRecord } from "@/modules/adopters/types";
-import type { AnimalRecord } from "@/modules/animals/types/types";
-import { formatAnimalAge } from "@/modules/animals/utils/age";
-import { AnimalDetailsModal } from "@/modules/animals/components";
-import { AdopterDetailsModal } from "@/modules/adopters/components";
+import { useTheme } from "@/styles/themes/useTheme";
+import Select from "react-select";
 
 export function AdoptionsCreatePage() {
     const availableStatus = ANIMAL_DATA.status[0].value as AnimalRecord["status"];
@@ -57,7 +58,7 @@ export function AdoptionsCreatePage() {
 
     const selectedAdopterObj = adopters.find((adopter) => adopter.id === selectedAdopter) || null;
     const selectedAnimalObj = animals.find((animal) => animal.id === selectedAnimal) || null;
-    const isReadyToSubmit = !!selectedAdopterObj && !!selectedAnimalObj;
+    const isReadyToSubmit = Boolean(selectedAdopterObj && selectedAnimalObj);
 
     const handleSubmit = async (event: React.FormEvent) => {
         event.preventDefault();
@@ -72,11 +73,12 @@ export function AdoptionsCreatePage() {
                 adopterName: selectedAdopterObj.name,
                 animalId: selectedAnimalObj.id,
                 animalName: selectedAnimalObj.name,
+                animalCode: selectedAnimalObj.animalCode,
                 status: adoptionStatus,
                 notes,
             });
 
-            showToast("Adoção registrada com sucesso.");
+            showToast("Adocao registrada com sucesso.");
             navigate("/adocoes/lista");
         } catch (submitError) {
             const message = submitError instanceof Error ? submitError.message : "Nao foi possivel registrar a adocao.";
@@ -86,17 +88,25 @@ export function AdoptionsCreatePage() {
         }
     };
 
+    const adopterOptions = adopters
+        .map((adopter) => ({ value: adopter.id, label: `${adopter.name} - ${formatCPF(adopter.cpf)}` }))
+        .sort((left, right) => left.label.localeCompare(right.label));
+
+    const animalOptions = availableAnimals
+        .map((animal) => ({ value: animal.id, label: `${getAnimalCodeLabel(animal)} - ${animal.name} - ${animal.species} / ${animal.breed}` }))
+        .sort((left, right) => left.label.localeCompare(right.label));
+
     return (
         <>
             <Helmet>
-                <title>Bonny | Registro de adoção</title>
+                <title>Bonny | Registro de adocao</title>
             </Helmet>
 
             <AdminLayout>
                 <EntityPageShell maxWidth="6xl">
                     <EntityPageHeader
-                        eyebrow="Adoções"
-                        title="Registrar adoção"
+                        eyebrow="Adocoes"
+                        title="Registrar adocao"
                         description="Associe adotante e animal, defina o status inicial e conclua o registro."
                         action={
                             <button
@@ -104,7 +114,7 @@ export function AdoptionsCreatePage() {
                                 onClick={() => navigate("/adocoes/lista")}
                                 className="w-full rounded-xl border border-orange-200 bg-white px-4 py-2 text-sm font-medium text-orange-600 shadow-sm transition-colors hover:bg-orange-50 md:w-auto dark:border-gray-700 dark:bg-slate-900 dark:text-orange-300 dark:hover:bg-slate-800"
                             >
-                                Ver adoções
+                                Ver adocoes
                             </button>
                         }
                     />
@@ -121,9 +131,9 @@ export function AdoptionsCreatePage() {
 
                     <form onSubmit={handleSubmit} className="grid gap-6 lg:grid-cols-[minmax(0,1.35fr)_minmax(280px,0.95fr)]">
                         <div className="space-y-6">
-                            <EntitySectionCard className="space-y-5 min-w-0">
+                            <EntitySectionCard className="min-w-0 space-y-5">
                                 <div>
-                                    <p className="text-xs font-semibold uppercase tracking-[0.22em] text-orange-500 dark:text-orange-300">Associação</p>
+                                    <p className="text-xs font-semibold uppercase tracking-[0.22em] text-orange-500 dark:text-orange-300">Associacao</p>
                                     <h2 className="mt-2 text-xl font-semibold tracking-tight text-gray-950 dark:text-white">Vincule adotante e animal</h2>
                                     <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
                                         Apenas adotantes ativos e animais disponiveis aparecem nesta etapa.
@@ -134,43 +144,33 @@ export function AdoptionsCreatePage() {
                                     <label className="flex min-w-0 flex-col gap-2">
                                         <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Adotante</span>
                                         <Select
-                                            value={(() => {
-                                                const opts = adopters
-                                                    .map((a) => ({ value: a.id, label: `${a.name} - ${formatCPF(a.cpf)}` }))
-                                                    .sort((x, y) => x.label.localeCompare(y.label));
-                                                return opts.find((o) => o.value === selectedAdopter) ?? null;
-                                            })()}
-                                                onChange={(opt) => setSelectedAdopter((opt as any)?.value ?? "")}
-                                                    options={adopters.map((a) => ({ value: a.id, label: `${a.name} - ${formatCPF(a.cpf)}` })).sort((x, y) => x.label.localeCompare(y.label))}
-                                                    placeholder="Selecione um adotante"
-                                                    isClearable
-                                                    className="min-w-0 w-full"
-                                                    menuPlacement="auto"
-                                                    menuPortalTarget={typeof document !== "undefined" ? document.body : undefined}
-                                                    styles={createSelectStyles("md", theme === "dark")}
-                                                    classNames={{
-                                                        control: () =>
-                                                            "rounded-2xl border border-orange-100 bg-white px-4 py-2.5 text-sm text-gray-700 outline-none transition-shadow focus:border-orange-400 focus:ring-2 focus:ring-orange-400/30 dark:border-orange-500/10 dark:bg-slate-900 dark:text-white",
-                                                        valueContainer: () => "px-3",
-                                                        singleValue: () => "text-sm",
-                                                        placeholder: () => "text-gray-400",
-                                                        menu: () => "mt-1 rounded-lg border border-gray-200 bg-white shadow-lg z-50 dark:border-gray-700 dark:bg-gray-800",
-                                                        option: (s) => `px-3 py-2 text-sm text-gray-900 dark:text-gray-100 ${s.isFocused ? "bg-slate-50 dark:bg-slate-900/60" : ""}`,
-                                                    }}
+                                            value={adopterOptions.find((option) => option.value === selectedAdopter) ?? null}
+                                            onChange={(opt) => setSelectedAdopter((opt as any)?.value ?? "")}
+                                            options={adopterOptions}
+                                            placeholder="Selecione um adotante"
+                                            isClearable
+                                            className="min-w-0 w-full"
+                                            menuPlacement="auto"
+                                            menuPortalTarget={typeof document !== "undefined" ? document.body : undefined}
+                                            styles={createSelectStyles("md", theme === "dark")}
+                                            classNames={{
+                                                control: () =>
+                                                    "rounded-2xl border border-orange-100 bg-white px-4 py-2.5 text-sm text-gray-700 outline-none transition-shadow focus:border-orange-400 focus:ring-2 focus:ring-orange-400/30 dark:border-orange-500/10 dark:bg-slate-900 dark:text-white",
+                                                valueContainer: () => "px-3",
+                                                singleValue: () => "text-sm",
+                                                placeholder: () => "text-gray-400",
+                                                menu: () => "mt-1 rounded-lg border border-gray-200 bg-white shadow-lg z-50 dark:border-gray-700 dark:bg-gray-800",
+                                                option: (state) => `px-3 py-2 text-sm text-gray-900 dark:text-gray-100 ${state.isFocused ? "bg-slate-50 dark:bg-slate-900/60" : ""}`,
+                                            }}
                                         />
                                     </label>
 
                                     <label className="flex min-w-0 flex-col gap-2">
                                         <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Animal disponivel</span>
                                         <Select
-                                            value={(() => {
-                                                const opts = availableAnimals
-                                                    .map((a) => ({ value: a.id, label: `${a.name} - ${a.species} / ${a.breed}` }))
-                                                    .sort((x, y) => x.label.localeCompare(y.label));
-                                                return opts.find((o) => o.value === selectedAnimal) ?? null;
-                                            })()}
+                                            value={animalOptions.find((option) => option.value === selectedAnimal) ?? null}
                                             onChange={(opt) => setSelectedAnimal((opt as any)?.value ?? "")}
-                                            options={availableAnimals.map((a) => ({ value: a.id, label: `${a.name} - ${a.species} / ${a.breed}` })).sort((x, y) => x.label.localeCompare(y.label))}
+                                            options={animalOptions}
                                             placeholder="Selecione um animal"
                                             isClearable
                                             className="min-w-0 w-full"
@@ -178,13 +178,13 @@ export function AdoptionsCreatePage() {
                                             menuPortalTarget={typeof document !== "undefined" ? document.body : undefined}
                                             styles={createSelectStyles("md", theme === "dark")}
                                             classNames={{
-                                                    control: () =>
+                                                control: () =>
                                                     "rounded-2xl border border-orange-100 bg-white px-4 py-2.5 text-sm text-gray-700 outline-none transition-shadow focus:border-orange-400 focus:ring-2 focus:ring-orange-400/30 dark:border-orange-500/10 dark:bg-slate-900 dark:text-white",
                                                 valueContainer: () => "px-3",
                                                 singleValue: () => "text-sm",
                                                 placeholder: () => "text-gray-400",
                                                 menu: () => "mt-1 rounded-lg border border-gray-200 bg-white shadow-lg z-50 dark:border-gray-700 dark:bg-gray-800",
-                                                option: (s) => `px-3 py-2 text-sm text-gray-900 dark:text-gray-100 ${s.isFocused ? "bg-slate-50 dark:bg-slate-900/60" : ""}`,
+                                                option: (state) => `px-3 py-2 text-sm text-gray-900 dark:text-gray-100 ${state.isFocused ? "bg-slate-50 dark:bg-slate-900/60" : ""}`,
                                             }}
                                         />
                                     </label>
@@ -193,9 +193,14 @@ export function AdoptionsCreatePage() {
                                 <label className="flex min-w-0 flex-col gap-2">
                                     <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Status inicial</span>
                                     <Select
-                                        value={["Em analise", "Agendada", "Concluida"].map((v) => ({ value: v as AdoptionStatus, label: v })).sort((a, b) => a.label.localeCompare(b.label)).find((o) => o.value === adoptionStatus) ?? null}
+                                        value={["Em analise", "Agendada", "Concluida"]
+                                            .map((value) => ({ value: value as AdoptionStatus, label: value }))
+                                            .sort((left, right) => left.label.localeCompare(right.label))
+                                            .find((option) => option.value === adoptionStatus) ?? null}
                                         onChange={(opt) => setAdoptionStatus((opt as any)?.value ?? "Em analise")}
-                                        options={["Em analise", "Agendada", "Concluida"].map((v) => ({ value: v as AdoptionStatus, label: v })).sort((a, b) => a.label.localeCompare(b.label))}
+                                        options={["Em analise", "Agendada", "Concluida"]
+                                            .map((value) => ({ value: value as AdoptionStatus, label: value }))
+                                            .sort((left, right) => left.label.localeCompare(right.label))}
                                         isSearchable={false}
                                         className="min-w-0 w-full"
                                         menuPortalTarget={typeof document !== "undefined" ? document.body : undefined}
@@ -208,7 +213,7 @@ export function AdoptionsCreatePage() {
                                             singleValue: () => "text-sm",
                                             placeholder: () => "text-gray-400",
                                             menu: () => "mt-1 rounded-lg border border-gray-200 bg-white shadow-lg z-[9999] dark:border-gray-700 dark:bg-gray-800",
-                                            option: (s) => `px-3 py-2 text-sm text-gray-900 dark:text-gray-100 ${s.isFocused ? "bg-slate-50 dark:bg-slate-900/60" : ""}`,
+                                            option: (state) => `px-3 py-2 text-sm text-gray-900 dark:text-gray-100 ${state.isFocused ? "bg-slate-50 dark:bg-slate-900/60" : ""}`,
                                         }}
                                     />
                                 </label>
@@ -217,12 +222,12 @@ export function AdoptionsCreatePage() {
                             <EntitySectionCard className="space-y-5">
                                 <div>
                                     <p className="text-xs font-semibold uppercase tracking-[0.22em] text-orange-500 dark:text-orange-300">Contexto</p>
-                                    <h3 className="mt-2 text-xl font-semibold tracking-tight text-gray-950 dark:text-white">Observações da adoção</h3>
-                                    <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">Registre informações complementares, se necessário.</p>
+                                    <h3 className="mt-2 text-xl font-semibold tracking-tight text-gray-950 dark:text-white">Observacoes da adocao</h3>
+                                    <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">Registre informacoes complementares, se necessario.</p>
                                 </div>
 
                                 <label className="flex flex-col gap-2">
-                                    <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Observações</span>
+                                    <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Observacoes</span>
                                     <textarea
                                         value={notes}
                                         onChange={(event) => setNotes(event.target.value)}
@@ -233,7 +238,7 @@ export function AdoptionsCreatePage() {
 
                                 <div className="flex flex-col gap-3 border-t border-orange-100 pt-5 sm:flex-row sm:items-center sm:justify-between dark:border-orange-500/10">
                                     <p className="text-sm text-gray-500 dark:text-gray-400">
-                                        Status em analise ou agendada mantém o animal em processo. Concluida finaliza a adoção.
+                                        Status em analise ou agendada mantem o animal em processo. Concluida finaliza a adocao.
                                     </p>
 
                                     <div className="flex flex-col gap-3 sm:flex-row">
@@ -241,7 +246,7 @@ export function AdoptionsCreatePage() {
                                             Cancelar
                                         </Button>
                                         <Button type="submit" variant="primary" isLoading={loading} disabled={loading || !isReadyToSubmit}>
-                                            Registrar adoção
+                                            Registrar adocao
                                         </Button>
                                     </div>
                                 </div>
@@ -321,6 +326,9 @@ export function AdoptionsCreatePage() {
                                                 >
                                                     {selectedAnimalObj.name}
                                                 </button>
+                                                <p className="text-xs font-semibold uppercase tracking-[0.14em] text-orange-600 dark:text-orange-300">
+                                                    {getAnimalCodeLabel(selectedAnimalObj)}
+                                                </p>
                                                 <p>
                                                     {selectedAnimalObj.species} • {selectedAnimalObj.breed}
                                                 </p>
