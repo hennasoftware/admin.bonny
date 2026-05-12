@@ -1,12 +1,12 @@
 import { useEffect, useMemo, useState } from "react";
 import { Helmet } from "react-helmet-async";
 import { useNavigate } from "react-router-dom";
-// firebase types not required in this module after switching to client-side pagination from subscriptions
 import { AdminLayout } from "@/modules/dashboard/AdminLayout";
 import { ConfirmDeleteModal, EntityAlert, EntityPageHeader, EntityPageShell, EntityStatsGrid, useToast } from "@/shared/components/ui";
-import { AnimalDetailsModal, AnimalEditorModal, AnimalList, AnimalsToolbar } from "../components";
-import { getAnimalsByStatus, matchesSearch, removeAnimal, updateAnimal, subscribeAnimals } from "../services/service";
+import { sortByRecent, type SortDirection } from "@/shared/utils/sortByRecent";
 import { ANIMAL_DATA } from "../constants/animalData";
+import { AnimalDetailsModal, AnimalEditorModal, AnimalList, AnimalsToolbar } from "../components";
+import { matchesSearch, removeAnimal, subscribeAnimals, updateAnimal } from "../services/service";
 import type { AnimalFormState, AnimalRecord, AnimalStatus } from "../types/types";
 
 const ITEMS_PER_PAGE = 10;
@@ -18,95 +18,63 @@ export function AnimalsListPage() {
     const navigate = useNavigate();
     const { showToast } = useToast();
     const [page, setPage] = useState(1);
-    const [animals, setAnimals] = useState<AnimalRecord[]>([]);
+    const [allAnimals, setAllAnimals] = useState<AnimalRecord[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [search, setSearch] = useState("");
     const [status, setStatus] = useState<AnimalStatus | "Todos">("Todos");
+    const [sortDirection, setSortDirection] = useState<SortDirection>("desc");
     const [editingAnimal, setEditingAnimal] = useState<AnimalRecord | null>(null);
     const [viewingAnimal, setViewingAnimal] = useState<AnimalRecord | null>(null);
     const [animalToDelete, setAnimalToDelete] = useState<AnimalRecord | null>(null);
     const [saving, setSaving] = useState(false);
     const [deleting, setDeleting] = useState(false);
-    const [totalItems, setTotalItems] = useState(0);
-    const [hasNextPage, setHasNextPage] = useState(false);
 
     useEffect(() => {
         setPage(1);
-    }, [search, status]);
+    }, [search, status, sortDirection]);
 
     useEffect(() => {
-        let active = true;
-        let unsub: (() => void) | undefined;
+        setLoading(true);
 
-        const load = async () => {
-            setLoading(true);
-
-            try {
-                if (search.trim()) {
-                    const allAnimals = await getAnimalsByStatus(status);
-                    const filteredAnimals = allAnimals.filter((animal) => matchesSearch(animal, search));
-                    const start = (page - 1) * ITEMS_PER_PAGE;
-                    const end = start + ITEMS_PER_PAGE;
-
-                    if (!active) return;
-
-                    setAnimals(filteredAnimals.slice(start, end));
-                    setTotalItems(filteredAnimals.length);
-                    setHasNextPage(end < filteredAnimals.length);
-                } else {
-                    unsub = subscribeAnimals(
-                        (next) => {
-                            if (!active) return;
-                            const start = (page - 1) * ITEMS_PER_PAGE;
-                            const end = start + ITEMS_PER_PAGE;
-                            setTotalItems(next.length);
-                            setHasNextPage(end < next.length);
-                            setAnimals(next.slice(start, end));
-                            setError(null);
-                            setLoading(false);
-                        },
-                        (err) => {
-                            if (!active) return;
-                            setError(err.message);
-                            setLoading(false);
-                        },
-                        status,
-                    );
-                }
-
+        const unsubscribe = subscribeAnimals(
+            (next) => {
+                setAllAnimals(next);
                 setError(null);
-            } catch (loadError) {
-                if (!active) return;
-                setError(loadError instanceof Error ? loadError.message : "Nao foi possivel carregar os animais.");
-            } finally {
-                if (active && !unsub) setLoading(false);
-            }
-        };
+                setLoading(false);
+            },
+            (err) => {
+                setError(err.message);
+                setLoading(false);
+            },
+            status,
+        );
 
-        void load();
+        return unsubscribe;
+    }, [status]);
 
-        return () => {
-            active = false;
-            unsub?.();
-        };
-    }, [page, search, status]);
+    const filteredAnimals = useMemo(() => {
+        const items = search.trim() ? allAnimals.filter((animal) => matchesSearch(animal, search)) : allAnimals;
+        return sortByRecent(items, sortDirection);
+    }, [allAnimals, search, sortDirection]);
 
+    const totalItems = filteredAnimals.length;
     const totalPages = Math.max(1, Math.ceil(totalItems / ITEMS_PER_PAGE));
+    const hasNextPage = page < totalPages;
+    const animals = useMemo(() => filteredAnimals.slice((page - 1) * ITEMS_PER_PAGE, page * ITEMS_PER_PAGE), [filteredAnimals, page]);
 
     const stats = useMemo(
         () => ({
             total: totalItems,
-            available: status === "Todos" || status === availableStatus ? animals.filter((animal) => animal.status === availableStatus).length : 0,
-            inProcess: status === "Todos" || status === inProcessStatus ? animals.filter((animal) => animal.status === inProcessStatus).length : 0,
-            adopted: status === "Todos" || status === adoptedStatus ? animals.filter((animal) => animal.status === adoptedStatus).length : 0,
+            available: filteredAnimals.filter((animal) => animal.status === availableStatus).length,
+            inProcess: filteredAnimals.filter((animal) => animal.status === inProcessStatus).length,
+            adopted: filteredAnimals.filter((animal) => animal.status === adoptedStatus).length,
         }),
-        [adoptedStatus, animals, availableStatus, inProcessStatus, status, totalItems],
+        [adoptedStatus, availableStatus, filteredAnimals, inProcessStatus, totalItems],
     );
 
     const handlePageChange = (nextPage: number) => {
         if (nextPage < 1 || nextPage > totalPages) return;
-        if (!search.trim() && nextPage > page && !hasNextPage) return;
         setPage(nextPage);
     };
 
@@ -180,7 +148,14 @@ export function AnimalsListPage() {
                     {error ? <EntityAlert tone="error">{error}</EntityAlert> : null}
 
                     <div className="mb-6">
-                        <AnimalsToolbar search={search} status={status} onSearchChange={setSearch} onStatusChange={setStatus} />
+                        <AnimalsToolbar
+                            search={search}
+                            status={status}
+                            sortDirection={sortDirection}
+                            onSearchChange={setSearch}
+                            onStatusChange={setStatus}
+                            onSortDirectionChange={setSortDirection}
+                        />
                     </div>
 
                     <AnimalList
@@ -197,7 +172,6 @@ export function AnimalsListPage() {
                 </EntityPageShell>
 
                 <AnimalEditorModal animal={editingAnimal} loading={saving} onClose={() => setEditingAnimal(null)} onSubmit={handleUpdate} />
-
                 <AnimalDetailsModal animal={viewingAnimal} onClose={() => setViewingAnimal(null)} />
 
                 <ConfirmDeleteModal

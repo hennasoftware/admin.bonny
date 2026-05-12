@@ -1,18 +1,18 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Helmet } from "react-helmet-async";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import type { DocumentData, QueryDocumentSnapshot } from "firebase/firestore";
-import { AdminLayout } from "@/modules/dashboard/AdminLayout";
-import { ConfirmDeleteModal, EntityAlert, EntityPageHeader, EntityPageShell, EntityStatsGrid, useToast } from "@/shared/components/ui";
-import { AdoptionsList } from "../components/AdoptionsList";
-import { AdoptionsToolbar } from "../components/AdoptionsToolbar";
-import { getAdoptionsByStatus, removeAdoption, updateAdoptionStatus, subscribeAdoptions, type AdoptionRecord, type AdoptionStatus } from "../services/service";
-import { AnimalDetailsModal } from "@/modules/animals/components";
-import { getAnimalById } from "@/modules/animals/services/service";
-import type { AnimalRecord } from "@/modules/animals/types/types";
 import { AdopterDetailsModal } from "@/modules/adopters/components";
 import { getAdopterById } from "@/modules/adopters/services/service";
 import type { AdopterRecord } from "@/modules/adopters/types";
+import { AnimalDetailsModal } from "@/modules/animals/components";
+import { getAnimalById } from "@/modules/animals/services/service";
+import type { AnimalRecord } from "@/modules/animals/types/types";
+import { AdminLayout } from "@/modules/dashboard/AdminLayout";
+import { ConfirmDeleteModal, EntityAlert, EntityPageHeader, EntityPageShell, EntityStatsGrid, useToast } from "@/shared/components/ui";
+import { sortByRecent, type SortDirection } from "@/shared/utils/sortByRecent";
+import { AdoptionsList } from "../components/AdoptionsList";
+import { AdoptionsToolbar } from "../components/AdoptionsToolbar";
+import { removeAdoption, subscribeAdoptions, updateAdoptionStatus, type AdoptionRecord, type AdoptionStatus } from "../services/service";
 
 const ITEMS_PER_PAGE = 10;
 
@@ -33,18 +33,16 @@ export function AdoptionsListPage() {
     const [searchParams] = useSearchParams();
     const { showToast } = useToast();
     const [page, setPage] = useState(1);
-    const [items, setItems] = useState<AdoptionRecord[]>([]);
+    const [allItems, setAllItems] = useState<AdoptionRecord[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [search, setSearch] = useState(() => searchParams.get("search") ?? "");
     const [status, setStatus] = useState<AdoptionStatus | "Todos">("Todos");
+    const [sortDirection, setSortDirection] = useState<SortDirection>("desc");
     const [adoptionToDelete, setAdoptionToDelete] = useState<AdoptionRecord | null>(null);
     const [viewingAnimal, setViewingAnimal] = useState<AnimalRecord | null>(null);
     const [viewingAdopter, setViewingAdopter] = useState<AdopterRecord | null>(null);
     const [deleting, setDeleting] = useState(false);
-    const [totalItems, setTotalItems] = useState(0);
-    const [hasNextPage, setHasNextPage] = useState(false);
-    const [cursorHistory, setCursorHistory] = useState<Array<QueryDocumentSnapshot<DocumentData> | null>>([null]);
     const lastSearchParamRef = useRef(searchParams.get("search") ?? "");
 
     useEffect(() => {
@@ -57,79 +55,48 @@ export function AdoptionsListPage() {
 
     useEffect(() => {
         setPage(1);
-        setCursorHistory([null]);
-    }, [search, status]);
+    }, [search, status, sortDirection]);
 
     useEffect(() => {
-        let active = true;
-        let unsub: (() => void) | undefined;
+        setLoading(true);
 
-        const load = async () => {
-            setLoading(true);
-
-            try {
-                if (search.trim()) {
-                    const allAdoptions = await getAdoptionsByStatus(status);
-                    const filtered = allAdoptions.filter((adoption) => matchesSearch(adoption, search));
-                    const start = (page - 1) * ITEMS_PER_PAGE;
-                    const end = start + ITEMS_PER_PAGE;
-
-                    if (!active) return;
-
-                    setItems(filtered.slice(start, end));
-                    setTotalItems(filtered.length);
-                    setHasNextPage(end < filtered.length);
-                } else {
-                    unsub = subscribeAdoptions(
-                        (next) => {
-                            if (!active) return;
-                            const start = (page - 1) * ITEMS_PER_PAGE;
-                            const end = start + ITEMS_PER_PAGE;
-                            setTotalItems(next.length);
-                            setHasNextPage(end < next.length);
-                            setItems(next.slice(start, end));
-                            setError(null);
-                            setLoading(false);
-                        },
-                        (err) => {
-                            if (!active) return;
-                            setError(err.message);
-                            setLoading(false);
-                        },
-                        status,
-                    );
-                }
-
+        const unsubscribe = subscribeAdoptions(
+            (next) => {
+                setAllItems(next);
                 setError(null);
-            } catch (loadError) {
-                if (!active) return;
-                setError(loadError instanceof Error ? loadError.message : "Não foi possível carregar as adoções.");
-            } finally {
-                if (active && !unsub) setLoading(false);
-            }
-        };
+                setLoading(false);
+            },
+            (err) => {
+                setError(err.message);
+                setLoading(false);
+            },
+            status,
+        );
 
-        void load();
+        return unsubscribe;
+    }, [status]);
 
-        return () => {
-            active = false;
-            unsub?.();
-        };
-    }, [page, search, status]);
+    const filteredItems = useMemo(() => {
+        const items = search.trim() ? allItems.filter((adoption) => matchesSearch(adoption, search)) : allItems;
+        return sortByRecent(items, sortDirection);
+    }, [allItems, search, sortDirection]);
 
+    const totalItems = filteredItems.length;
     const totalPages = Math.max(1, Math.ceil(totalItems / ITEMS_PER_PAGE));
+    const hasNextPage = page < totalPages;
+    const items = useMemo(() => filteredItems.slice((page - 1) * ITEMS_PER_PAGE, page * ITEMS_PER_PAGE), [filteredItems, page]);
+
     const stats = useMemo(
         () => ({
             total: totalItems,
-            open: items.filter((item) => item.status !== "Concluida").length,
-            completed: items.filter((item) => item.status === "Concluida").length,
+            open: filteredItems.filter((item) => item.status !== "Concluida").length,
+            completed: filteredItems.filter((item) => item.status === "Concluida").length,
         }),
-        [items, totalItems],
+        [filteredItems, totalItems],
     );
 
     const handlePageChange = (nextPage: number) => {
         if (nextPage < 1 || nextPage > totalPages) return;
-        if (!search.trim() && nextPage > page && !hasNextPage) return;
         setPage(nextPage);
     };
 
@@ -140,11 +107,10 @@ export function AdoptionsListPage() {
         try {
             await removeAdoption(adoptionToDelete.id);
             setAdoptionToDelete(null);
-            showToast("Adoção removida com sucesso.");
+            showToast("Adocao removida com sucesso.");
             setPage(1);
-            setCursorHistory([null]);
         } catch (deleteError) {
-            const message = deleteError instanceof Error ? deleteError.message : "Não foi possível remover a adoção.";
+            const message = deleteError instanceof Error ? deleteError.message : "Nao foi possivel remover a adocao.";
             setError(message);
             showToast(message, "error");
         } finally {
@@ -157,9 +123,9 @@ export function AdoptionsListPage() {
 
         try {
             await updateAdoptionStatus(adoption.id, nextStatus);
-            showToast("Status da adoção atualizado.");
+            showToast("Status da adocao atualizado.");
         } catch (statusError) {
-            const message = statusError instanceof Error ? statusError.message : "Não foi possível atualizar o status.";
+            const message = statusError instanceof Error ? statusError.message : "Nao foi possivel atualizar o status.";
             setError(message);
             showToast(message, "error");
         }
@@ -169,13 +135,13 @@ export function AdoptionsListPage() {
         try {
             const animal = await getAnimalById(animalId);
             if (!animal) {
-                showToast("Animal não encontrado.", "error");
+                showToast("Animal nao encontrado.", "error");
                 return;
             }
 
             setViewingAnimal(animal);
         } catch {
-            showToast("Não foi possível carregar os detalhes do animal.", "error");
+            showToast("Nao foi possivel carregar os detalhes do animal.", "error");
         }
     };
 
@@ -183,13 +149,13 @@ export function AdoptionsListPage() {
         try {
             const adopter = await getAdopterById(adopterId);
             if (!adopter) {
-                showToast("Adotante não encontrado.", "error");
+                showToast("Adotante nao encontrado.", "error");
                 return;
             }
 
             setViewingAdopter(adopter);
         } catch {
-            showToast("Não foi possível carregar os detalhes do adotante.", "error");
+            showToast("Nao foi possivel carregar os detalhes do adotante.", "error");
         }
     };
 
@@ -202,16 +168,16 @@ export function AdoptionsListPage() {
             <AdminLayout>
                 <EntityPageShell>
                     <EntityPageHeader
-                        eyebrow="Adoções"
-                        title="Adoções registradas"
-                        description="Acompanhe o pipeline, evolua status e remova apenas registros ainda não concluídos."
+                        eyebrow="Adocoes"
+                        title="Adocoes registradas"
+                        description="Acompanhe o pipeline, evolua status e remova apenas registros ainda nao concluidos."
                         action={
                             <button
                                 type="button"
                                 onClick={() => navigate("/adocoes/cadastro")}
                                 className="w-full rounded-xl border border-orange-200 bg-white px-4 py-2 text-sm font-medium text-orange-600 shadow-sm transition-colors hover:bg-orange-50 md:w-auto dark:border-gray-700 dark:bg-slate-900 dark:text-orange-300 dark:hover:bg-slate-800"
                             >
-                                Nova adoção
+                                Nova adocao
                             </button>
                         }
                     />
@@ -227,7 +193,14 @@ export function AdoptionsListPage() {
                     {error ? <EntityAlert tone="error">{error}</EntityAlert> : null}
 
                     <div className="mb-6">
-                        <AdoptionsToolbar search={search} status={status} onSearchChange={setSearch} onStatusChange={setStatus} />
+                        <AdoptionsToolbar
+                            search={search}
+                            status={status}
+                            sortDirection={sortDirection}
+                            onSearchChange={setSearch}
+                            onStatusChange={setStatus}
+                            onSortDirectionChange={setSortDirection}
+                        />
                     </div>
 
                     <AdoptionsList
@@ -244,15 +217,8 @@ export function AdoptionsListPage() {
                     />
                 </EntityPageShell>
 
-                <AdopterDetailsModal
-                    adopter={viewingAdopter}
-                    onClose={() => setViewingAdopter(null)}
-                />
-
-                <AnimalDetailsModal
-                    animal={viewingAnimal}
-                    onClose={() => setViewingAnimal(null)}
-                />
+                <AdopterDetailsModal adopter={viewingAdopter} onClose={() => setViewingAdopter(null)} />
+                <AnimalDetailsModal animal={viewingAnimal} onClose={() => setViewingAnimal(null)} />
 
                 <ConfirmDeleteModal
                     open={!!adoptionToDelete}

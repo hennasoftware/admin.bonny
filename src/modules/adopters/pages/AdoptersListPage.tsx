@@ -1,11 +1,11 @@
 import { useEffect, useMemo, useState } from "react";
 import { Helmet } from "react-helmet-async";
 import { useNavigate } from "react-router-dom";
-import type { DocumentData, QueryDocumentSnapshot } from "firebase/firestore";
 import { AdminLayout } from "@/modules/dashboard/AdminLayout";
 import { ConfirmDeleteModal, EntityAlert, EntityPageHeader, EntityPageShell, EntityStatsGrid, useToast } from "@/shared/components/ui";
+import { sortByRecent, type SortDirection } from "@/shared/utils/sortByRecent";
 import { AdopterDetailsModal, AdopterEditorModal, AdoptersList, AdoptersToolbar } from "../components";
-import { getAdoptersByStatus, getAdoptersPage, matchesSearch, removeAdopter, updateAdopter } from "../services/service";
+import { getAdoptersByStatus, matchesSearch, removeAdopter, updateAdopter } from "../services/service";
 import type { AdopterFormState, AdopterRecord, AdopterStatus } from "../types";
 
 const ITEMS_PER_PAGE = 10;
@@ -14,87 +14,67 @@ export function AdoptersListPage() {
     const navigate = useNavigate();
     const { showToast } = useToast();
     const [page, setPage] = useState(1);
-    const [adopters, setAdopters] = useState<AdopterRecord[]>([]);
+    const [allAdopters, setAllAdopters] = useState<AdopterRecord[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [search, setSearch] = useState("");
     const [status, setStatus] = useState<AdopterStatus | "Todos">("Todos");
+    const [sortDirection, setSortDirection] = useState<SortDirection>("desc");
     const [viewingAdopter, setViewingAdopter] = useState<AdopterRecord | null>(null);
     const [editingAdopter, setEditingAdopter] = useState<AdopterRecord | null>(null);
     const [adopterToDelete, setAdopterToDelete] = useState<AdopterRecord | null>(null);
     const [saving, setSaving] = useState(false);
     const [deleting, setDeleting] = useState(false);
-    const [totalItems, setTotalItems] = useState(0);
-    const [hasNextPage, setHasNextPage] = useState(false);
-    const [cursorHistory, setCursorHistory] = useState<Array<QueryDocumentSnapshot<DocumentData> | null>>([null]);
 
     useEffect(() => {
         setPage(1);
-        setCursorHistory([null]);
-    }, [search, status]);
+    }, [search, status, sortDirection]);
 
     useEffect(() => {
         let active = true;
+        setLoading(true);
 
-        const load = async () => {
-            setLoading(true);
-
-            try {
-                if (search.trim()) {
-                    const allAdopters = await getAdoptersByStatus(status);
-                    const filteredAdopters = allAdopters.filter((adopter) => matchesSearch(adopter, search));
-                    const start = (page - 1) * ITEMS_PER_PAGE;
-                    const end = start + ITEMS_PER_PAGE;
-
-                    if (!active) return;
-
-                    setAdopters(filteredAdopters.slice(start, end));
-                    setTotalItems(filteredAdopters.length);
-                    setHasNextPage(end < filteredAdopters.length);
-                } else {
-                    const response = await getAdoptersPage(ITEMS_PER_PAGE, cursorHistory[page - 1], status);
-
-                    if (!active) return;
-
-                    setAdopters(response.data);
-                    setTotalItems(response.total);
-                    setHasNextPage(response.hasNextPage);
-
-                    if (response.hasNextPage && response.nextCursor && cursorHistory.length === page) {
-                        setCursorHistory((current) => [...current, response.nextCursor]);
-                    }
-                }
-
+        void getAdoptersByStatus(status)
+            .then((items) => {
+                if (!active) return;
+                setAllAdopters(items);
                 setError(null);
-            } catch (loadError) {
+            })
+            .catch((loadError) => {
                 if (!active) return;
                 setError(loadError instanceof Error ? loadError.message : "Nao foi possivel carregar os adotantes.");
-            } finally {
+            })
+            .finally(() => {
                 if (active) setLoading(false);
-            }
-        };
-
-        void load();
+            });
 
         return () => {
             active = false;
         };
-    }, [page, search, status]);
+    }, [status]);
 
+    const filteredAdopters = useMemo(() => {
+        const items = search.trim() ? allAdopters.filter((adopter) => matchesSearch(adopter, search)) : allAdopters;
+        return sortByRecent(items, sortDirection);
+    }, [allAdopters, search, sortDirection]);
+
+    const totalItems = filteredAdopters.length;
     const totalPages = Math.max(1, Math.ceil(totalItems / ITEMS_PER_PAGE));
+    const hasNextPage = page < totalPages;
+    const adopters = useMemo(() => filteredAdopters.slice((page - 1) * ITEMS_PER_PAGE, page * ITEMS_PER_PAGE), [filteredAdopters, page]);
+
     const stats = useMemo(
         () => ({
             total: totalItems,
-            active: status === "Todos" || status === "Ativo" ? adopters.filter((adopter) => adopter.status === "Ativo").length : 0,
-            inactive: status === "Todos" || status === "Inativo" ? adopters.filter((adopter) => adopter.status === "Inativo").length : 0,
-            blocked: status === "Todos" || status === "Bloqueado" ? adopters.filter((adopter) => adopter.status === "Bloqueado").length : 0,
+            active: filteredAdopters.filter((adopter) => adopter.status === "Ativo").length,
+            inactive: filteredAdopters.filter((adopter) => adopter.status === "Inativo").length,
+            blocked: filteredAdopters.filter((adopter) => adopter.status === "Bloqueado").length,
         }),
-        [adopters, status, totalItems],
+        [filteredAdopters, totalItems],
     );
 
     const handlePageChange = (nextPage: number) => {
         if (nextPage < 1 || nextPage > totalPages) return;
-        if (!search.trim() && nextPage > page && !hasNextPage) return;
         setPage(nextPage);
     };
 
@@ -107,7 +87,6 @@ export function AdoptersListPage() {
             setAdopterToDelete(null);
             showToast("Adotante removido com sucesso.");
             setPage(1);
-            setCursorHistory([null]);
         } catch (deleteError) {
             const message = deleteError instanceof Error ? deleteError.message : "Nao foi possivel excluir o adotante.";
             setError(message);
@@ -125,6 +104,8 @@ export function AdoptersListPage() {
             setEditingAdopter(null);
             setError(null);
             showToast("Adotante atualizado com sucesso.");
+            const refreshed = await getAdoptersByStatus(status);
+            setAllAdopters(refreshed);
         } catch {
             const message = "Nao foi possivel salvar as alteracoes.";
             setError(message);
@@ -169,7 +150,14 @@ export function AdoptersListPage() {
                     {error ? <EntityAlert tone="error">{error}</EntityAlert> : null}
 
                     <div className="mb-6">
-                        <AdoptersToolbar search={search} status={status} onSearchChange={setSearch} onStatusChange={(value) => setStatus(value as AdopterStatus | "Todos")} />
+                        <AdoptersToolbar
+                            search={search}
+                            status={status}
+                            sortDirection={sortDirection}
+                            onSearchChange={setSearch}
+                            onStatusChange={(value) => setStatus(value as AdopterStatus | "Todos")}
+                            onSortDirectionChange={setSortDirection}
+                        />
                     </div>
 
                     <AdoptersList
