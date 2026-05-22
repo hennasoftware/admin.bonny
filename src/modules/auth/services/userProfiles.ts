@@ -1,14 +1,15 @@
 import {
-    collection,
     doc,
+    collection,
     getDoc,
     getDocs,
     limit,
     orderBy,
-    query,
-    runTransaction,
     serverTimestamp,
+    setDoc,
+    query,
     updateDoc,
+    writeBatch,
 } from "firebase/firestore";
 import { createUserWithEmailAndPassword, updateProfile, type User } from "firebase/auth";
 import type { UserProfile, UserRole } from "../context/AuthContextObject";
@@ -54,37 +55,42 @@ export async function ensureUserProfile(user: User, fallbackName?: string) {
         return existingProfile;
     }
 
-    await runTransaction(db, async (transaction) => {
-        const userRef = doc(db, USERS_COLLECTION, user.uid);
-        const userSnap = await transaction.get(userRef);
-        const bootstrapSnap = await transaction.get(AUTH_BOOTSTRAP_DOCUMENT);
+    const userRef = doc(db, USERS_COLLECTION, user.uid);
+    const bootstrapSnap = await getDoc(AUTH_BOOTSTRAP_DOCUMENT);
+    const isFirstUser = !bootstrapSnap.exists();
+    const role: UserRole = isFirstUser ? "admin" : "standard";
+    const status: UserProfile["status"] = isFirstUser ? "approved" : "pending";
+    const nextProfilePayload = {
+        name: getUserDisplayName(user, fallbackName),
+        email: user.email ?? "",
+        role,
+        status,
+        createdBy: isFirstUser ? user.uid : null,
+        approvedBy: isFirstUser ? user.uid : null,
+        createdAt: serverTimestamp(),
+        approvedAt: isFirstUser ? serverTimestamp() : null,
+    };
 
-        if (userSnap.exists()) {
-            return;
-        }
-
-        const isFirstUser = !bootstrapSnap.exists();
-        const role: UserRole = isFirstUser ? "admin" : "standard";
-        const status: UserProfile["status"] = isFirstUser ? "approved" : "pending";
-
-        transaction.set(userRef, {
-            name: getUserDisplayName(user, fallbackName),
-            email: user.email ?? "",
-            role,
-            status,
-            createdBy: isFirstUser ? user.uid : null,
-            approvedBy: isFirstUser ? user.uid : null,
-            createdAt: serverTimestamp(),
-            approvedAt: isFirstUser ? serverTimestamp() : null,
-        });
-
+    try {
         if (isFirstUser) {
-            transaction.set(AUTH_BOOTSTRAP_DOCUMENT, {
+            const batch = writeBatch(db);
+            batch.set(userRef, nextProfilePayload);
+            batch.set(AUTH_BOOTSTRAP_DOCUMENT, {
                 initializedAt: serverTimestamp(),
                 initializedBy: user.uid,
             });
+            await batch.commit();
+        } else {
+            await setDoc(userRef, nextProfilePayload);
         }
-    });
+    } catch (error) {
+        const concurrentProfile = await getUserProfile(user.uid);
+        if (concurrentProfile) {
+            return concurrentProfile;
+        }
+
+        throw error;
+    }
 
     const nextProfile = await getUserProfile(user.uid);
     if (!nextProfile) {

@@ -14,7 +14,7 @@ interface ChartsPanelProps {
 
 const ChartsPanel: React.ComponentType<ChartsPanelProps> = import.meta.env.MODE === "test"
     ? ({ adoptions }) => (
-          <section className="rounded-3xl border border-white/70 bg-white/80 p-4 shadow-[0_18px_50px_-30px_rgb(15_23_42/0.35)] backdrop-blur-sm sm:p-6 dark:border-slate-700/60 dark:bg-slate-950/60">
+          <section className="rounded-3xl border border-white/70 bg-white/88 p-4 shadow-[0_16px_36px_-28px_rgb(15_23_42/0.26)] sm:p-6 dark:border-slate-700/60 dark:bg-slate-950/72">
               <header className="mb-6 flex flex-col gap-4 border-b border-slate-200/70 pb-4 dark:border-slate-800 sm:flex-row sm:items-end sm:justify-between">
                   <div>
                       <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-gray-400 dark:text-gray-500">Indicador mensal</p>
@@ -39,7 +39,7 @@ const ChartsPanel: React.ComponentType<ChartsPanelProps> = import.meta.env.MODE 
     : React.lazy(() => import("./components/ChartsPanel"));
 
 export function DashboardPage() {
-    const { user } = useAuth();
+    const { user, profile, role } = useAuth();
     const { data: dashboardData, loading, error } = useDashboardData();
 
     return (
@@ -55,7 +55,9 @@ export function DashboardPage() {
                     <div className="relative mx-auto w-full max-w-7xl">
                         <div className=" md:mt-0">
                             <DashboardHeader
+                                userName={profile?.name}
                                 userEmail={user?.email}
+                                userRole={role}
                                 animals={dashboardData.animals}
                                 adopters={dashboardData.adopters}
                                 adoptions={dashboardData.adoptions}
@@ -69,7 +71,7 @@ export function DashboardPage() {
                         </div>
 
                         {error ? (
-                            <div className="mb-6 rounded-[20px] border border-red-200 bg-red-50/90 px-4 py-3 text-sm text-red-700 shadow-sm backdrop-blur dark:border-red-500/20 dark:bg-red-500/10 dark:text-red-200">
+                            <div className="mb-6 rounded-[20px] border border-red-200 bg-red-50/90 px-4 py-3 text-sm text-red-700 shadow-sm dark:border-red-500/20 dark:bg-red-500/10 dark:text-red-200">
                                 {error}
                             </div>
                         ) : null}
@@ -77,11 +79,11 @@ export function DashboardPage() {
                         <section className="grid grid-cols-1 gap-6 2xl:grid-cols-[minmax(0,1.75fr)_minmax(360px,0.8fr)]">
                             <div className="min-w-0">
                                 {loading ? (
-                                    <div className="h-108 animate-pulse rounded-[24px] border border-white/70 bg-white/80 shadow-[0_18px_50px_-30px_rgb(15_23_42/0.35)] backdrop-blur-sm dark:border-slate-700/60 dark:bg-slate-950/60 sm:h-[31rem] lg:h-[34rem]" />
+                                    <div className="h-108 animate-pulse rounded-[24px] border border-white/70 bg-white/88 shadow-[0_16px_36px_-28px_rgb(15_23_42/0.26)] dark:border-slate-700/60 dark:bg-slate-950/72 sm:h-[31rem] lg:h-[34rem]" />
                                 ) : (
                                     <Suspense
                                         fallback={
-                                            <div className="h-[27rem] animate-pulse rounded-[24px] border border-white/70 bg-white/80 shadow-[0_18px_50px_-30px_rgb(15_23_42/0.35)] backdrop-blur-sm dark:border-slate-700/60 dark:bg-slate-950/60 sm:h-[31rem] lg:h-[34rem]" />
+                                            <div className="h-[27rem] animate-pulse rounded-[24px] border border-white/70 bg-white/88 shadow-[0_16px_36px_-28px_rgb(15_23_42/0.26)] dark:border-slate-700/60 dark:bg-slate-950/72 sm:h-[31rem] lg:h-[34rem]" />
                                         }
                                     >
                                         <ChartsPanel

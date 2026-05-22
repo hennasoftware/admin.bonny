@@ -1,4 +1,4 @@
-import { BarChart3, Dog, FileClock, List, PlusCircle, Shield, Users } from "lucide-react";
+import { BarChart3, Bell, Dog, FileClock, List, PlusCircle, Shield, Users } from "lucide-react";
 import type { UserRole } from "@/modules/auth";
 import type { SidebarSection } from "@/shared/components/sidebar";
 
@@ -11,6 +11,11 @@ export function getDashboardSidebarItems(role: UserRole | null): SidebarSection[
                     label: "Dashboard",
                     path: "/dashboard",
                     icon: BarChart3,
+                },
+                {
+                    label: "Atualizacoes",
+                    path: "/atualizacoes",
+                    icon: Bell,
                 },
             ],
         },

@@ -102,7 +102,11 @@ service cloud.firestore {
         && request.resource.data.status in ["pending", "approved"]
         && (
           (request.resource.data.status == "pending" && request.resource.data.role == "standard")
-          || (request.resource.data.status == "approved" && request.resource.data.role == "admin")
+          || (
+            request.resource.data.status == "approved"
+            && request.resource.data.role == "admin"
+            && !exists(/databases/$(database)/documents/system_bootstrap/auth)
+          )
         );
       allow update: if isAdmin();
     }

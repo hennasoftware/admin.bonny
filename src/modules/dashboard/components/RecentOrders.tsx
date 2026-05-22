@@ -15,7 +15,7 @@ const statusStyles: Record<RecentOrder["status"], string> = {
 
 export function RecentOrders({ loading, orders }: RecentOrdersProps) {
     return (
-        <aside className="self-start overflow-hidden rounded-3xl border border-orange-100/70 bg-white/80 p-5 shadow-[0_18px_50px_-30px_rgb(15_23_42/0.35)] backdrop-blur-sm dark:border-slate-700/60 dark:bg-slate-950/60 sm:p-6">
+        <aside className="self-start overflow-hidden rounded-3xl border border-orange-100/70 bg-white/88 p-5 shadow-[0_16px_36px_-28px_rgb(15_23_42/0.26)] dark:border-slate-700/60 dark:bg-slate-950/72 sm:p-6">
             <header className="mb-5 flex flex-wrap items-start justify-between gap-4 border-b border-slate-200/70 pb-4 dark:border-slate-800">
                 <div className="min-w-0 flex-1">
                     <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-gray-400 dark:text-gray-500">Fluxo recente</p>
@@ -52,7 +52,7 @@ export function RecentOrders({ loading, orders }: RecentOrdersProps) {
                             key={order.id}
                             to={`/adocoes/lista?search=${encodeURIComponent(order.id)}`}
                             aria-label={`Abrir adoção ${order.petName} de ${order.adopterName}`}
-                            className="group block overflow-hidden rounded-2xl border border-slate-200/70 bg-gradient-to-br from-white to-slate-50 transition hover:-translate-y-0.5 hover:border-orange-200 hover:shadow-[0_18px_40px_-28px_rgb(249_115_22/0.45)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500/40 dark:border-slate-800 dark:from-slate-950/80 dark:to-slate-900/60"
+                            className="group block overflow-hidden rounded-2xl border border-slate-200/70 bg-gradient-to-br from-white to-slate-50 transition-colors hover:border-orange-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500/40 dark:border-slate-800 dark:from-slate-950/80 dark:to-slate-900/60"
                         >
                             <article className="grid min-w-0 gap-4 p-4 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-start">
                                 <div className="min-w-0 space-y-3">

@@ -28,7 +28,7 @@ export function AdminDataTable({
     footer,
 }: AdminDataTableProps) {
     return (
-        <section className="overflow-hidden rounded-[28px] border border-white/70 bg-white/82 shadow-[0_18px_50px_-34px_rgb(15_23_42/0.28)] backdrop-blur-sm dark:border-slate-700/60 dark:bg-slate-950/60">
+        <section className="overflow-hidden rounded-[28px] border border-white/70 bg-white/88 shadow-[0_18px_50px_-34px_rgb(15_23_42/0.28)] dark:border-slate-700/60 dark:bg-slate-950/72">
             <div className="border-b border-slate-200/70 px-5 py-4 dark:border-slate-800 sm:px-6">
                 <p className="text-sm font-medium text-slate-500 dark:text-slate-400">{title}</p>
             </div>

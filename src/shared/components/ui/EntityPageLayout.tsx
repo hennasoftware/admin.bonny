@@ -46,7 +46,7 @@ export function EntityPageShell({ children, maxWidth = "7xl" }: EntityPageShellP
 
 export function EntityPageHeader({ eyebrow, title, description, action }: EntityPageHeaderProps) {
     return (
-        <div className="mb-6 flex flex-col gap-4 rounded-[28px] border border-orange-100/70 bg-white/75 p-5 shadow-[0_18px_50px_-34px_rgb(15_23_42/0.28)] backdrop-blur-sm md:flex-row md:items-end md:justify-between md:p-6 dark:border-slate-700/60 dark:bg-slate-950/60">
+        <div className="mb-6 flex flex-col gap-4 rounded-[28px] border border-orange-100/70 bg-white/85 p-5 shadow-[0_18px_50px_-34px_rgb(15_23_42/0.28)] md:flex-row md:items-end md:justify-between md:p-6 dark:border-slate-700/60 dark:bg-slate-950/75">
             <div className="min-w-0">
                 <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-orange-500 dark:text-orange-300">
                     {eyebrow}
@@ -68,7 +68,7 @@ export function EntityAlert({ children, tone = "success" }: EntityAlertProps) {
             ? "border-red-200 bg-red-50/95 text-red-700 shadow-[0_16px_40px_-30px_rgb(220_38_38/0.35)] dark:border-red-500/20 dark:bg-red-500/10 dark:text-red-300"
             : "border-emerald-200 bg-emerald-50/95 text-emerald-700 shadow-[0_16px_40px_-30px_rgb(16_185_129/0.35)] dark:border-emerald-500/20 dark:bg-emerald-500/10 dark:text-emerald-300";
 
-    return <div className={`mb-6 rounded-2xl border px-4 py-3 text-sm backdrop-blur-sm ${toneClassName}`}>{children}</div>;
+    return <div className={`mb-6 rounded-2xl border px-4 py-3 text-sm ${toneClassName}`}>{children}</div>;
 }
 
 export function EntityStatsGrid({ items }: EntityStatsGridProps) {
@@ -77,7 +77,7 @@ export function EntityStatsGrid({ items }: EntityStatsGridProps) {
             {items.map((item) => (
                 <div
                     key={item.label}
-                    className="rounded-[24px] border border-orange-100/70 bg-white/82 p-4 shadow-[0_16px_40px_-30px_rgb(15_23_42/0.32)] backdrop-blur-sm dark:border-slate-700/60 dark:bg-slate-950/60"
+                    className="rounded-[24px] border border-orange-100/70 bg-white/88 p-4 shadow-[0_16px_40px_-30px_rgb(15_23_42/0.32)] dark:border-slate-700/60 dark:bg-slate-950/72"
                 >
                     <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-gray-400 dark:text-gray-500">{item.label}</p>
                     <p className="mt-2 text-2xl font-semibold tracking-tight text-gray-950 sm:text-3xl dark:text-white">
@@ -92,7 +92,7 @@ export function EntityStatsGrid({ items }: EntityStatsGridProps) {
 export function EntitySectionCard({ children, className = "" }: EntitySectionCardProps) {
     return (
         <section
-            className={`rounded-[28px] border border-orange-100/70 bg-white/82 p-5 shadow-[0_18px_50px_-34px_rgb(15_23_42/0.28)] backdrop-blur-sm dark:border-slate-700/60 dark:bg-slate-950/60 md:p-6 ${className}`.trim()}
+            className={`rounded-[28px] border border-orange-100/70 bg-white/88 p-5 shadow-[0_18px_50px_-34px_rgb(15_23_42/0.28)] dark:border-slate-700/60 dark:bg-slate-950/72 md:p-6 ${className}`.trim()}
         >
             {children}
         </section>

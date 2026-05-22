@@ -4,7 +4,7 @@ import { LoginPage, PendingApprovalPage, RegisterPage } from "@/modules/auth";
 import { AnimalsCreatePage, AnimalsListPage } from "@/modules/animals";
 import { AdoptersCreatePage, AdoptersListPage } from "@/modules/adopters";
 import { AdoptionsCreatePage, AdoptionsListPage } from "@/modules/adoptions";
-import { DashboardPage } from "@/modules/dashboard";
+import { DashboardPage, SystemUpdatesPage } from "@/modules/dashboard";
 import { ModulePlaceholderPage } from "@/modules/dashboard/ModulePlaceholderPage";
 import { SystemUpdatesSeedPage } from "@/modules/dashboard/SystemUpdatesSeedPage";
 import { AdminRoute } from "./AdminRoute";
@@ -39,6 +39,7 @@ export function AppRoute() {
 
             <Route element={<ProtectedRoute />}>
                 <Route path="/dashboard" element={<DashboardPage />} />
+                <Route path="/atualizacoes" element={<SystemUpdatesPage />} />
                 <Route path="/animais" element={<AnimalsListPage />} />
                 <Route path="/animais/lista" element={<AnimalsListPage />} />
                 <Route path="/animais/cadastro" element={<AnimalsCreatePage />} />

@@ -27,18 +27,18 @@ export function SidebarLayout({
                 type="button"
                 aria-label="Abrir menu lateral"
                 onClick={toggleMobile}
-                className={`fixed top-4 right-4 z-30 rounded-2xl border border-white/70 bg-white/92 p-3 text-gray-700 shadow-[0_16px_40px_-24px_rgb(15_23_42/0.45)] backdrop-blur transition-opacity dark:border-slate-700/60 dark:bg-slate-900/90 dark:text-gray-200 md:hidden ${openMobile ? "pointer-events-none opacity-0" : "opacity-100"}`}
+                className={`fixed top-4 right-4 z-30 rounded-2xl border border-white/70 bg-white/96 p-3 text-gray-700 shadow-[0_16px_40px_-24px_rgb(15_23_42/0.45)] transition-opacity dark:border-slate-700/60 dark:bg-slate-900/96 dark:text-gray-200 md:hidden ${openMobile ? "pointer-events-none opacity-0" : "opacity-100"}`}
             >
                 <Menu className="h-5 w-5" />
             </button>
 
             <div
                 onClick={closeMobile}
-                className={`fixed inset-0 z-30 bg-slate-950/35 backdrop-blur-sm transition-opacity duration-300 md:hidden ${openMobile ? "opacity-100" : "pointer-events-none opacity-0"}`}
+                className={`fixed inset-0 z-30 bg-slate-950/35 transition-opacity duration-300 md:hidden ${openMobile ? "opacity-100" : "pointer-events-none opacity-0"}`}
             />
 
             <aside
-                className={`fixed inset-y-0 left-0 z-40 flex h-dvh min-h-0 flex-col overflow-hidden border-r border-white/70 bg-white/92 shadow-[0_24px_80px_-40px_rgb(15_23_42/0.55)] backdrop-blur transition-[width,transform] duration-300 ease-in-out dark:border-slate-700/60 dark:bg-slate-950/92 md:sticky md:top-0 md:h-screen md:translate-x-0 md:self-start md:shadow-none ${collapsed ? "md:w-24" : "md:w-72"} ${openMobile ? "translate-x-0" : "-translate-x-full"} w-72`}
+                className={`fixed inset-y-0 left-0 z-40 flex h-dvh min-h-0 flex-col overflow-hidden border-r border-white/70 bg-white/96 shadow-[0_24px_80px_-40px_rgb(15_23_42/0.55)] transition-[width,transform] duration-300 ease-in-out dark:border-slate-700/60 dark:bg-slate-950/96 md:sticky md:top-0 md:h-screen md:translate-x-0 md:self-start md:shadow-none ${collapsed ? "md:w-24" : "md:w-72"} ${openMobile ? "translate-x-0" : "-translate-x-full"} w-72`}
             >
                 <div className={`flex items-center border-b border-slate-200/70 p-3 dark:border-slate-800 ${collapsed ? "justify-start md:justify-center" : ""}`}>
                     <div className={`min-w-0 ${collapsed ? "text-left md:text-center" : "flex-1"}`}>

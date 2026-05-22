@@ -32,15 +32,15 @@ export function PendingApprovalPage() {
                 <title>Bonny | Acesso pendente</title>
             </Helmet>
 
-            <main className="flex min-h-screen items-center justify-center bg-[radial-gradient(circle_at_top,rgba(251,146,60,0.15),transparent_28%),linear-gradient(180deg,#fff7ed_0%,#fff 42%,#fff 100%)] px-4 py-10 dark:bg-[radial-gradient(circle_at_top,rgba(251,146,60,0.12),transparent_28%),linear-gradient(180deg,#0f172a_0%,#020617_100%)]">
-                <section className="w-full max-w-xl rounded-[32px] border border-white/70 bg-white/85 p-8 shadow-[0_28px_90px_-44px_rgb(15_23_42/0.45)] backdrop-blur-sm dark:border-slate-700/60 dark:bg-slate-950/70">
-                    <div className="flex items-start gap-4">
-                        <div className={`rounded-3xl p-3 ${isRejected ? "bg-red-50 text-red-500 dark:bg-red-500/10 dark:text-red-300" : "bg-orange-50 text-orange-500 dark:bg-orange-500/10 dark:text-orange-300"}`}>
-                            {isRejected ? <ShieldAlert className="h-7 w-7" /> : <Clock3 className="h-7 w-7" />}
+            <main className="flex min-h-screen items-center justify-center bg-[radial-gradient(circle_at_top,rgba(251,146,60,0.15),transparent_28%),linear-gradient(180deg,#fff7ed_0%,#fff 42%,#fff 100%)] px-3 py-6 sm:px-4 sm:py-10 dark:bg-[radial-gradient(circle_at_top,rgba(251,146,60,0.12),transparent_28%),linear-gradient(180deg,#0f172a_0%,#020617_100%)]">
+                <section className="w-full max-w-xl rounded-[28px] border border-white/70 bg-white/88 p-5 shadow-[0_28px_90px_-44px_rgb(15_23_42/0.45)] dark:border-slate-700/60 dark:bg-slate-950/72 sm:rounded-[32px] sm:p-8">
+                    <div className="flex flex-col gap-4 sm:flex-row sm:items-start">
+                        <div className={`w-fit rounded-3xl p-3 ${isRejected ? "bg-red-50 text-red-500 dark:bg-red-500/10 dark:text-red-300" : "bg-orange-50 text-orange-500 dark:bg-orange-500/10 dark:text-orange-300"}`}>
+                            {isRejected ? <ShieldAlert className="h-6 w-6 sm:h-7 sm:w-7" /> : <Clock3 className="h-6 w-6 sm:h-7 sm:w-7" />}
                         </div>
                         <div>
                             <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-orange-500 dark:text-orange-300">Controle de acesso</p>
-                            <h1 className="mt-2 text-3xl font-semibold tracking-tight text-gray-950 dark:text-white">
+                            <h1 className="mt-2 text-2xl font-semibold tracking-tight text-gray-950 dark:text-white sm:text-3xl">
                                 {isRejected ? "Solicitacao recusada" : "Aguardando aprovacao"}
                             </h1>
                             <p className="mt-3 text-sm leading-6 text-gray-600 dark:text-gray-300">
@@ -51,12 +51,12 @@ export function PendingApprovalPage() {
                         </div>
                     </div>
 
-                    <div className="mt-8 rounded-[28px] border border-orange-100/70 bg-orange-50/70 p-5 dark:border-orange-500/10 dark:bg-orange-500/5">
-                        <div className="flex items-center gap-3">
-                            <ShieldCheck className="h-5 w-5 text-orange-500 dark:text-orange-300" />
+                    <div className="mt-6 rounded-[24px] border border-orange-100/70 bg-orange-50/70 p-4 dark:border-orange-500/10 dark:bg-orange-500/5 sm:mt-8 sm:rounded-[28px] sm:p-5">
+                        <div className="flex items-start gap-3">
+                            <ShieldCheck className="mt-0.5 h-5 w-5 shrink-0 text-orange-500 dark:text-orange-300" />
                             <div>
-                                <p className="font-semibold text-gray-950 dark:text-white">{profile?.name ?? user.email}</p>
-                                <p className="text-sm text-gray-500 dark:text-gray-400">{profile?.email ?? user.email}</p>
+                                <p className="break-words font-semibold text-gray-950 dark:text-white">{profile?.name ?? user.email}</p>
+                                <p className="break-all text-sm text-gray-500 dark:text-gray-400">{profile?.email ?? user.email}</p>
                             </div>
                         </div>
 
@@ -65,8 +65,8 @@ export function PendingApprovalPage() {
                         </p>
                     </div>
 
-                    <div className="mt-8 flex justify-end">
-                        <Button type="button" variant="secondary" onClick={() => void handleLogout()}>
+                    <div className="mt-6 flex sm:mt-8 sm:justify-end">
+                        <Button type="button" variant="secondary" onClick={() => void handleLogout()} className="w-full sm:w-auto">
                             <span className="inline-flex items-center gap-2">
                                 <LogOut className="h-4 w-4" />
                                 <span>Sair</span>

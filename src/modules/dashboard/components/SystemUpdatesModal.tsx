@@ -101,7 +101,6 @@ export function SystemUpdatesModal({
     );
 
     const selectedUpdate = filteredUpdates.find((update) => update.id === selectedUpdateId) ?? filteredUpdates[0] ?? null;
-    const quickSummary = selectedUpdate ? getUniqueItems(selectedUpdate.highlights).slice(0, 3) : [];
     const operationalNotes = selectedUpdate ? getOperationalNotes(selectedUpdate) : [];
     const impactedAreas = selectedUpdate ? getUniqueItems(selectedUpdate.impactedAreas) : [];
     const detailedHighlights = selectedUpdate ? getDetailHighlights(selectedUpdate) : [];
@@ -127,8 +126,8 @@ export function SystemUpdatesModal({
             maxWidthClassName="max-w-6xl"
             bodyClassName="p-0"
         >
-            <div className="grid max-h-[78vh] min-h-[26rem] grid-cols-1 md:min-h-[32rem] md:grid-cols-[320px_minmax(0,1fr)]">
-                <aside className="border-b border-slate-200/70 bg-slate-50/80 p-3 dark:border-slate-800 dark:bg-slate-900/40 sm:p-4 md:border-b-0 md:border-r">
+            <div className="grid max-h-[78vh] min-h-[26rem] grid-cols-1 md:min-h-[32rem] md:grid-cols-[280px_minmax(0,1fr)]">
+                <aside className="border-b border-slate-200/70 bg-slate-50 p-3 dark:border-slate-800 dark:bg-slate-900/30 sm:p-4 md:border-b-0 md:border-r">
                     <div className="mb-4 flex items-center justify-between gap-3">
                         <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.16em] text-slate-400 dark:text-slate-500">
                             <Sparkles className="h-4 w-4" />
@@ -161,7 +160,7 @@ export function SystemUpdatesModal({
                         })}
                     </div>
 
-                    <div className="-mx-3 flex snap-x snap-mandatory gap-3 overflow-x-auto px-3 pb-1 md:mx-0 md:block md:space-y-3 md:overflow-visible md:px-0">
+                    <div className="-mx-3 flex snap-x snap-mandatory gap-3 overflow-x-auto px-3 pb-1 md:mx-0 md:block md:space-y-2.5 md:overflow-visible md:px-0">
                         {filteredUpdates.map((update) => {
                             const active = update.id === selectedUpdate?.id;
                             const isNew = isUpdateUnread(update.id, readUpdateIds);
@@ -172,18 +171,18 @@ export function SystemUpdatesModal({
                                     type="button"
                                     onClick={() => onSelectUpdate(update.id)}
                                     className={[
-                                        "w-[18rem] shrink-0 cursor-pointer snap-start rounded-[26px] border px-4 py-3.5 text-left transition-all md:w-full md:rounded-3xl md:py-4",
+                                        "w-[17rem] shrink-0 cursor-pointer snap-start rounded-3xl border px-3.5 py-3 text-left transition-colors md:w-full",
                                         active
-                                            ? "border-orange-300 bg-orange-50 text-slate-950 shadow-sm dark:border-orange-500/30 dark:bg-orange-500/10 dark:text-white"
-                                            : "border-slate-200/70 bg-white text-slate-600 hover:border-orange-200 hover:bg-orange-50/60 dark:border-slate-700/60 dark:bg-slate-950/70 dark:text-slate-300 dark:hover:border-orange-500/20 dark:hover:bg-slate-900",
+                                            ? "border-orange-300 bg-orange-50 text-slate-950 dark:border-orange-500/30 dark:bg-orange-500/10 dark:text-white"
+                                            : "border-slate-200/70 bg-white text-slate-600 hover:border-orange-200 hover:bg-orange-50/60 dark:border-slate-700/60 dark:bg-slate-950/60 dark:text-slate-300 dark:hover:border-orange-500/20 dark:hover:bg-slate-900",
                                     ].join(" ")}
                                 >
-                                    <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                                    <div className="flex items-start justify-between gap-3">
                                         <div>
                                             <p className="text-xs font-semibold uppercase tracking-[0.16em] text-orange-600 dark:text-orange-300">
                                                 Release {update.version}
                                             </p>
-                                            <h3 className="mt-2 text-sm font-semibold leading-6">{update.title}</h3>
+                                            <h3 className="mt-1.5 line-clamp-2 text-sm font-semibold leading-6">{update.title}</h3>
                                         </div>
                                         <div className="flex flex-wrap gap-2">
                                             {isNew ? (
@@ -196,8 +195,8 @@ export function SystemUpdatesModal({
                                             </span>
                                         </div>
                                     </div>
-                                    <p className="mt-3 line-clamp-3 text-sm leading-6 opacity-85">{update.summary}</p>
-                                    <p className="mt-3 text-xs opacity-70">{formatPublishedDate(update.publishedAt)}</p>
+                                    <p className="mt-2 line-clamp-2 text-sm leading-6 opacity-85">{update.summary}</p>
+                                    <p className="mt-2 text-xs opacity-70">{formatPublishedDate(update.publishedAt)}</p>
                                 </button>
                             );
                         })}
@@ -206,8 +205,8 @@ export function SystemUpdatesModal({
 
                 <section className="overflow-y-auto p-3 sm:p-5 md:p-6">
                     {selectedUpdate ? (
-                        <div className="space-y-4 sm:space-y-6">
-                            <div className="rounded-[24px] border border-orange-100/70 bg-gradient-to-br from-orange-50 via-white to-white p-4 shadow-sm dark:border-orange-500/10 dark:from-orange-500/10 dark:via-slate-950 dark:to-slate-950 sm:rounded-[28px] sm:p-5">
+                        <div className="space-y-4 sm:space-y-5">
+                            <div className="rounded-[24px] border border-orange-100/70 bg-orange-50/80 p-4 dark:border-orange-500/10 dark:bg-orange-500/10 sm:rounded-[28px] sm:p-5">
                                 <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center sm:gap-3">
                                     <span className="rounded-full border border-orange-200 bg-orange-100 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-orange-700 dark:border-orange-500/20 dark:bg-orange-500/10 dark:text-orange-200">
                                         Release {selectedUpdate.version}
@@ -225,60 +224,25 @@ export function SystemUpdatesModal({
                                 </p>
                             </div>
 
-                            <div className="rounded-[22px] border border-slate-200/70 bg-white p-4 dark:border-slate-800 dark:bg-slate-950/70 sm:rounded-[24px] sm:p-5">
-                                <div className="mb-4 flex items-center justify-between gap-3">
-                                    <div className="flex items-center gap-2 text-sm font-semibold text-slate-950 dark:text-white">
-                                        <Sparkles className="h-4 w-4 text-orange-500" />
-                                        Resumo da atualizacao
-                                    </div>
-                                    {isUpdateUnread(selectedUpdate.id, readUpdateIds) ? (
-                                        <span className="rounded-full border border-emerald-300/70 bg-emerald-100 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.14em] text-emerald-700 dark:border-emerald-500/20 dark:bg-emerald-500/10 dark:text-emerald-200">
-                                            Novo
-                                        </span>
-                                    ) : null}
-                                </div>
-                                <div className="space-y-3">
-                                    {quickSummary.map((item) => (
-                                        <div
-                                            key={item}
-                                            className="rounded-2xl border border-orange-100/70 bg-orange-50/70 px-4 py-3 text-sm leading-6 text-slate-700 dark:border-orange-500/10 dark:bg-orange-500/10 dark:text-slate-200"
-                                        >
-                                            {item}
-                                        </div>
-                                    ))}
-                                </div>
-                            </div>
-
-                            <div className="grid gap-4 xl:grid-cols-[minmax(0,1.2fr)_minmax(280px,0.8fr)]">
-                                <div className="rounded-[22px] border border-slate-200/70 bg-white p-4 dark:border-slate-800 dark:bg-slate-950/70 sm:rounded-[24px] sm:p-5">
-                                    <div className="mb-4 flex items-center gap-2 text-sm font-semibold text-slate-950 dark:text-white">
-                                        <FileText className="h-4 w-4 text-orange-500" />
-                                        O que a ONG precisa saber
-                                    </div>
-
-                                    <div className="space-y-3">
-                                        {operationalNotes.map((item) => (
-                                            <div
-                                                key={item}
-                                                className="rounded-2xl border border-slate-200/80 bg-slate-50/80 px-4 py-3 text-sm leading-6 text-slate-600 dark:border-slate-700 dark:bg-slate-900/70 dark:text-slate-300"
-                                            >
-                                                {item}
-                                            </div>
-                                        ))}
-                                    </div>
-                                </div>
-
+                            <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_280px]">
                                 <div className="space-y-4">
-                                    <div className="rounded-[22px] border border-slate-200/70 bg-white p-4 dark:border-slate-800 dark:bg-slate-950/70 sm:rounded-[24px] sm:p-5">
-                                        <div className="mb-4 flex items-center gap-2 text-sm font-semibold text-slate-950 dark:text-white">
-                                            <Sparkles className="h-4 w-4 text-orange-500" />
-                                            Destaques da release
+                                    <div className="rounded-[22px] border border-slate-200/70 bg-white p-4 dark:border-slate-800 dark:bg-slate-950/60 sm:rounded-[24px] sm:p-5">
+                                        <div className="mb-4 flex items-center justify-between gap-3">
+                                            <div className="flex items-center gap-2 text-sm font-semibold text-slate-950 dark:text-white">
+                                                <Sparkles className="h-4 w-4 text-orange-500" />
+                                                Destaques da release
+                                            </div>
+                                            {isUpdateUnread(selectedUpdate.id, readUpdateIds) ? (
+                                                <span className="rounded-full border border-emerald-300/70 bg-emerald-100 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.14em] text-emerald-700 dark:border-emerald-500/20 dark:bg-emerald-500/10 dark:text-emerald-200">
+                                                    Novo
+                                                </span>
+                                            ) : null}
                                         </div>
-                                        <div className="space-y-3">
+                                        <div className="space-y-2.5">
                                             {detailedHighlights.map((highlight) => (
                                                 <div
                                                     key={highlight}
-                                                    className="rounded-2xl border border-orange-100/70 bg-orange-50/70 px-4 py-3 text-sm leading-6 text-slate-700 dark:border-orange-500/10 dark:bg-orange-500/10 dark:text-slate-200"
+                                                    className="rounded-2xl border border-orange-100/70 bg-orange-50/60 px-4 py-3 text-sm leading-6 text-slate-700 dark:border-orange-500/10 dark:bg-orange-500/10 dark:text-slate-200"
                                                 >
                                                     {highlight}
                                                 </div>
@@ -286,7 +250,27 @@ export function SystemUpdatesModal({
                                         </div>
                                     </div>
 
-                                    <div className="rounded-[22px] border border-slate-200/70 bg-white p-4 dark:border-slate-800 dark:bg-slate-950/70 sm:rounded-[24px] sm:p-5">
+                                    <div className="rounded-[22px] border border-slate-200/70 bg-white p-4 dark:border-slate-800 dark:bg-slate-950/60 sm:rounded-[24px] sm:p-5">
+                                        <div className="mb-4 flex items-center gap-2 text-sm font-semibold text-slate-950 dark:text-white">
+                                            <FileText className="h-4 w-4 text-orange-500" />
+                                            O que a ONG precisa saber
+                                        </div>
+
+                                        <div className="space-y-2.5">
+                                            {operationalNotes.map((item) => (
+                                                <div
+                                                    key={item}
+                                                    className="rounded-2xl border border-slate-200/80 bg-slate-50 px-4 py-3 text-sm leading-6 text-slate-600 dark:border-slate-700 dark:bg-slate-900/60 dark:text-slate-300"
+                                                >
+                                                    {item}
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div className="space-y-4">
+                                    <div className="rounded-[22px] border border-slate-200/70 bg-white p-4 dark:border-slate-800 dark:bg-slate-950/60 sm:rounded-[24px] sm:p-5">
                                         <div className="mb-4 flex items-center gap-2 text-sm font-semibold text-slate-950 dark:text-white">
                                             <Wrench className="h-4 w-4 text-orange-500" />
                                             Areas impactadas
@@ -304,7 +288,7 @@ export function SystemUpdatesModal({
                                     </div>
 
                                     {selectedUpdate.attentionNote && !operationalNotes.includes(selectedUpdate.attentionNote) ? (
-                                        <div className="rounded-[22px] border border-blue-200/70 bg-blue-50/80 p-4 dark:border-blue-500/20 dark:bg-blue-500/10 sm:rounded-[24px] sm:p-5">
+                                        <div className="rounded-[22px] border border-blue-200/70 bg-blue-50/70 p-4 dark:border-blue-500/20 dark:bg-blue-500/10 sm:rounded-[24px] sm:p-5">
                                             <div className="mb-3 flex items-center gap-2 text-sm font-semibold text-slate-950 dark:text-white">
                                                 <FileText className="h-4 w-4 text-blue-500" />
                                                 Observacao para a equipe

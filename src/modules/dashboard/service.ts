@@ -296,7 +296,7 @@ export function buildMonthlyTrendLabel(currentMonthCount: number, previousMonthC
     }
 
     if (previousMonthCount === 0) {
-        return `${currentMonthCount} novas conclusoes neste mes`;
+        return `${currentMonthCount} conclusoes no mes`;
     }
 
     const delta = currentMonthCount - previousMonthCount;

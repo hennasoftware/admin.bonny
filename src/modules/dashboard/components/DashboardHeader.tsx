@@ -5,13 +5,15 @@ import type { AnimalRecord } from "@/modules/animals/types/types";
 import { DashboardGlobalSearch } from "./DashboardGlobalSearch";
 
 interface DashboardHeaderProps {
+    userName?: string | null;
     userEmail?: string | null;
+    userRole?: "admin" | "standard" | null;
     animals: AnimalRecord[];
     adopters: AdopterRecord[];
     adoptions: AdoptionRecord[];
 }
 
-export function DashboardHeader({ userEmail, animals, adopters, adoptions }: DashboardHeaderProps) {
+export function DashboardHeader({ userName, userEmail, userRole, animals, adopters, adoptions }: DashboardHeaderProps) {
     const todayLabel = new Intl.DateTimeFormat("pt-BR", {
         weekday: "long",
         day: "2-digit",
@@ -20,8 +22,8 @@ export function DashboardHeader({ userEmail, animals, adopters, adoptions }: Das
     }).format(new Date());
 
     return (
-        <div className="relative mb-8 overflow-hidden rounded-[28px] border border-orange-100/70 bg-white/75 p-5 shadow-[0_20px_80px_-40px_rgb(249_115_22/0.45)] backdrop-blur-xl sm:mb-10 sm:p-6 dark:border-slate-700/50 dark:bg-slate-950/55 md:p-7">
-            <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(249,115,22,0.16),transparent_34%),radial-gradient(circle_at_bottom_left,rgba(251,146,60,0.12),transparent_28%)]" />
+        <div className="relative mb-8 overflow-hidden rounded-[28px] border border-orange-100/70 bg-white/88 p-5 shadow-[0_18px_42px_-34px_rgb(249_115_22/0.28)] sm:mb-10 sm:p-6 dark:border-slate-700/50 dark:bg-slate-950/72 md:p-7">
+            <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(249,115,22,0.10),transparent_30%)]" />
 
             <div className="relative flex flex-col gap-6">
                 <div className="flex flex-col gap-6 xl:flex-row xl:items-end xl:justify-between">
@@ -41,8 +43,10 @@ export function DashboardHeader({ userEmail, animals, adopters, adoptions }: Das
                     <div className="grid gap-3 sm:grid-cols-2 xl:min-w-[29rem]">
                         <div className="rounded-2xl border border-orange-100/70 bg-white/85 px-4 py-3 shadow-sm dark:border-slate-700/60 dark:bg-slate-900/80">
                             <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-gray-400 dark:text-gray-500">Sessao ativa</p>
-                            <p className="mt-2 truncate text-sm font-medium text-gray-950 dark:text-white">
-                                {userEmail ?? "Usuario autenticado"}
+                            <p className="mt-2 truncate text-sm font-semibold text-gray-950 dark:text-white">{userName ?? "Usuario autenticado"}</p>
+                            <p className="mt-1 truncate text-xs text-gray-500 dark:text-gray-400">{userEmail ?? "Sem e-mail informado"}</p>
+                            <p className="mt-2 text-[11px] font-semibold uppercase tracking-[0.16em] text-orange-600 dark:text-orange-300">
+                                {userRole === "admin" ? "Administrador" : "Colaborador"}
                             </p>
                         </div>
 
