@@ -6,6 +6,23 @@ service cloud.firestore {
       return request.auth != null;
     }
 
+    function userProfile() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data;
+    }
+
+    function isAdmin() {
+      return isSignedIn()
+        && exists(/databases/$(database)/documents/users/$(request.auth.uid))
+        && userProfile().role == "admin"
+        && userProfile().status == "approved";
+    }
+
+    function isApproved() {
+      return isSignedIn()
+        && exists(/databases/$(database)/documents/users/$(request.auth.uid))
+        && userProfile().status == "approved";
+    }
+
     function animalExists(animalId) {
       return exists(/databases/$(database)/documents/animals/$(animalId));
     }
@@ -23,49 +40,84 @@ service cloud.firestore {
     }
 
     match /animals/{animalId} {
-      allow read: if isSignedIn();
-      allow create: if isSignedIn()
+      allow read: if isApproved();
+      allow create: if isApproved()
         && request.resource.data.animalCode is string
         && request.resource.data.animalCode.size() > 0;
-      allow update: if isSignedIn()
+      allow update: if isApproved()
         && request.resource.data.animalCode == resource.data.animalCode;
-      allow delete: if isSignedIn();
+      allow delete: if isApproved();
     }
 
     match /adopters/{adopterId} {
-      allow read: if isSignedIn();
-      allow create, update, delete: if isSignedIn();
+      allow read: if isApproved();
+      allow create, update, delete: if isApproved();
     }
 
     match /adoptions/{adoptionId} {
-      allow read: if isSignedIn();
-      allow create: if isSignedIn()
+      allow read: if isApproved();
+      allow create: if isApproved()
         && animalExists(request.resource.data.animalId)
         && adopterExists(request.resource.data.adopterId)
         && animalStatus(request.resource.data.animalId) == "Disponivel"
         && adopterStatus(request.resource.data.adopterId) == "Ativo"
         && request.resource.data.status in ["Em analise", "Agendada", "Concluida"];
-      allow update: if isSignedIn()
+      allow update: if isApproved()
         && resource.data.animalId == request.resource.data.animalId
         && resource.data.adopterId == request.resource.data.adopterId
         && request.resource.data.status in ["Em analise", "Agendada", "Concluida"];
-      allow delete: if isSignedIn() && resource.data.status != "Concluida";
+      allow delete: if isApproved() && resource.data.status != "Concluida";
     }
 
     match /dashboard_monthly/{monthId} {
-      allow read: if isSignedIn();
+      allow read: if isApproved();
     }
 
     match /dashboard_summary/{documentId} {
-      allow read: if isSignedIn();
+      allow read: if isApproved();
     }
 
     match /system_updates/{updateId} {
-      allow read, create, update: if isSignedIn();
+      allow read, create, update: if isApproved();
     }
 
     match /system_counters/{counterId} {
-      allow read, create, update: if isSignedIn();
+      allow read, create, update: if isApproved();
+    }
+
+    match /system_bootstrap/{documentId} {
+      allow read: if isSignedIn();
+      allow create: if isSignedIn()
+        && !exists(/databases/$(database)/documents/system_bootstrap/$(documentId));
+    }
+
+    match /users/{userId} {
+      allow read: if isSignedIn() && (request.auth.uid == userId || isAdmin());
+      allow create: if isSignedIn()
+        && request.auth.uid == userId
+        && !exists(/databases/$(database)/documents/users/$(userId))
+        && request.resource.data.email == request.auth.token.email
+        && request.resource.data.name is string
+        && request.resource.data.role in ["admin", "standard"]
+        && request.resource.data.status in ["pending", "approved"]
+        && (
+          (request.resource.data.status == "pending" && request.resource.data.role == "standard")
+          || (request.resource.data.status == "approved" && request.resource.data.role == "admin")
+        );
+      allow update: if isAdmin();
+    }
+
+    match /systemLogs/{logId} {
+      allow read: if isAdmin();
+      allow create: if isApproved()
+        && request.resource.data.userId == request.auth.uid
+        && request.resource.data.userEmail is string
+        && request.resource.data.userName is string
+        && request.resource.data.action in ["create", "update", "delete"]
+        && (
+          request.resource.data.module in ["animals", "adopters", "adoptions"]
+          || (request.resource.data.module == "users" && isAdmin())
+        );
     }
   }
 }

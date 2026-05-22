@@ -1,11 +1,13 @@
 import { Route, Routes } from "react-router-dom";
-import { LoginPage } from "@/modules/auth";
+import { AdminLogsPage, AdminUsersPage } from "@/modules/admin";
+import { LoginPage, PendingApprovalPage, RegisterPage } from "@/modules/auth";
 import { AnimalsCreatePage, AnimalsListPage } from "@/modules/animals";
 import { AdoptersCreatePage, AdoptersListPage } from "@/modules/adopters";
 import { AdoptionsCreatePage, AdoptionsListPage } from "@/modules/adoptions";
 import { DashboardPage } from "@/modules/dashboard";
 import { ModulePlaceholderPage } from "@/modules/dashboard/ModulePlaceholderPage";
 import { SystemUpdatesSeedPage } from "@/modules/dashboard/SystemUpdatesSeedPage";
+import { AdminRoute } from "./AdminRoute";
 import { AuthRedirect } from "./AuthRedirect";
 import { ProtectedRoute } from "./ProtectedRoute";
 import { RootRedirect } from "./RootRedirect";
@@ -23,6 +25,17 @@ export function AppRoute() {
                     </AuthRedirect>
                 }
             />
+
+            <Route
+                path="/cadastro"
+                element={
+                    <AuthRedirect>
+                        <RegisterPage />
+                    </AuthRedirect>
+                }
+            />
+
+            <Route path="/acesso-pendente" element={<PendingApprovalPage />} />
 
             <Route element={<ProtectedRoute />}>
                 <Route path="/dashboard" element={<DashboardPage />} />
@@ -45,6 +58,11 @@ export function AppRoute() {
                         />
                     }
                 />
+            </Route>
+
+            <Route element={<AdminRoute />}>
+                <Route path="/admin/logs" element={<AdminLogsPage />} />
+                <Route path="/admin/usuarios" element={<AdminUsersPage />} />
             </Route>
 
             {/* <Route path="*" element={<NotFoundPage />} /> */}

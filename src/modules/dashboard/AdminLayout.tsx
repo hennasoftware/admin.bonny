@@ -9,7 +9,7 @@ import {
 } from "@/shared/components/ui";
 import { useTheme } from "@/styles/themes/useTheme";
 import { SystemNotificationButton, SystemUpdatesModal } from "./components";
-import { dashboardSidebarItems } from "./sidebarItems";
+import { getDashboardSidebarItems } from "./sidebarItems";
 import { sortSystemUpdates, type SystemUpdateEntry } from "./systemUpdates";
 import { subscribeSystemUpdates } from "./systemUpdatesService";
 
@@ -20,7 +20,7 @@ interface AdminLayoutProps {
 const READ_UPDATES_STORAGE_KEY = "bonny:read-system-patches";
 
 export function AdminLayout({ children }: AdminLayoutProps) {
-    const { logout } = useAuth();
+    const { logout, profile, role } = useAuth();
     const { theme, toggleTheme } = useTheme();
     const navigate = useNavigate();
     const [updatesModalOpen, setUpdatesModalOpen] = useState(false);
@@ -112,9 +112,18 @@ export function AdminLayout({ children }: AdminLayoutProps) {
                 <SidebarLayout
                     brand="Bonny System"
                     brandCompact="BS"
-                    sections={dashboardSidebarItems}
+                    sections={getDashboardSidebarItems(role)}
                     footer={
                         <div className="space-y-2">
+                            {profile ? (
+                                <div className="rounded-2xl border border-orange-100/80 bg-orange-50/70 px-3 py-3 text-sm dark:border-orange-500/10 dark:bg-orange-500/5">
+                                    <p className="font-semibold text-gray-950 dark:text-white">{profile.name}</p>
+                                    <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">{profile.email}</p>
+                                    <p className="mt-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-orange-600 dark:text-orange-300">
+                                        {profile.role === "admin" ? "Administrador" : "Colaborador"}
+                                    </p>
+                                </div>
+                            ) : null}
                             <SystemNotificationButton
                                 hasUnread={hasUnreadNotification}
                                 unreadCount={unreadCount}

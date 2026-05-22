@@ -3,9 +3,9 @@ import { useAuth } from "@/modules/auth/context/useAuth";
 import { LoadingGlobal} from "@/shared/pages/LoadingGlobal";
 
 export function RootRedirect() {
-    const { user, loading } = useAuth();
+    const { user, profile, loading } = useAuth();
 
     if (loading) return <LoadingGlobal />;
 
-    return <Navigate to={user ? "/dashboard" : "/login"} replace />;
+    return <Navigate to={user ? (profile?.status === "approved" ? "/dashboard" : "/acesso-pendente") : "/login"} replace />;
 }

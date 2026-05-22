@@ -11,7 +11,9 @@ import {
     updateDoc,
     where,
 } from "firebase/firestore";
-import { db } from "@/services/firebase";
+import { getUserProfile } from "@/modules/auth/services/userProfiles";
+import { createSystemLog } from "@/modules/logs/service";
+import { auth, db } from "@/services/firebase";
 import { subscribeCollection } from "@/shared/services/firestoreRealtime";
 import { buildPagedConstraints, getCollectionPage } from "@/shared/utils/pagination";
 import type { AdopterFormState, AdopterRecord, AdopterStatus } from "../types";
@@ -103,7 +105,7 @@ export async function findDuplicateAdopter(values: AdopterFormState, currentAdop
     return null;
 }
 
-export async function createAdopter(values: AdopterFormState): Promise<void> {
+export async function createAdopter(values: AdopterFormState): Promise<string> {
     const duplicate = await findDuplicateAdopter(values);
 
     if (duplicate) {
@@ -116,11 +118,26 @@ export async function createAdopter(values: AdopterFormState): Promise<void> {
         );
     }
 
-    await addDoc(collection(db, COLLECTION_NAME), {
+    const createdRef = await addDoc(collection(db, COLLECTION_NAME), {
         ...buildAdopterPayload(values),
         createdAt: serverTimestamp(),
         updatedAt: serverTimestamp(),
     });
+
+    const currentUser = auth.currentUser;
+    if (currentUser) {
+        const profile = await getUserProfile(currentUser.uid);
+        if (profile) {
+            await createSystemLog(profile, {
+                action: "create",
+                module: "adopters",
+                targetId: createdRef.id,
+                description: `Cadastrou o adotante ${values.name}.`,
+            });
+        }
+    }
+
+    return createdRef.id;
 }
 
 export async function updateAdopter(adopterId: string, values: AdopterFormState): Promise<void> {
@@ -140,9 +157,23 @@ export async function updateAdopter(adopterId: string, values: AdopterFormState)
         ...buildAdopterPayload(values),
         updatedAt: serverTimestamp(),
     });
+
+    const currentUser = auth.currentUser;
+    if (currentUser) {
+        const profile = await getUserProfile(currentUser.uid);
+        if (profile) {
+            await createSystemLog(profile, {
+                action: "update",
+                module: "adopters",
+                targetId: adopterId,
+                description: `Editou o cadastro do adotante ${values.name}.`,
+            });
+        }
+    }
 }
 
 export async function removeAdopter(adopterId: string): Promise<void> {
+    const adopter = await getAdopterById(adopterId);
     const relatedAdoptions = await getDocs(query(collection(db, "adoptions"), where("adopterId", "==", adopterId)));
 
     if (!relatedAdoptions.empty) {
@@ -150,6 +181,19 @@ export async function removeAdopter(adopterId: string): Promise<void> {
     }
 
     await deleteDoc(doc(db, COLLECTION_NAME, adopterId));
+
+    const currentUser = auth.currentUser;
+    if (currentUser) {
+        const profile = await getUserProfile(currentUser.uid);
+        if (profile && adopter) {
+            await createSystemLog(profile, {
+                action: "delete",
+                module: "adopters",
+                targetId: adopterId,
+                description: `Excluiu o adotante ${adopter.name}.`,
+            });
+        }
+    }
 }
 
 export function matchesSearch(adopter: AdopterRecord, search: string): boolean {

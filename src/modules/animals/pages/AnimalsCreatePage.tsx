@@ -17,7 +17,7 @@ export function AnimalsCreatePage() {
         setIsSubmitting(true);
 
         try {
-            const animalCode = await createAnimal(values);
+            const { animalCode } = await createAnimal(values);
             showToast(`Animal cadastrado com sucesso. Codigo: ${animalCode}.`);
             setFormKey((current) => current + 1);
         } catch {

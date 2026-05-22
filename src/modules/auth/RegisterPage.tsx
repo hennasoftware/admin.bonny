@@ -2,38 +2,43 @@ import { useState, type FormEvent } from "react";
 import { FirebaseError } from "firebase/app";
 import { Helmet } from "react-helmet-async";
 import { motion } from "framer-motion";
-import { Heart, Lock, Mail, Moon, Sun } from "lucide-react";
+import { Heart, Lock, Mail, Moon, Sun, UserRound } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
-import { useAuth } from "@/modules/auth/context/useAuth";
+import { registerUser } from "@/modules/auth/services/userProfiles";
 import { Button, FormField } from "@/shared/components/ui";
 import { useTheme } from "@/styles/themes/useTheme";
 
 interface FormErrors {
+    name?: string;
     email?: string;
     password?: string;
+    confirmPassword?: string;
     general?: string;
 }
 
-export function LoginPage() {
+export function RegisterPage() {
     const { theme, toggleTheme } = useTheme();
-    const { login } = useAuth();
     const navigate = useNavigate();
-
+    const [name, setName] = useState("");
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
+    const [confirmPassword, setConfirmPassword] = useState("");
     const [errors, setErrors] = useState<FormErrors>({});
     const [isLoading, setIsLoading] = useState(false);
 
     const validateForm = () => {
-        const newErrors: FormErrors = {};
+        const nextErrors: FormErrors = {};
 
-        if (!email.trim()) newErrors.email = "Email e obrigatorio";
-        else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) newErrors.email = "Email invalido";
+        if (!name.trim()) nextErrors.name = "Nome e obrigatorio";
+        if (!email.trim()) nextErrors.email = "Email e obrigatorio";
+        else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) nextErrors.email = "Email invalido";
+        if (!password) nextErrors.password = "Senha e obrigatoria";
+        else if (password.length < 6) nextErrors.password = "Use pelo menos 6 caracteres";
+        if (!confirmPassword) nextErrors.confirmPassword = "Confirme a senha";
+        else if (confirmPassword !== password) nextErrors.confirmPassword = "As senhas nao coincidem";
 
-        if (!password) newErrors.password = "Senha e obrigatoria";
-
-        setErrors(newErrors);
-        return Object.keys(newErrors).length === 0;
+        setErrors(nextErrors);
+        return Object.keys(nextErrors).length === 0;
     };
 
     const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
@@ -44,15 +49,19 @@ export function LoginPage() {
         setErrors({});
 
         try {
-            await login(email, password);
-            navigate("/dashboard");
+            await registerUser({
+                name,
+                email,
+                password,
+            });
+            navigate("/acesso-pendente", { replace: true });
         } catch (error) {
-            let message = "Erro ao fazer login";
+            let message = "Nao foi possivel concluir o cadastro";
             const errorCode = error instanceof FirebaseError ? error.code : undefined;
 
-            if (errorCode === "auth/user-not-found") message = "Usuario nao encontrado";
-            if (errorCode === "auth/wrong-password") message = "Senha incorreta";
+            if (errorCode === "auth/email-already-in-use") message = "Ja existe uma conta com esse email";
             if (errorCode === "auth/invalid-email") message = "Email invalido";
+            if (errorCode === "auth/weak-password") message = "Senha fraca";
 
             setErrors({ general: message });
         } finally {
@@ -73,8 +82,7 @@ export function LoginPage() {
     return (
         <>
             <Helmet>
-                <title>Bonny | Login</title>
-                <meta name="description" content="Faca login no sistema de gestao de adocao de animais Bonny" />
+                <title>Bonny | Solicitar acesso</title>
             </Helmet>
 
             <div className="relative flex min-h-screen items-center justify-center overflow-hidden px-4 py-8">
@@ -84,12 +92,11 @@ export function LoginPage() {
                     type="button"
                     onClick={toggleTheme}
                     className="absolute right-4 top-4 rounded-2xl border border-white/70 bg-white/80 p-3 text-gray-600 shadow-[0_14px_40px_-28px_rgb(15_23_42/0.35)] backdrop-blur transition-colors hover:text-gray-950 dark:border-slate-700/60 dark:bg-slate-950/70 dark:text-gray-300 dark:hover:text-white"
-                    title={`Mudar para tema ${theme === "light" ? "escuro" : "claro"}`}
                 >
                     {theme === "light" ? <Moon className="h-5 w-5" /> : <Sun className="h-5 w-5" />}
                 </button>
 
-                <motion.div variants={containerVariants} initial="hidden" animate="visible" className="relative w-full max-w-md">
+                <motion.div variants={containerVariants} initial="hidden" animate="visible" className="relative w-full max-w-lg">
                     <motion.div
                         variants={itemVariants}
                         className="rounded-[28px] border border-white/70 bg-white/82 p-6 shadow-[0_24px_90px_-40px_rgb(15_23_42/0.45)] backdrop-blur-sm dark:border-slate-700/60 dark:bg-slate-950/70 sm:p-8"
@@ -100,34 +107,35 @@ export function LoginPage() {
                             </div>
                             <div>
                                 <h1 className="text-2xl font-semibold tracking-tight text-gray-950 dark:text-white">Bonny</h1>
-                                <p className="text-sm text-gray-500 dark:text-gray-400">Painel administrativo</p>
+                                <p className="text-sm text-gray-500 dark:text-gray-400">Solicitacao de acesso</p>
                             </div>
                         </motion.div>
 
-                        <motion.div variants={itemVariants}>
-                            <h2 className="text-xl font-semibold tracking-tight text-gray-950 dark:text-white">Bem-vindo de volta</h2>
-                            <p className="mt-2 text-sm leading-6 text-gray-600 dark:text-gray-400">
-                                Faca login para acessar o sistema de gestao de adocao.
-                            </p>
-                        </motion.div>
-
                         {errors.general ? (
-                            <motion.div
-                                variants={itemVariants}
-                                className="mt-5 flex items-center gap-3 rounded-2xl border border-red-200 bg-red-50/90 px-4 py-3 text-red-700 dark:border-red-500/20 dark:bg-red-500/10 dark:text-red-300"
-                            >
-                                <div className="h-2.5 w-2.5 rounded-full bg-red-500" />
-                                <p className="text-sm">{errors.general}</p>
-                            </motion.div>
+                            <div className="mt-5 rounded-2xl border border-red-200 bg-red-50/90 px-4 py-3 text-sm text-red-700 dark:border-red-500/20 dark:bg-red-500/10 dark:text-red-300">
+                                {errors.general}
+                            </div>
                         ) : null}
 
                         <motion.form onSubmit={handleSubmit} className="mt-6 space-y-4">
                             <motion.div variants={itemVariants}>
                                 <FormField
+                                    label="Nome"
+                                    icon={UserRound}
+                                    placeholder="Seu nome completo"
+                                    value={name}
+                                    onChange={(event) => setName(event.target.value)}
+                                    error={errors.name}
+                                    disabled={isLoading}
+                                />
+                            </motion.div>
+
+                            <motion.div variants={itemVariants}>
+                                <FormField
                                     type="email"
                                     label="Email"
-                                    placeholder="seu@email.com"
                                     icon={Mail}
+                                    placeholder="seu@email.com"
                                     value={email}
                                     onChange={(event) => setEmail(event.target.value)}
                                     error={errors.email}
@@ -139,8 +147,8 @@ export function LoginPage() {
                                 <FormField
                                     type="password"
                                     label="Senha"
-                                    placeholder="Sua senha"
                                     icon={Lock}
+                                    placeholder="Crie uma senha"
                                     showPasswordToggle
                                     value={password}
                                     onChange={(event) => setPassword(event.target.value)}
@@ -149,30 +157,36 @@ export function LoginPage() {
                                 />
                             </motion.div>
 
-                            <motion.div variants={itemVariants} className="flex justify-end">
-                                <p className="text-sm text-gray-500 dark:text-gray-400">Recuperacao de senha em breve.</p>
+                            <motion.div variants={itemVariants}>
+                                <FormField
+                                    type="password"
+                                    label="Confirmar senha"
+                                    icon={Lock}
+                                    placeholder="Repita a senha"
+                                    showPasswordToggle
+                                    value={confirmPassword}
+                                    onChange={(event) => setConfirmPassword(event.target.value)}
+                                    error={errors.confirmPassword}
+                                    disabled={isLoading}
+                                />
                             </motion.div>
 
                             <motion.div variants={itemVariants}>
                                 <Button type="submit" variant="primary" isLoading={isLoading} disabled={isLoading} className="w-full">
-                                    {isLoading ? "Entrando..." : "Entrar"}
+                                    {isLoading ? "Enviando solicitacao..." : "Solicitar acesso"}
                                 </Button>
                             </motion.div>
                         </motion.form>
 
                         <motion.div variants={itemVariants} className="mt-6 border-t border-slate-200/70 pt-6 text-center dark:border-slate-800">
                             <p className="text-sm text-gray-600 dark:text-gray-400">
-                                Nao tem uma conta?{" "}
-                                <Link to="/cadastro" className="font-semibold text-orange-600 transition-colors hover:text-orange-700 dark:text-orange-300 dark:hover:text-orange-200">
-                                    Solicitar acesso
+                                Ja possui conta?{" "}
+                                <Link to="/login" className="font-semibold text-orange-600 transition-colors hover:text-orange-700 dark:text-orange-300 dark:hover:text-orange-200">
+                                    Fazer login
                                 </Link>
                             </p>
                         </motion.div>
                     </motion.div>
-
-                    <motion.p variants={itemVariants} className="mt-6 text-center text-xs text-gray-500 dark:text-gray-400">
-                        © 2026 · Bonny - Sistema de Gestao de Adocao
-                    </motion.p>
                 </motion.div>
             </div>
         </>

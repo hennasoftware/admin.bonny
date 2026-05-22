@@ -62,4 +62,20 @@ export const SYSTEM_UPDATES_SEED: SystemUpdateEntry[] = [
         impactedAreas: ["Dashboard", "Animais", "Adotantes", "Adocoes", "Operacao diaria"],
         attentionNote: "A equipe pode usar a busca global para chegar mais rapido aos registros e o sistema passa a evitar cadastros repetidos de adotantes.",
     },
+    {
+        id: "release-1.4.0",
+        version: "1.4.0",
+        title: "Controle de acesso por aprovacao e auditoria administrativa",
+        summary: "O Bonny agora separa colaboradores e administradores, exige aprovacao de acesso e registra logs das acoes principais do sistema.",
+        publishedAt: "2026-05-22T10:00:00-03:00",
+        kind: "feature",
+        highlights: [
+            "Novo fluxo de cadastro com solicitacao de acesso e aprovacao administrativa.",
+            "Area exclusiva para administradores aprovarem usuarios e definirem o cargo de cada conta.",
+            "Tela de logs com filtros e paginacao para acompanhar acoes em animais, adotantes, adocoes e usuarios.",
+            "Rotas protegidas por perfil aprovado e navegacao adaptada ao cargo do usuario autenticado.",
+        ],
+        impactedAreas: ["Autenticacao", "Usuarios", "Logs", "Seguranca", "Navegacao"],
+        attentionNote: "Somente contas aprovadas podem operar o sistema. Novos cadastros entram como solicitacao pendente ate validacao de um administrador.",
+    },
 ];

@@ -8,11 +8,11 @@ interface AuthRedirectProps {
 }
 
 export function AuthRedirect({ children }: AuthRedirectProps) {
-    const { user, loading } = useAuth();
+    const { user, profile, loading } = useAuth();
 
     if (loading) return <LoadingGlobal />;
 
-    if (user) return <Navigate to="/dashboard" replace />;
+    if (user) return <Navigate to={profile?.status === "approved" ? "/dashboard" : "/acesso-pendente"} replace />;
 
     return children;
 }

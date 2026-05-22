@@ -9,7 +9,9 @@ import {
     serverTimestamp,
     where,
 } from "firebase/firestore";
-import { db } from "@/services/firebase";
+import { getUserProfile } from "@/modules/auth/services/userProfiles";
+import { createSystemLog } from "@/modules/logs/service";
+import { auth, db } from "@/services/firebase";
 import { subscribeCollection } from "@/shared/services/firestoreRealtime";
 import { buildPagedConstraints, getCollectionPage } from "@/shared/utils/pagination";
 import type { AdopterStatus } from "@/modules/adopters/types";
@@ -81,10 +83,13 @@ export async function getAdoptionsByStatus(status?: AdoptionStatus | "Todos") {
 }
 
 export async function createAdoption(payload: CreateAdoptionPayload) {
+    let createdAdoptionId = "";
+
     await runTransaction(db, async (transaction) => {
         const animalRef = doc(db, "animals", payload.animalId);
         const adopterRef = doc(db, "adopters", payload.adopterId);
         const adoptionRef = doc(collection(db, COLLECTION));
+        createdAdoptionId = adoptionRef.id;
 
         const [animalSnap, adopterSnap] = await Promise.all([transaction.get(animalRef), transaction.get(adopterRef)]);
 
@@ -124,9 +129,26 @@ export async function createAdoption(payload: CreateAdoptionPayload) {
             updatedAt: serverTimestamp(),
         });
     });
+
+    const currentUser = auth.currentUser;
+    if (currentUser) {
+        const profile = await getUserProfile(currentUser.uid);
+        if (profile) {
+            await createSystemLog(profile, {
+                action: "create",
+                module: "adoptions",
+                targetId: createdAdoptionId,
+                description: `Registrou a adocao de ${payload.animalName} para ${payload.adopterName}.`,
+            });
+        }
+    }
+
+    return createdAdoptionId;
 }
 
 export async function updateAdoptionStatus(adoptionId: string, nextStatus: AdoptionStatus): Promise<void> {
+    const adoptionSnapshot = await getDoc(doc(db, COLLECTION, adoptionId));
+
     await runTransaction(db, async (transaction) => {
         const adoptionRef = doc(db, COLLECTION, adoptionId);
         const adoptionSnap = await transaction.get(adoptionRef);
@@ -148,6 +170,20 @@ export async function updateAdoptionStatus(adoptionId: string, nextStatus: Adopt
             updatedAt: serverTimestamp(),
         });
     });
+
+    const currentUser = auth.currentUser;
+    const adoptionData = adoptionSnapshot.data() as AdoptionRecord | undefined;
+    if (currentUser) {
+        const profile = await getUserProfile(currentUser.uid);
+        if (profile && adoptionData) {
+            await createSystemLog(profile, {
+                action: "update",
+                module: "adoptions",
+                targetId: adoptionId,
+                description: `Atualizou a adocao de ${adoptionData.animalName} para ${adoptionData.adopterName} com status ${nextStatus}.`,
+            });
+        }
+    }
 }
 
 export async function removeAdoption(adoptionId: string): Promise<void> {
@@ -182,6 +218,19 @@ export async function removeAdoption(adoptionId: string): Promise<void> {
             updatedAt: serverTimestamp(),
         });
     });
+
+    const currentUser = auth.currentUser;
+    if (currentUser) {
+        const profile = await getUserProfile(currentUser.uid);
+        if (profile) {
+            await createSystemLog(profile, {
+                action: "delete",
+                module: "adoptions",
+                targetId: adoptionId,
+                description: `Excluiu a adocao de ${adoption.animalName} para ${adoption.adopterName}.`,
+            });
+        }
+    }
 }
 
 export function getAnimalStatusForAdoptionStatus(status: AdoptionStatus): AnimalStatus {

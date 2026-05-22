@@ -11,7 +11,9 @@ import {
     updateDoc,
     where,
 } from "firebase/firestore";
-import { db } from "@/services/firebase";
+import { getUserProfile } from "@/modules/auth/services/userProfiles";
+import { createSystemLog } from "@/modules/logs/service";
+import { auth, db } from "@/services/firebase";
 import { subscribeCollection } from "@/shared/services/firestoreRealtime";
 import { buildPagedConstraints, getCollectionPage } from "@/shared/utils/pagination";
 import type { AnimalFormState, AnimalRecord, AnimalStatus } from "../types/types";
@@ -65,9 +67,11 @@ export async function getAnimalById(animalId: string) {
 
 export async function createAnimal(values: AnimalFormState) {
     let generatedAnimalCode = "";
+    let createdAnimalId = "";
 
     await runTransaction(db, async (transaction) => {
         const animalRef = doc(animalsCollection);
+        createdAnimalId = animalRef.id;
         const counterSnap = await transaction.get(animalCounterRef);
         const currentValue = Number((counterSnap.data() as { currentValue?: unknown } | undefined)?.currentValue) || 0;
         const nextValue = currentValue + 1;
@@ -90,7 +94,20 @@ export async function createAnimal(values: AnimalFormState) {
         });
     });
 
-    return generatedAnimalCode;
+    const currentUser = auth.currentUser;
+    if (currentUser) {
+        const profile = await getUserProfile(currentUser.uid);
+        if (profile) {
+            await createSystemLog(profile, {
+                action: "create",
+                module: "animals",
+                targetId: createdAnimalId,
+                description: `Cadastrou o animal ${values.name} (${generatedAnimalCode}).`,
+            });
+        }
+    }
+
+    return { animalId: createdAnimalId, animalCode: generatedAnimalCode };
 }
 
 export async function updateAnimal(animalId: string, values: AnimalFormState) {
@@ -98,9 +115,23 @@ export async function updateAnimal(animalId: string, values: AnimalFormState) {
         ...values,
         updatedAt: serverTimestamp(),
     });
+
+    const currentUser = auth.currentUser;
+    if (currentUser) {
+        const profile = await getUserProfile(currentUser.uid);
+        if (profile) {
+            await createSystemLog(profile, {
+                action: "update",
+                module: "animals",
+                targetId: animalId,
+                description: `Editou o cadastro do animal ${values.name}.`,
+            });
+        }
+    }
 }
 
 export async function removeAnimal(animalId: string) {
+    const animal = await getAnimalById(animalId);
     const relatedAdoptions = await getDocs(query(collection(db, "adoptions"), where("animalId", "==", animalId)));
 
     if (!relatedAdoptions.empty) {
@@ -108,6 +139,19 @@ export async function removeAnimal(animalId: string) {
     }
 
     await deleteDoc(doc(db, COLLECTION_NAME, animalId));
+
+    const currentUser = auth.currentUser;
+    if (currentUser) {
+        const profile = await getUserProfile(currentUser.uid);
+        if (profile && animal) {
+            await createSystemLog(profile, {
+                action: "delete",
+                module: "animals",
+                targetId: animalId,
+                description: `Excluiu o animal ${animal.name}${animal.animalCode ? ` (${animal.animalCode})` : ""}.`,
+            });
+        }
+    }
 }
 
 export function toAnimalFormState(animal: AnimalRecord): AnimalFormState {
