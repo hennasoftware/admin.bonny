@@ -23,7 +23,7 @@ Centralizar o controle de animais, adotantes e processos de adocao, substituindo
 - Rotas protegidas por autenticacao, aprovacao e permissao administrativa
 - Dashboard com indicadores, grafico mensal, busca global e central de atualizacoes
 - Modulos de animais, adotantes e adocoes com cadastro, edicao e exclusao
-- Auditoria administrativa com logs filtraveis por usuario, modulo e acao
+- Auditoria administrativa com logs filtraveis por usuario, modulo e ação
 - Alternancia entre tema claro e escuro
 
 ## Execucao local
@@ -37,7 +37,7 @@ npm run dev
 
 O Bonny possui uma central interna de atualizacoes exibida no dashboard para comunicar novas releases a equipe.
 
-- Os dados sao definidos em `src/modules/dashboard/systemUpdatesSeedData.ts`
+- Os dados são definidos em `src/modules/dashboard/systemUpdatesSeedData.ts`
 - A publicacao no Firestore e feita pela tela protegida `__internal/system-updates-sync-9x4k`
 - Cada release registra versao, titulo, resumo, destaques, areas impactadas e observacoes operacionais
 
